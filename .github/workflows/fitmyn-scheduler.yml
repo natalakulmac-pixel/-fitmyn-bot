@@ -1,1 +1,23 @@
+name: FitMyN scheduler
 
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  wake-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wake FitMyN and send due messages
+        env:
+          CRON_SECRET: ${{ secrets.FITMYN_CRON_SECRET }}
+        run: |
+          curl --fail --silent --show-error \
+            --max-time 180 \
+            --retry 2 \
+            --retry-delay 10 \
+            -X POST \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            https://fitmyn-bot.onrender.com/cron/due
