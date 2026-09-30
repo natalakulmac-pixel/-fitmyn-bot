@@ -258,6 +258,7 @@ APP_CURATED_MEAL_IDS = {mid for ids in APP_CURATED_WEEK_IDS.values() for mid in 
 # Only audited dish photos are assigned. Unknown/unverified meals intentionally use None:
 # the UI renders a neutral placeholder instead of showing another dish.
 APP_MEAL_IMAGES = {
+    "proteinChickenBuckwheat": "https://www.arise-app.com/images/dishes/ru/grecka-s-kuricej-i-ovosami-s-ogurcami-t6is4x.webp",
     "proteinCurdEgg": "https://nowcookthis.com/wp-content/uploads/2025/05/breakfast-cottage-cheese-toast-with-egg-1a.jpg",
     "proteinOmeletCurd": "https://cdn.shopify.com/s/files/1/0066/4295/8420/files/callekocht_omelette_selbstgemacht_600x600.jpg?v=1770793473",
     "proteinChickenEgg": "https://cdn.abo.media/upload/article/bstk5dgrxaxkfzphp49x.jpg",
