@@ -995,85 +995,16 @@ async def _upgrade_app_week_plan_with_ai(user_id: int, start_date, fallback_plan
 async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool = False):
     local_date = local_date or await user_local_date(user_id)
     start_date = app_week_start(local_date)
-    end_date = start_date + timedelta(days=6)
-
-    existing = await db_fetchrow(
-        "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-        user_id, start_date
-    )
-    if existing:
-        existing_plan = decode_app_plan(existing["plan_json"])
-        if valid_app_week_plan(existing_plan) and str(existing["source"] or "").startswith("v22-unified"):
-            return existing
-        if valid_app_week_plan(existing_plan):
-            profile = await get_profile(user_id)
-            fresh_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
-            await db_execute(
-                """UPDATE app_week_plans SET plan_json=$3::jsonb, source='v22-unified', updated_at=$4
-                   WHERE telegram_id=$1 AND start_date=$2""",
-                user_id, start_date, json.dumps(fresh_plan), now_utc(),
-            )
-            return await db_fetchrow("SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2", user_id, start_date)
-        # Миграция старого плана v7: сразу заменяем его на новую библиотеку из 28 уникальных блюд.
-        profile = await get_profile(user_id)
-        fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
-        await db_execute(
-            """UPDATE app_week_plans
-            SET plan_json=$3::jsonb, source='v22-unified', updated_at=$4
-            WHERE telegram_id=$1 AND start_date=$2""",
-            user_id, start_date, json.dumps(fallback_plan), now_utc(),
-        )
-        task = asyncio.create_task(_upgrade_app_week_plan_with_ai(user_id, start_date, fallback_plan, existing_plan))
-        _update_tasks.add(task)
-        task.add_done_callback(_update_tasks.discard)
-        return await db_fetchrow(
-            "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-            user_id, start_date
-        )
-
-    previous_row = await db_fetchrow(
-        """
-        SELECT plan_json FROM app_week_plans
-        WHERE telegram_id=$1 AND start_date < $2
-        ORDER BY start_date DESC
-        LIMIT 1
-        """,
-        user_id, start_date
-    )
-    previous_plan = decode_app_plan(previous_row["plan_json"]) if previous_row else None
+    existing = await get_app_week_plan(user_id, local_date)
+    if existing and valid_app_week_plan(decode_app_plan(existing["plan_json"])):
+        return existing
     profile = await get_profile(user_id)
-    fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
-
-    inserted = await db_fetchrow(
-        """
-        INSERT INTO app_week_plans
-            (telegram_id, start_date, end_date, plan_json, source, created_at, updated_at)
-        VALUES ($1,$2,$3,$4::jsonb,'pending',$5,$5)
-        ON CONFLICT(telegram_id, start_date) DO NOTHING
-        RETURNING *
-        """,
-        user_id, start_date, end_date, json.dumps(fallback_plan), now_utc()
-    )
-    if not inserted:
-        return await db_fetchrow(
-            "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-            user_id, start_date
-        )
-
-    if wait_for_ai:
-        await _upgrade_app_week_plan_with_ai(user_id, start_date, fallback_plan, previous_plan)
-        return await db_fetchrow(
-            "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-            user_id, start_date
-        )
-
-    task = asyncio.create_task(
-        _upgrade_app_week_plan_with_ai(user_id, start_date, fallback_plan, previous_plan)
-    )
-    _update_tasks.add(task)
-    task.add_done_callback(_update_tasks.discard)
-    return inserted
-
+    plan = fallback_app_week_plan(user_id,start_date,goal_mode=app_goal_mode(profile))
+    await db_execute("""INSERT INTO app_week_plans(telegram_id,start_date,end_date,plan_json,source,created_at,updated_at)
+        VALUES($1,$2,$3,$4::jsonb,'v27-unified',$5,$5)
+        ON CONFLICT(telegram_id,start_date) DO UPDATE SET plan_json=EXCLUDED.plan_json,source=EXCLUDED.source,updated_at=EXCLUDED.updated_at""",
+        user_id,start_date,start_date+timedelta(days=6),json.dumps(plan),now_utc())
+    return await get_app_week_plan(user_id,local_date)
 
 async def regenerate_app_week_plan(user_id: int, local_date=None):
     local_date = local_date or await user_local_date(user_id)
@@ -1167,6 +1098,9 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
             idx = int(hashlib.sha256(seed_text.encode()).hexdigest()[:12], 16) % len(candidates)
             new_id = candidates[idx]
 
+    for other_day in range(7):
+        if other_day != day_index and plan[other_day][meal_index] == new_id:
+            plan[other_day][meal_index] = old_id
     plan[day_index][meal_index] = new_id
     await db_execute(
         """
@@ -2158,21 +2092,24 @@ async def delete_me(message: Message, state: FSMContext):
     if not pool:
         return
     uid = message.from_user.id
+    try:
+        await delete_user_data(uid)
+    except Exception:
+        logger.exception("Account deletion failed")
+        await message.answer("Не удалось удалить данные или отменить автопродление. Попробуй позже или напиши /paysupport.")
+        return
+    await message.answer("Твои данные удалены, автопродление отключено. Чтобы начать заново — /start.")
+
+async def delete_user_data(uid):
     subscription = await db_fetchrow("SELECT * FROM app_subscriptions WHERE telegram_id=$1", uid)
     if subscription and subscription["auto_renew"] and subscription["telegram_payment_charge_id"]:
-        try:
-            await bot.edit_user_star_subscription(user_id=uid, telegram_payment_charge_id=subscription["telegram_payment_charge_id"], is_canceled=True)
-        except Exception:
-            logger.exception("Cancellation before deletion failed")
-            await message.answer("Не удалось отменить автопродление. Данные пока сохранены, чтобы не потерять доступ к отмене. Используй /cancel_subscription или /paysupport.")
-            return
+        await bot.edit_user_star_subscription(user_id=uid, telegram_payment_charge_id=subscription["telegram_payment_charge_id"], is_canceled=True)
     async with pool.acquire() as conn:
         async with conn.transaction():
             for table in ("notification_log", "notification_settings", "weekly_meal_plans", "app_week_plans", "app_goal_settings", "app_weight_log", "app_water_log", "app_workout_log", "app_profile_photos", "app_daily_state", "app_payments", "app_subscriptions", "checkins", "messages", "profiles", "users"):
                 await conn.execute(f"DELETE FROM {table} WHERE telegram_id=$1", uid)
             await conn.execute("DELETE FROM bot_fsm WHERE user_id=$1", uid)
-    await state.clear()
-    await message.answer("Твои данные удалены, автопродление отключено. Чтобы начать заново — /start.")
+            await conn.execute("""DELETE FROM telegram_inbox WHERE (payload->'message'->'from'->>'id')=$1 OR (payload->'callback_query'->'from'->>'id')=$1""",str(uid))
 
 @router.message(Command("terms"))
 async def subscription_terms(message: Message):
@@ -2945,6 +2882,55 @@ async def on_cleanup(app: web.Application):
         await pool.close()
 
 
+
+async def api_app_delete(request):
+    uid = int(app_request_user(request)["id"])
+    body = await request.json()
+    if body.get("confirm") != "DELETE":
+        return web.json_response({"error":"confirmation_required"},status=400)
+    try:
+        await delete_user_data(uid)
+    except Exception:
+        logger.exception("Mini App account deletion failed")
+        return web.json_response({"error":"delete_failed"},status=503)
+    return web.json_response({"ok":True})
+
+async def api_app_profile(request):
+    uid = int(app_request_user(request)["id"])
+    body = await request.json()
+    keys = ("name","age","sex","height","goal","activity","frequency","equipment","restrictions","food","sleep")
+    values = [str(body.get(k,"")).strip()[:500] for k in keys]
+    if not values[0] or not values[1].isdigit() or not 18<=int(values[1])<=100:
+        return web.json_response({"error":"bad_profile"},status=400)
+    try:
+        if not 100<=float(values[3].replace(",","."))<=250:
+            raise ValueError()
+    except ValueError:
+        return web.json_response({"error":"bad_height"},status=400)
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute("UPDATE profiles SET "+",".join(k+"=$"+str(i+2) for i,k in enumerate(keys))+",updated_at=now() WHERE telegram_id=$1",uid,*values)
+            await conn.execute("DELETE FROM app_week_plans WHERE telegram_id=$1",uid)
+    return web.json_response({"ok":True})
+
+async def api_app_settings(request):
+    uid = int(app_request_user(request)["id"])
+    body = await request.json()
+    morning = str(body.get("morning_time","08:00"))
+    evening = str(body.get("evening_time","20:30"))
+    tz = str(body.get("timezone","Europe/Moscow"))
+    try:
+        for value in (morning,evening):
+            if not re.fullmatch(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]",value):
+                raise ValueError()
+        ZoneInfo(tz)
+    except (ValueError,ZoneInfoNotFoundError):
+        return web.json_response({"error":"bad_settings"},status=400)
+    await ensure_notification_settings(uid)
+    await db_execute("UPDATE notification_settings SET morning_time=$2,evening_time=$3,timezone=$4,enabled=$5,updated_at=now() WHERE telegram_id=$1",uid,morning,evening,tz,bool(body.get("enabled",True)))
+    return web.json_response({"ok":True})
+
+
 _rate_windows = {}
 @web.middleware
 async def app_access_middleware(request, handler):
@@ -2967,7 +2953,7 @@ async def app_access_middleware(request, handler):
                 _rate_windows.pop(old, None)
         if _rate_windows[key] > 60:
             return web.json_response({"error":"rate_limited"}, status=429, headers={"Retry-After":"60"})
-        if path not in ("/api/app/bootstrap", "/api/app/subscription/checkout", "/api/app/weight/history") and not await subscription_has_access(uid):
+        if path not in ("/api/app/bootstrap", "/api/app/subscription/checkout", "/api/app/weight/history", "/api/app/delete", "/api/app/settings", "/api/app/profile") and not await subscription_has_access(uid):
             return web.json_response({"error":"subscription_required"}, status=402)
     try:
         response = await handler(request)
@@ -2996,6 +2982,9 @@ async def api_app_state(request):
 
 def create_app():
     app = web.Application(middlewares=[app_access_middleware], client_max_size=1500000)
+    app.router.add_post("/api/app/delete", api_app_delete)
+    app.router.add_post("/api/app/profile", api_app_profile)
+    app.router.add_post("/api/app/settings", api_app_settings)
     app.router.add_get("/api/app/state", api_app_state)
     app.router.add_post("/api/app/state", api_app_state)
     app.router.add_get("/", health)
