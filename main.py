@@ -77,7 +77,7 @@ MINI_APP_PATCH = r"""
  });
 })();
 </script>
-<script src="/static/nutrition_app.js?v=v22-unified-nutrition-1"></script>\n<script src="/static/progress_sync.js?v=v24-sync-fixes-1"></script>\n<script src="/static/progress_sync.js?v=v24-sync-fixes-1"></script>
+<script src="/static/nutrition_app.js?v=v22-unified-nutrition-1"></script>
 <script>
 (()=>{
  const PRICE=350;
