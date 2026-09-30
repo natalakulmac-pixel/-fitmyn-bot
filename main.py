@@ -77,7 +77,7 @@ MINI_APP_PATCH = r"""
  });
 })();
 </script>
-<script src="/static/nutrition_app.js?v=v22-unified-nutrition-1"></script>\n<script src="/static/progress_sync.js?v=v24-sync-fixes-1"></script>
+<script src="/static/nutrition_app.js?v=v22-unified-nutrition-1"></script>\n<script src="/static/progress_sync.js?v=v24-sync-fixes-1"></script>\n<script src="/static/progress_sync.js?v=v24-sync-fixes-1"></script>
 <script>
 (()=>{
  const PRICE=350;
@@ -2944,7 +2944,7 @@ def create_app():
     app.router.add_get("/health", health)
     app.router.add_get("/app", mini_app_index)
     app.router.add_get("/app/", mini_app_index)
-    app.router.add_get("/static/nutrition_app.js", nutrition_app_js)\n    app.router.add_get("/static/progress_sync.js", lambda request: web.FileResponse("progress_sync.js", headers={"Cache-Control": "no-store"}))
+    app.router.add_get("/static/nutrition_app.js", nutrition_app_js)\n    app.router.add_get("/static/progress_sync.js", lambda request: web.FileResponse("progress_sync.js", headers={"Cache-Control": "no-store"}))\n    app.router.add_get("/static/progress_sync.js", lambda request: web.FileResponse("progress_sync.js", headers={"Cache-Control": "no-store"}))
     app.router.add_get("/api/app/bootstrap", api_app_bootstrap)
     app.router.add_post("/api/app/goal", api_app_set_goal)
     app.router.add_post("/api/app/weight", api_app_set_weight)
