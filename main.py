@@ -333,34 +333,126 @@ UPDATE_DEDUPE_TTL = 600
 
 APP_MEAL_TYPE_ORDER = ["Завтрак", "Обед", "Перекус", "Ужин"]
 APP_MEAL_CATALOG = {
-    "oatmeal": {"type": "Завтрак", "name": "Овсянка с ягодами и орехами", "kcal": 420, "cook": 10},
-    "omeletSpinach": {"type": "Завтрак", "name": "Омлет со шпинатом и томатами", "kcal": 360, "cook": 12},
-    "yogurtGranola": {"type": "Завтрак", "name": "Греческий йогурт с гранолой и ягодами", "kcal": 380, "cook": 5},
-    "avocadoEgg": {"type": "Завтрак", "name": "Тост с авокадо и яйцом", "kcal": 410, "cook": 10},
-    "smoothieBowl": {"type": "Завтрак", "name": "Смузи-боул с киви и ягодами", "kcal": 390, "cook": 7},
-    "chiaPudding": {"type": "Завтрак", "name": "Чиа-пудинг с ягодами", "kcal": 350, "cook": 5},
-    "cottageBerryBreakfast": {"type": "Завтрак", "name": "Творог со свежими ягодами", "kcal": 370, "cook": 4},
-    "chickenQuinoa": {"type": "Обед", "name": "Курица с киноа и овощами", "kcal": 520, "cook": 25},
-    "turkeyBuckwheat": {"type": "Обед", "name": "Индейка с гречкой и свежими овощами", "kcal": 500, "cook": 25},
-    "salmonRice": {"type": "Обед", "name": "Лосось с рисом и брокколи", "kcal": 540, "cook": 25},
-    "tunaPasta": {"type": "Обед", "name": "Паста с тунцом и томатами", "kcal": 510, "cook": 20},
-    "lentilSoup": {"type": "Обед", "name": "Чечевичный суп с овощами", "kcal": 460, "cook": 35},
-    "beefBuckwheat": {"type": "Обед", "name": "Говядина с гречкой и овощами", "kcal": 530, "cook": 30},
-    "chickenSoup": {"type": "Обед", "name": "Куриный крем-суп с овощами", "kcal": 440, "cook": 30},
-    "yogurtChia": {"type": "Перекус", "name": "Йогурт с ягодами и чиа", "kcal": 270, "cook": 5},
-    "applePeanut": {"type": "Перекус", "name": "Яблоко с арахисовой пастой", "kcal": 250, "cook": 3},
-    "cottageBanana": {"type": "Перекус", "name": "Творог с бананом и чиа", "kcal": 260, "cook": 4},
-    "kefirBerries": {"type": "Перекус", "name": "Кефир со свежими ягодами", "kcal": 220, "cook": 2},
-    "yogurtNuts": {"type": "Перекус", "name": "Йогурт с бананом, ягодами и орехами", "kcal": 290, "cook": 4},
-    "hummusVeg": {"type": "Перекус", "name": "Хумус с морковью и огурцом", "kcal": 240, "cook": 5},
-    "bananaPeanut": {"type": "Перекус", "name": "Банан с арахисовой пастой", "kcal": 230, "cook": 3},
-    "salmonBroccoli": {"type": "Ужин", "name": "Лосось с брокколи и лимоном", "kcal": 420, "cook": 25},
-    "codVeg": {"type": "Ужин", "name": "Запечённая треска с овощами", "kcal": 390, "cook": 25},
-    "chickenRoastVeg": {"type": "Ужин", "name": "Куриная грудка с запечёнными овощами", "kcal": 410, "cook": 30},
-    "turkeyStew": {"type": "Ужин", "name": "Тушёная индейка с овощами", "kcal": 420, "cook": 35},
-    "shrimpZoodles": {"type": "Ужин", "name": "Креветки с лапшой из кабачка", "kcal": 360, "cook": 18},
-    "ratatouilleQuinoa": {"type": "Ужин", "name": "Рататуй с киноа", "kcal": 380, "cook": 30},
-    "turkeyGrillVeg": {"type": "Ужин", "name": "Индейка-гриль с овощами", "kcal": 400, "cook": 22},
+    "oatsApple": {"type": "Завтрак", "name": "Овсянка с яблоком и корицей", "kcal": 330, "cook": 10, "protein": 23, "fat": 10, "carbs": 37, "budget": True, "goals": ["loss","maintain"]},
+    "oatsBanana": {"type": "Завтрак", "name": "Овсянка с бананом", "kcal": 370, "cook": 10, "protein": 26, "fat": 12, "carbs": 40, "budget": True, "goals": ["loss","maintain"]},
+    "milletPumpkin": {"type": "Завтрак", "name": "Пшённая каша с тыквой", "kcal": 340, "cook": 20, "protein": 24, "fat": 11, "carbs": 36, "budget": True, "goals": ["loss","maintain"]},
+    "ricePorridge": {"type": "Завтрак", "name": "Рисовая каша с яблоком", "kcal": 350, "cook": 20, "protein": 25, "fat": 11, "carbs": 38, "budget": True, "goals": ["loss","maintain"]},
+    "buckwheatEgg": {"type": "Завтрак", "name": "Гречка с яйцом и овощами", "kcal": 390, "cook": 15, "protein": 27, "fat": 12, "carbs": 44, "budget": True, "goals": ["loss","maintain"]},
+    "omeletVeg": {"type": "Завтрак", "name": "Омлет с овощами", "kcal": 350, "cook": 12, "protein": 25, "fat": 11, "carbs": 38, "budget": True, "goals": ["loss","maintain"]},
+    "eggsToast": {"type": "Завтрак", "name": "Яйца с цельнозерновым тостом", "kcal": 380, "cook": 10, "protein": 27, "fat": 12, "carbs": 41, "budget": True, "goals": ["loss","maintain"]},
+    "cottageApple": {"type": "Завтрак", "name": "Творог с яблоком и корицей", "kcal": 320, "cook": 5, "protein": 22, "fat": 10, "carbs": 36, "budget": True, "goals": ["loss","maintain"]},
+    "cottageBanana2": {"type": "Завтрак", "name": "Творог с бананом", "kcal": 380, "cook": 5, "protein": 27, "fat": 12, "carbs": 41, "budget": True, "goals": ["loss","maintain"]},
+    "kefirOats": {"type": "Завтрак", "name": "Ленивая овсянка на кефире", "kcal": 360, "cook": 5, "protein": 25, "fat": 11, "carbs": 40, "budget": True, "goals": ["loss","maintain"]},
+    "cheeseOmelet": {"type": "Завтрак", "name": "Омлет с сыром и томатами", "kcal": 420, "cook": 12, "protein": 29, "fat": 13, "carbs": 47, "budget": True, "goals": ["loss","maintain","gain"]},
+    "oatPancakes": {"type": "Завтрак", "name": "Овсяноблин с творогом", "kcal": 410, "cook": 15, "protein": 29, "fat": 13, "carbs": 44, "budget": True, "goals": ["loss","maintain","gain"]},
+    "syrniki": {"type": "Завтрак", "name": "Сырники в духовке", "kcal": 430, "cook": 25, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "lavashEgg": {"type": "Завтрак", "name": "Лаваш с яйцом и сыром", "kcal": 440, "cook": 12, "protein": 31, "fat": 14, "carbs": 48, "budget": True, "goals": ["maintain","gain"]},
+    "sandwichChicken": {"type": "Завтрак", "name": "Сэндвич с курицей и яйцом", "kcal": 470, "cook": 10, "protein": 33, "fat": 15, "carbs": 51, "budget": True, "goals": ["maintain","gain"]},
+    "buckwheatMilk": {"type": "Завтрак", "name": "Гречневая каша с молоком", "kcal": 360, "cook": 15, "protein": 25, "fat": 11, "carbs": 40, "budget": True, "goals": ["loss","maintain"]},
+    "semolinaBerry": {"type": "Завтрак", "name": "Манная каша с ягодами", "kcal": 350, "cook": 10, "protein": 25, "fat": 11, "carbs": 38, "budget": True, "goals": ["loss","maintain"]},
+    "cottageCarrot": {"type": "Завтрак", "name": "Творожная запеканка с морковью", "kcal": 400, "cook": 35, "protein": 28, "fat": 12, "carbs": 45, "budget": True, "goals": ["loss","maintain","gain"]},
+    "eggPotato": {"type": "Завтрак", "name": "Яйца с картофелем и овощами", "kcal": 450, "cook": 20, "protein": 32, "fat": 14, "carbs": 49, "budget": True, "goals": ["maintain","gain"]},
+    "oatsCottage": {"type": "Завтрак", "name": "Овсянка с творогом и бананом", "kcal": 460, "cook": 10, "protein": 32, "fat": 14, "carbs": 52, "budget": True, "goals": ["maintain","gain"]},
+    "pitaOmelet": {"type": "Завтрак", "name": "Пита с омлетом и овощами", "kcal": 450, "cook": 15, "protein": 32, "fat": 14, "carbs": 49, "budget": True, "goals": ["maintain","gain"]},
+    "toastCottage": {"type": "Завтрак", "name": "Тосты с творогом и бананом", "kcal": 400, "cook": 7, "protein": 28, "fat": 12, "carbs": 45, "budget": True, "goals": ["loss","maintain","gain"]},
+    "applePancakes": {"type": "Завтрак", "name": "Яблочные овсяные оладьи", "kcal": 390, "cook": 18, "protein": 27, "fat": 12, "carbs": 44, "budget": True, "goals": ["loss","maintain"]},
+    "eggRice": {"type": "Завтрак", "name": "Рис с яйцом и овощами", "kcal": 430, "cook": 15, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "cottageRaisins": {"type": "Завтрак", "name": "Творог с изюмом и овсянкой", "kcal": 420, "cook": 5, "protein": 29, "fat": 13, "carbs": 47, "budget": True, "goals": ["loss","maintain","gain"]},
+    "omeletChicken": {"type": "Завтрак", "name": "Омлет с курицей", "kcal": 470, "cook": 15, "protein": 33, "fat": 15, "carbs": 51, "budget": True, "goals": ["maintain","gain"]},
+    "bananaPorridge": {"type": "Завтрак", "name": "Пшённая каша с бананом", "kcal": 390, "cook": 20, "protein": 27, "fat": 12, "carbs": 44, "budget": True, "goals": ["loss","maintain"]},
+    "bakedOats": {"type": "Завтрак", "name": "Запечённая овсянка с яблоком", "kcal": 410, "cook": 30, "protein": 29, "fat": 13, "carbs": 44, "budget": True, "goals": ["loss","maintain","gain"]},
+    "eggBeans": {"type": "Завтрак", "name": "Яйца с фасолью и томатами", "kcal": 440, "cook": 15, "protein": 31, "fat": 14, "carbs": 48, "budget": True, "goals": ["maintain","gain"]},
+    "curdLavash": {"type": "Завтрак", "name": "Лаваш с творогом и яблоком", "kcal": 430, "cook": 15, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "chickenBuckwheat": {"type": "Обед", "name": "Курица с гречкой и овощами", "kcal": 500, "cook": 25, "protein": 35, "fat": 16, "carbs": 54, "budget": True, "goals": ["maintain","gain"]},
+    "chickenRice": {"type": "Обед", "name": "Курица с рисом и овощами", "kcal": 520, "cook": 25, "protein": 36, "fat": 16, "carbs": 58, "budget": True, "goals": ["maintain","gain"]},
+    "chickenPasta": {"type": "Обед", "name": "Паста с курицей и томатами", "kcal": 540, "cook": 25, "protein": 38, "fat": 17, "carbs": 59, "budget": True, "goals": ["maintain","gain"]},
+    "chickenPotato": {"type": "Обед", "name": "Курица с картофелем и салатом", "kcal": 510, "cook": 30, "protein": 36, "fat": 16, "carbs": 56, "budget": True, "goals": ["maintain","gain"]},
+    "turkeyRice": {"type": "Обед", "name": "Индейка с рисом и морковью", "kcal": 520, "cook": 25, "protein": 36, "fat": 16, "carbs": 58, "budget": True, "goals": ["maintain","gain"]},
+    "turkeyPasta": {"type": "Обед", "name": "Макароны с индейкой в томатном соусе", "kcal": 540, "cook": 25, "protein": 38, "fat": 17, "carbs": 59, "budget": True, "goals": ["maintain","gain"]},
+    "beefBarley": {"type": "Обед", "name": "Говядина с перловкой", "kcal": 530, "cook": 35, "protein": 37, "fat": 16, "carbs": 60, "budget": True, "goals": ["maintain","gain"]},
+    "beefRice": {"type": "Обед", "name": "Говядина с рисом и овощами", "kcal": 550, "cook": 30, "protein": 39, "fat": 17, "carbs": 60, "budget": True, "goals": ["maintain","gain"]},
+    "liverBuckwheat": {"type": "Обед", "name": "Куриная печень с гречкой", "kcal": 490, "cook": 25, "protein": 34, "fat": 15, "carbs": 55, "budget": True, "goals": ["maintain","gain"]},
+    "liverPotato": {"type": "Обед", "name": "Печень с картофельным пюре", "kcal": 510, "cook": 30, "protein": 36, "fat": 16, "carbs": 56, "budget": True, "goals": ["maintain","gain"]},
+    "pollockRice": {"type": "Обед", "name": "Минтай с рисом и овощами", "kcal": 480, "cook": 25, "protein": 34, "fat": 15, "carbs": 52, "budget": True, "goals": ["maintain","gain"]},
+    "pollockPotato": {"type": "Обед", "name": "Минтай с картофелем и салатом", "kcal": 470, "cook": 30, "protein": 33, "fat": 15, "carbs": 51, "budget": True, "goals": ["maintain","gain"]},
+    "mackerelPotato": {"type": "Обед", "name": "Скумбрия с картофелем и капустой", "kcal": 540, "cook": 30, "protein": 38, "fat": 17, "carbs": 59, "budget": True, "goals": ["maintain","gain"]},
+    "tunaRice": {"type": "Обед", "name": "Рис с тунцом и кукурузой", "kcal": 500, "cook": 15, "protein": 35, "fat": 16, "carbs": 54, "budget": True, "goals": ["maintain","gain"]},
+    "lentilChicken": {"type": "Обед", "name": "Чечевица с курицей и овощами", "kcal": 510, "cook": 30, "protein": 36, "fat": 16, "carbs": 56, "budget": True, "goals": ["maintain","gain"]},
+    "lentilStew": {"type": "Обед", "name": "Чечевичное рагу с овощами", "kcal": 450, "cook": 30, "protein": 32, "fat": 14, "carbs": 49, "budget": True, "goals": ["maintain","gain"]},
+    "beansRice": {"type": "Обед", "name": "Фасоль с рисом и овощами", "kcal": 470, "cook": 25, "protein": 33, "fat": 15, "carbs": 51, "budget": True, "goals": ["maintain","gain"]},
+    "peasChicken": {"type": "Обед", "name": "Гороховое пюре с курицей", "kcal": 510, "cook": 35, "protein": 36, "fat": 16, "carbs": 56, "budget": True, "goals": ["maintain","gain"]},
+    "chickenBorscht": {"type": "Обед", "name": "Борщ с курицей и сметаной", "kcal": 440, "cook": 45, "protein": 31, "fat": 14, "carbs": 48, "budget": True, "goals": ["maintain","gain"]},
+    "peaSoup": {"type": "Обед", "name": "Гороховый суп с курицей", "kcal": 460, "cook": 45, "protein": 32, "fat": 14, "carbs": 52, "budget": True, "goals": ["maintain","gain"]},
+    "chickenNoodleSoup": {"type": "Обед", "name": "Куриный суп с лапшой", "kcal": 430, "cook": 35, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "meatballsBuckwheat": {"type": "Обед", "name": "Куриные тефтели с гречкой", "kcal": 510, "cook": 35, "protein": 36, "fat": 16, "carbs": 56, "budget": True, "goals": ["maintain","gain"]},
+    "meatballsPasta": {"type": "Обед", "name": "Тефтели из индейки с макаронами", "kcal": 530, "cook": 35, "protein": 37, "fat": 16, "carbs": 60, "budget": True, "goals": ["maintain","gain"]},
+    "cabbageChicken": {"type": "Обед", "name": "Тушёная капуста с курицей", "kcal": 460, "cook": 35, "protein": 32, "fat": 14, "carbs": 52, "budget": True, "goals": ["maintain","gain"]},
+    "lazyCabbageRolls": {"type": "Обед", "name": "Ленивые голубцы с рисом", "kcal": 500, "cook": 40, "protein": 35, "fat": 16, "carbs": 54, "budget": True, "goals": ["maintain","gain"]},
+    "pilafChicken": {"type": "Обед", "name": "Домашний плов с курицей", "kcal": 550, "cook": 40, "protein": 39, "fat": 17, "carbs": 60, "budget": True, "goals": ["maintain","gain"]},
+    "pastaBeans": {"type": "Обед", "name": "Паста с фасолью и томатами", "kcal": 480, "cook": 20, "protein": 34, "fat": 15, "carbs": 52, "budget": True, "goals": ["maintain","gain"]},
+    "buckwheatMushroomChicken": {"type": "Обед", "name": "Гречка с курицей и грибами", "kcal": 520, "cook": 30, "protein": 36, "fat": 16, "carbs": 58, "budget": True, "goals": ["maintain","gain"]},
+    "potatoTurkeyStew": {"type": "Обед", "name": "Картофельное рагу с индейкой", "kcal": 500, "cook": 35, "protein": 35, "fat": 16, "carbs": 54, "budget": True, "goals": ["maintain","gain"]},
+    "barleyChicken": {"type": "Обед", "name": "Перловка с курицей и овощами", "kcal": 490, "cook": 40, "protein": 34, "fat": 15, "carbs": 55, "budget": True, "goals": ["maintain","gain"]},
+    "appleKefir": {"type": "Перекус", "name": "Яблоко и кефир", "kcal": 190, "cook": 2, "protein": 9, "fat": 6, "carbs": 25, "budget": True, "goals": ["loss","maintain"]},
+    "bananaKefir": {"type": "Перекус", "name": "Банан и кефир", "kcal": 220, "cook": 2, "protein": 10, "fat": 7, "carbs": 29, "budget": True, "goals": ["loss","maintain"]},
+    "cottageAppleSnack": {"type": "Перекус", "name": "Творог с яблоком", "kcal": 230, "cook": 4, "protein": 10, "fat": 7, "carbs": 32, "budget": True, "goals": ["loss","maintain"]},
+    "cottageBananaSnack": {"type": "Перекус", "name": "Творог с бананом", "kcal": 270, "cook": 4, "protein": 12, "fat": 8, "carbs": 38, "budget": True, "goals": ["loss","maintain"]},
+    "yogurtApple": {"type": "Перекус", "name": "Йогурт с яблоком и овсянкой", "kcal": 240, "cook": 4, "protein": 11, "fat": 7, "carbs": 33, "budget": True, "goals": ["loss","maintain"]},
+    "yogurtBanana": {"type": "Перекус", "name": "Йогурт с бананом", "kcal": 230, "cook": 3, "protein": 10, "fat": 7, "carbs": 32, "budget": True, "goals": ["loss","maintain"]},
+    "eggToastSnack": {"type": "Перекус", "name": "Яйцо и цельнозерновой тост", "kcal": 220, "cook": 8, "protein": 10, "fat": 7, "carbs": 29, "budget": True, "goals": ["loss","maintain"]},
+    "cheeseApple": {"type": "Перекус", "name": "Сыр и яблоко", "kcal": 230, "cook": 2, "protein": 10, "fat": 7, "carbs": 32, "budget": True, "goals": ["loss","maintain"]},
+    "kefirOatSnack": {"type": "Перекус", "name": "Кефир с овсяными хлопьями", "kcal": 220, "cook": 3, "protein": 10, "fat": 7, "carbs": 29, "budget": True, "goals": ["loss","maintain"]},
+    "carrotHummus": {"type": "Перекус", "name": "Морковь с домашним хумусом", "kcal": 210, "cook": 5, "protein": 9, "fat": 7, "carbs": 28, "budget": True, "goals": ["loss","maintain"]},
+    "bananaPeanutBudget": {"type": "Перекус", "name": "Банан с арахисовой пастой", "kcal": 250, "cook": 3, "protein": 11, "fat": 8, "carbs": 34, "budget": True, "goals": ["loss","maintain"]},
+    "applePeanutBudget": {"type": "Перекус", "name": "Яблоко с арахисовой пастой", "kcal": 230, "cook": 3, "protein": 10, "fat": 7, "carbs": 32, "budget": True, "goals": ["loss","maintain"]},
+    "curdRaisins": {"type": "Перекус", "name": "Творог с изюмом", "kcal": 250, "cook": 4, "protein": 11, "fat": 8, "carbs": 34, "budget": True, "goals": ["loss","maintain"]},
+    "yogurtSeeds": {"type": "Перекус", "name": "Йогурт с семечками", "kcal": 240, "cook": 3, "protein": 11, "fat": 7, "carbs": 33, "budget": True, "goals": ["loss","maintain"]},
+    "milkBanana": {"type": "Перекус", "name": "Молочно-банановый коктейль", "kcal": 250, "cook": 4, "protein": 11, "fat": 8, "carbs": 34, "budget": True, "goals": ["loss","maintain"]},
+    "ryazhenkaApple": {"type": "Перекус", "name": "Ряженка и яблоко", "kcal": 220, "cook": 2, "protein": 10, "fat": 7, "carbs": 29, "budget": True, "goals": ["loss","maintain"]},
+    "eggCucumber": {"type": "Перекус", "name": "Яйца и огурец", "kcal": 200, "cook": 8, "protein": 9, "fat": 6, "carbs": 28, "budget": True, "goals": ["loss","maintain"]},
+    "toastCheese": {"type": "Перекус", "name": "Тост с сыром и томатом", "kcal": 250, "cook": 6, "protein": 11, "fat": 8, "carbs": 34, "budget": True, "goals": ["loss","maintain"]},
+    "cottageCarrotSnack": {"type": "Перекус", "name": "Творог с морковью и зеленью", "kcal": 210, "cook": 5, "protein": 9, "fat": 7, "carbs": 28, "budget": True, "goals": ["loss","maintain"]},
+    "beansToast": {"type": "Перекус", "name": "Паштет из фасоли с хлебцем", "kcal": 230, "cook": 7, "protein": 10, "fat": 7, "carbs": 32, "budget": True, "goals": ["loss","maintain"]},
+    "bakedAppleCurd": {"type": "Перекус", "name": "Запечённое яблоко с творогом", "kcal": 250, "cook": 20, "protein": 11, "fat": 8, "carbs": 34, "budget": True, "goals": ["loss","maintain"]},
+    "bananaOatsSnack": {"type": "Перекус", "name": "Банан с овсянкой и йогуртом", "kcal": 270, "cook": 5, "protein": 12, "fat": 8, "carbs": 38, "budget": True, "goals": ["loss","maintain"]},
+    "kefirCottage": {"type": "Перекус", "name": "Кефир и творог", "kcal": 240, "cook": 3, "protein": 11, "fat": 7, "carbs": 33, "budget": True, "goals": ["loss","maintain"]},
+    "appleSunflower": {"type": "Перекус", "name": "Яблоко с семечками", "kcal": 210, "cook": 2, "protein": 9, "fat": 7, "carbs": 28, "budget": True, "goals": ["loss","maintain"]},
+    "pearYogurt": {"type": "Перекус", "name": "Груша с йогуртом", "kcal": 220, "cook": 3, "protein": 10, "fat": 7, "carbs": 29, "budget": True, "goals": ["loss","maintain"]},
+    "curdCocoa": {"type": "Перекус", "name": "Творог с какао и бананом", "kcal": 270, "cook": 4, "protein": 12, "fat": 8, "carbs": 38, "budget": True, "goals": ["loss","maintain"]},
+    "eggLavashSnack": {"type": "Перекус", "name": "Мини-лаваш с яйцом", "kcal": 260, "cook": 10, "protein": 12, "fat": 8, "carbs": 35, "budget": True, "goals": ["loss","maintain"]},
+    "oatCookieKefir": {"type": "Перекус", "name": "Домашнее овсяное печенье и кефир", "kcal": 250, "cook": 20, "protein": 11, "fat": 8, "carbs": 34, "budget": True, "goals": ["loss","maintain"]},
+    "cheeseCucumberToast": {"type": "Перекус", "name": "Тост с сыром и огурцом", "kcal": 240, "cook": 5, "protein": 11, "fat": 7, "carbs": 33, "budget": True, "goals": ["loss","maintain"]},
+    "bananaCottageMini": {"type": "Перекус", "name": "Банан с творогом", "kcal": 260, "cook": 3, "protein": 12, "fat": 8, "carbs": 35, "budget": True, "goals": ["loss","maintain"]},
+    "chickenCabbage": {"type": "Ужин", "name": "Курица с тушёной капустой", "kcal": 400, "cook": 30, "protein": 28, "fat": 12, "carbs": 45, "budget": True, "goals": ["loss","maintain","gain"]},
+    "chickenVeg": {"type": "Ужин", "name": "Курица с овощами на сковороде", "kcal": 410, "cook": 25, "protein": 29, "fat": 13, "carbs": 44, "budget": True, "goals": ["loss","maintain","gain"]},
+    "chickenBuckwheatDinner": {"type": "Ужин", "name": "Курица с гречкой и салатом", "kcal": 440, "cook": 25, "protein": 31, "fat": 14, "carbs": 48, "budget": True, "goals": ["maintain","gain"]},
+    "turkeyCabbage": {"type": "Ужин", "name": "Индейка с капустой и морковью", "kcal": 410, "cook": 30, "protein": 29, "fat": 13, "carbs": 44, "budget": True, "goals": ["loss","maintain","gain"]},
+    "turkeyVeg": {"type": "Ужин", "name": "Индейка с овощным рагу", "kcal": 420, "cook": 30, "protein": 29, "fat": 13, "carbs": 47, "budget": True, "goals": ["loss","maintain","gain"]},
+    "pollockVeg": {"type": "Ужин", "name": "Минтай с овощами", "kcal": 380, "cook": 25, "protein": 27, "fat": 12, "carbs": 41, "budget": True, "goals": ["loss","maintain"]},
+    "pollockPotatoDinner": {"type": "Ужин", "name": "Минтай с картофелем и огурцом", "kcal": 430, "cook": 30, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "mackerelSalad": {"type": "Ужин", "name": "Скумбрия с капустным салатом", "kcal": 450, "cook": 25, "protein": 32, "fat": 14, "carbs": 49, "budget": True, "goals": ["maintain","gain"]},
+    "liverVeg": {"type": "Ужин", "name": "Куриная печень с овощами", "kcal": 410, "cook": 25, "protein": 29, "fat": 13, "carbs": 44, "budget": True, "goals": ["loss","maintain","gain"]},
+    "liverBuckwheatDinner": {"type": "Ужин", "name": "Печень с гречкой и огурцом", "kcal": 440, "cook": 25, "protein": 31, "fat": 14, "carbs": 48, "budget": True, "goals": ["maintain","gain"]},
+    "omeletDinner": {"type": "Ужин", "name": "Омлет с овощами и сыром", "kcal": 390, "cook": 15, "protein": 27, "fat": 12, "carbs": 44, "budget": True, "goals": ["loss","maintain"]},
+    "cottageDinner": {"type": "Ужин", "name": "Творог с зеленью и овощами", "kcal": 340, "cook": 5, "protein": 24, "fat": 11, "carbs": 36, "budget": True, "goals": ["loss","maintain"]},
+    "beansChicken": {"type": "Ужин", "name": "Фасоль с курицей и томатами", "kcal": 430, "cook": 25, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "lentilTurkey": {"type": "Ужин", "name": "Чечевица с индейкой", "kcal": 440, "cook": 30, "protein": 31, "fat": 14, "carbs": 48, "budget": True, "goals": ["maintain","gain"]},
+    "lentilVegDinner": {"type": "Ужин", "name": "Чечевица с овощами", "kcal": 390, "cook": 25, "protein": 27, "fat": 12, "carbs": 44, "budget": True, "goals": ["loss","maintain"]},
+    "cabbageMeatballs": {"type": "Ужин", "name": "Капуста с куриными тефтелями", "kcal": 420, "cook": 35, "protein": 29, "fat": 13, "carbs": 47, "budget": True, "goals": ["loss","maintain","gain"]},
+    "zucchiniChicken": {"type": "Ужин", "name": "Кабачки с курицей и томатами", "kcal": 390, "cook": 25, "protein": 27, "fat": 12, "carbs": 44, "budget": True, "goals": ["loss","maintain"]},
+    "eggBeansDinner": {"type": "Ужин", "name": "Яйца с фасолью и овощами", "kcal": 400, "cook": 15, "protein": 28, "fat": 12, "carbs": 45, "budget": True, "goals": ["loss","maintain","gain"]},
+    "buckwheatMushroomDinner": {"type": "Ужин", "name": "Гречка с грибами и яйцом", "kcal": 410, "cook": 25, "protein": 29, "fat": 13, "carbs": 44, "budget": True, "goals": ["loss","maintain","gain"]},
+    "riceChickenDinner": {"type": "Ужин", "name": "Рис с курицей и овощами", "kcal": 450, "cook": 25, "protein": 32, "fat": 14, "carbs": 49, "budget": True, "goals": ["maintain","gain"]},
+    "potatoChickenDinner": {"type": "Ужин", "name": "Картофель с курицей и салатом", "kcal": 450, "cook": 30, "protein": 32, "fat": 14, "carbs": 49, "budget": True, "goals": ["maintain","gain"]},
+    "pastaTurkeyDinner": {"type": "Ужин", "name": "Паста с индейкой и овощами", "kcal": 460, "cook": 25, "protein": 32, "fat": 14, "carbs": 52, "budget": True, "goals": ["maintain","gain"]},
+    "fishCabbage": {"type": "Ужин", "name": "Белая рыба с тушёной капустой", "kcal": 380, "cook": 25, "protein": 27, "fat": 12, "carbs": 41, "budget": True, "goals": ["loss","maintain"]},
+    "chickenPumpkin": {"type": "Ужин", "name": "Курица с тыквой и гречкой", "kcal": 430, "cook": 30, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "turkeyPotatoDinner": {"type": "Ужин", "name": "Индейка с картофелем и овощами", "kcal": 450, "cook": 30, "protein": 32, "fat": 14, "carbs": 49, "budget": True, "goals": ["maintain","gain"]},
+    "curdCasseroleDinner": {"type": "Ужин", "name": "Творожная запеканка без сахара", "kcal": 380, "cook": 35, "protein": 27, "fat": 12, "carbs": 41, "budget": True, "goals": ["loss","maintain"]},
+    "omeletChickenDinner": {"type": "Ужин", "name": "Омлет с курицей и томатами", "kcal": 430, "cook": 15, "protein": 30, "fat": 13, "carbs": 48, "budget": True, "goals": ["loss","maintain","gain"]},
+    "beansVegDinner": {"type": "Ужин", "name": "Фасоль с овощами и яйцом", "kcal": 410, "cook": 25, "protein": 29, "fat": 13, "carbs": 44, "budget": True, "goals": ["loss","maintain","gain"]},
+    "chickenBarleyDinner": {"type": "Ужин", "name": "Курица с перловкой и овощами", "kcal": 440, "cook": 35, "protein": 31, "fat": 14, "carbs": 48, "budget": True, "goals": ["maintain","gain"]},
+    "pollockBuckwheat": {"type": "Ужин", "name": "Минтай с гречкой и салатом", "kcal": 420, "cook": 25, "protein": 29, "fat": 13, "carbs": 47, "budget": True, "goals": ["loss","maintain","gain"]},
 }
 
 
@@ -674,9 +766,21 @@ def decode_app_plan(value):
     return value
 
 
-def fallback_app_week_plan(user_id: int, start_date, salt: str = "") -> list[list[str]]:
+def app_goal_mode(profile) -> str:
+    goal = str(profile["goal"] if profile else "").lower()
+    if any(x in goal for x in ("набор", "мыш", "мас")):
+        return "gain"
+    if any(x in goal for x in ("сниж", "похуд", "сброс", "дефиц")):
+        return "loss"
+    return "maintain"
+
+
+def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: str = "maintain") -> list[list[str]]:
     pools = {
-        meal_type: [meal_id for meal_id, item in APP_MEAL_CATALOG.items() if item["type"] == meal_type]
+        meal_type: [
+            meal_id for meal_id, item in APP_MEAL_CATALOG.items()
+            if item["type"] == meal_type and goal_mode in item.get("goals", ["loss","maintain","gain"])
+        ]
         for meal_type in APP_MEAL_TYPE_ORDER
     }
     seed_text = f"{user_id}:{start_date.isoformat()}:{salt}"
@@ -721,9 +825,11 @@ async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None
     if not client:
         return None
     profile = await get_profile(user_id)
+    goal_mode = app_goal_mode(profile)
     choices = "\n".join(
-        f"{meal_id} | {item['type']} | {item['name']} | {item['kcal']} ккал | {item['cook']} мин"
+        f"{meal_id} | {item['type']} | {item['name']} | {item['kcal']} ккал | Б {item['protein']} Ж {item['fat']} У {item['carbs']} | {item['cook']} мин | бюджетное"
         for meal_id, item in APP_MEAL_CATALOG.items()
+        if goal_mode in item.get("goals", ["loss","maintain","gain"])
     )
     previous = json.dumps(previous_plan, ensure_ascii=False) if previous_plan else "нет"
     answer = await ask_ai(
@@ -732,6 +838,8 @@ async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None
         f"""
 Выбери рацион на 7 дней ТОЛЬКО из библиотеки ниже.
 Учитывай профиль пользователя, его цель, пищевые предпочтения и ограничения.
+Целевой режим: {goal_mode}. Все блюда должны быть доступными и бюджетными: обычные крупы, яйца, творог, курица, индейка, печень, минтай/скумбрия, бобовые, сезонные овощи и фрукты. Не используй дорогие продукты вроде лосося, креветок, киноа, авокадо и чиа.
+Для loss выбирай более лёгкие и сытные варианты; для gain — более калорийные варианты с достаточным белком и углеводами; для maintain — средний диапазон.
 Если профиль явно исключает продукт, не выбирай блюдо с этим продуктом.
 КРИТИЧНО: все 7 завтраков должны быть разными, все 7 обедов разными, все 7 перекусов разными и все 7 ужинов разными. Никаких повторов блюд внутри недели.
 По возможности не копируй прошлую неделю целиком.
@@ -812,10 +920,20 @@ async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool 
     )
     if existing:
         existing_plan = decode_app_plan(existing["plan_json"])
-        if valid_app_week_plan(existing_plan):
+        if valid_app_week_plan(existing_plan) and str(existing["source"] or "").startswith("v10"):
             return existing
+        if valid_app_week_plan(existing_plan):
+            profile = await get_profile(user_id)
+            fresh_plan = fallback_app_week_plan(user_id, start_date, salt="v10-budget", goal_mode=app_goal_mode(profile))
+            await db_execute(
+                """UPDATE app_week_plans SET plan_json=$3::jsonb, source='v10-budget', updated_at=$4
+                   WHERE telegram_id=$1 AND start_date=$2""",
+                user_id, start_date, json.dumps(fresh_plan), now_utc(),
+            )
+            return await db_fetchrow("SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2", user_id, start_date)
         # Миграция старого плана v7: сразу заменяем его на новую библиотеку из 28 уникальных блюд.
-        fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v8-migration")
+        profile = await get_profile(user_id)
+        fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v10-budget", goal_mode=app_goal_mode(profile))
         await db_execute(
             """UPDATE app_week_plans
             SET plan_json=$3::jsonb, source='v8-migration', updated_at=$4
@@ -840,7 +958,8 @@ async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool 
         user_id, start_date
     )
     previous_plan = decode_app_plan(previous_row["plan_json"]) if previous_row else None
-    fallback_plan = fallback_app_week_plan(user_id, start_date)
+    profile = await get_profile(user_id)
+    fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v10-budget", goal_mode=app_goal_mode(profile))
 
     inserted = await db_fetchrow(
         """
@@ -937,7 +1056,8 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
     row = await ensure_app_week_plan(user_id, local_date)
     plan = decode_app_plan(row["plan_json"])
     if not valid_app_week_plan(plan):
-        plan = fallback_app_week_plan(user_id, row["start_date"])
+        profile = await get_profile(user_id)
+        plan = fallback_app_week_plan(user_id, row["start_date"], salt="v10-budget", goal_mode=app_goal_mode(profile))
 
     old_id = plan[day_index][meal_index]
     old = APP_MEAL_CATALOG[old_id]
