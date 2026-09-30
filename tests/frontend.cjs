@@ -1,0 +1,17 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const html=fs.readFileSync('mini_app.html','utf8');
+const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).join('\n');
+new vm.Script(scripts);
+const start=scripts.indexOf('function applyServerPlan('),end=scripts.indexOf('function safeList(',start);
+const context={mealLibrary:{},weekPlan:[],activeWeekKey:null};
+vm.createContext(context);
+vm.runInContext(scripts.slice(start,end),context);
+const types=['breakfast','lunch','snack','dinner'];
+const mealCatalog={};
+const weeklyMealPlan=Array.from({length:7},(_,d)=>({date:'2026-09-'+(28+d),meals:Object.fromEntries(types.map((t,i)=>{const id=t+d;mealCatalog[id]={id,name:id,protein:20,fat:10,carbs:30,cookTime:15,ingredients:[['Овощи','Томаты',100,'г']],recipe:['Приготовить']};return [t,id]}))}));
+context.applyServerPlan({weeklyMealPlan,mealCatalog});
+assert.equal(context.weekPlan.length,7);
+assert.equal(context.mealLibrary.breakfast0.p,20);
+assert.equal(context.mealLibrary.breakfast0.ingredients[0][2],100);
+assert.throws(()=>context.applyServerPlan({weeklyMealPlan,mealCatalog:{}}));
+console.log('Frontend syntax and server nutrition contract: OK');
