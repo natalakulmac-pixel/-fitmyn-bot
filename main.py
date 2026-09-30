@@ -271,7 +271,7 @@ APP_MEAL_IMAGES = {
     "lentilStew": "https://itsonly.recipes/images/recipeimages/hearty-lentil-stew.webp",
     "chickenNoodleSoup": "https://kochwunder.com/assets/images/1744123953542-yhby33g9.png",
     "proteinEggCurdSnack": "https://img.wprost.pl/_thumb/e6/6e/5a1da32bef5933b889a9fb65c820.jpeg",
-    "cottageAppleSnack": "https://pinterest-media-cdn.b-cdn.net/article-images/high-protein-snack-ideas-v2/snack_7_cottage_cheese_apple.png",
+    "cottageAppleSnack": None,
     "eggToastSnack": "https://images.deliveryhero.io/image/talabat/MenuItems/DAC359AEED66C855CAC41A45CC237C4D",
     "beansToast": "https://static.hnonline.sk/images/archive/2019/07/01/08a49b16-d3e4-4629-9726-0d57d9b0d62e.JPG",
     "proteinChickenVeg": "https://www.foodjajce.com/server/static/products/243.jpg",
@@ -280,12 +280,14 @@ APP_MEAL_IMAGES = {
     "fishCabbage": "https://dt565gqrz3z7y.cloudfront.net/ce/image/nD22KuksvfOMIBqKrPR_tA.jpg",
     "omeletDinner": "https://cdn.goodsouppot.com/images/f694239a-8b43-44d9-94d5-1075886ab2ed_f80cfa79.webp",
     "beansChicken": "https://v.cdn.ww.com/media/system/wine/5e33ef0407ef3c0011189483/29105f3c-2d71-4270-86ef-cc1d386eea4d/pr4haicgplsgmtng9jji.jpg?enable=upscale&fit=crop&height=800&quality=80&width=800",
-    "lentilVegDinner": "https://itsonly.recipes/images/recipeimages/hearty-lentil-stew.webp",
+    "lentilVegDinner": None,
 }
 
 # Correct the curated quick-plan timings. Recipes assume pre-cooked grains where noted.
 APP_MEAL_CATALOG["lentilStew"]["cook"] = 25
 APP_MEAL_CATALOG["chickenNoodleSoup"]["cook"] = 25
+for _mid in APP_CURATED_MEAL_IDS:
+    APP_MEAL_CATALOG[_mid]["goals"] = ["loss","maintain","gain"]
 
 def _meal_details(name: str):
     n = name.lower()
@@ -916,7 +918,7 @@ async def _upgrade_app_week_plan_with_ai(user_id: int, start_date, fallback_plan
     try:
         ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan)
         final_plan = ai_plan if valid_app_week_plan(ai_plan) else fallback_plan
-        source = "ai" if ai_plan else "fallback"
+        source = "v22-unified-ai" if ai_plan else "v22-unified-fallback"
         await db_execute(
             """
             UPDATE app_week_plans
@@ -1035,7 +1037,7 @@ async def regenerate_app_week_plan(user_id: int, local_date=None):
     plan = ai_plan if valid_app_week_plan(ai_plan) else fallback_app_week_plan(
         user_id, start_date, salt=str(time.time_ns())
     )
-    source = "manual-ai" if ai_plan else "manual-fallback"
+    source = "v22-unified-manual-ai" if ai_plan else "v22-unified-manual-fallback"
     await db_execute(
         """
         INSERT INTO app_week_plans
@@ -1118,7 +1120,7 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
     await db_execute(
         """
         UPDATE app_week_plans
-        SET plan_json=$3::jsonb, source='edited', updated_at=$4
+        SET plan_json=$3::jsonb, source='v22-unified-edited', updated_at=$4
         WHERE telegram_id=$1 AND start_date=$2
         """,
         user_id, row["start_date"], json.dumps(plan), now_utc()
