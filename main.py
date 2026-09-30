@@ -810,12 +810,6 @@ def valid_app_week_plan(plan) -> bool:
         names = [APP_MEAL_CATALOG[x]["name"].strip().lower() for x in ids]
         if len(set(ids)) != 4 or len(set(names)) != 4:
             return False
-    # Внутри недели каждый завтрак/обед/перекус/ужин уникален.
-    for idx in range(4):
-        ids = [str(day[idx]) for day in plan]
-        names = [APP_MEAL_CATALOG[x]["name"].strip().lower() for x in ids]
-        if len(set(ids)) != 7 or len(set(names)) != 7:
-            return False
     return True
 
 
@@ -830,18 +824,47 @@ def decode_app_plan(value):
 
 def app_goal_mode(profile) -> str:
     goal = str(profile["goal"] if profile else "").lower()
-    if any(x in goal for x in ("набор", "мыш", "мас")):
-        return "gain"
-    if any(x in goal for x in ("сниж", "похуд", "сброс", "дефиц")):
+    if any(x in goal for x in ("сниж", "сниз", "похуд", "сброс", "дефиц")):
         return "loss"
+    if any(x in goal for x in ("набор", "набрать", "увелич", "мыш")):
+        return "gain"
     return "maintain"
 
 
-def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: str = "maintain") -> list[list[str]]:
+
+def allowed_meal_ids(profile):
+    food = str(dict(profile or {}).get("food") or "").lower()
+    if not any(x in food for x in ("аллерг", "неперенос", "без ", "не ем", "исключ", "нельзя", "веган", "вегетар")):
+        return set(APP_CURATED_MEAL_IDS)
+    forbidden = []
+    if any(x in food for x in ("молоч", "лактоз", "творог", "йогурт", "веган")):
+        forbidden += ["творог","йогурт","молоко","сыр"]
+    if any(x in food for x in ("яйц", "яиц", "веган")):
+        forbidden += ["яйц"]
+    if any(x in food for x in ("глютен", "пшениц")):
+        forbidden += ["хлеб","паста","лапша","овсян"]
+    if any(x in food for x in ("рыб", "веган", "вегетар")):
+        forbidden += ["минтай","рыб"]
+    if any(x in food for x in ("мяс", "птиц", "веган", "вегетар")):
+        forbidden += ["курин","индей"]
+    if "куриц" in food:
+        forbidden += ["курин"]
+    if "индей" in food:
+        forbidden += ["индей"]
+    if any(x in food for x in ("бобов", "фасол", "чечев")):
+        forbidden += ["фасол","чечев"]
+    result = set()
+    for mid in APP_CURATED_MEAL_IDS:
+        ingredients = " ".join(str(x[1]) for x in MEAL_RECIPES[mid]["ingredients"]).lower()
+        if not any(word in ingredients for word in forbidden):
+            result.add(mid)
+    return result
+
+def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: str = "maintain", allowed_ids=None) -> list[list[str]]:
     pools = {
         meal_type: [
             meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-            if meal_id in APP_CURATED_MEAL_IDS and item["type"] == meal_type and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"])
+            if meal_id in APP_CURATED_MEAL_IDS and (allowed_ids is None or meal_id in allowed_ids) and item["type"] == meal_type and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"])
         ]
         for meal_type in APP_MEAL_TYPE_ORDER
     }
@@ -857,7 +880,10 @@ def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: 
         rng.shuffle(top)
         high = [mid for mid in top if APP_MEAL_CATALOG[mid].get("high_protein")]
         rest = [mid for mid in top if mid not in high]
-        ordered[meal_type] = (high[:3] + rest)[:7]
+        available = high + rest
+        if not available:
+            raise ValueError("В каталоге нет блюд для указанных пищевых исключений")
+        ordered[meal_type] = [available[i % len(available)] for i in range(7)]
     plan = [
         [ordered[meal_type][day_index] for meal_type in APP_MEAL_TYPE_ORDER]
         for day_index in range(7)
@@ -995,11 +1021,12 @@ async def _upgrade_app_week_plan_with_ai(user_id: int, start_date, fallback_plan
 async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool = False):
     local_date = local_date or await user_local_date(user_id)
     start_date = app_week_start(local_date)
-    existing = await get_app_week_plan(user_id, local_date)
-    if existing and valid_app_week_plan(decode_app_plan(existing["plan_json"])):
-        return existing
     profile = await get_profile(user_id)
-    plan = fallback_app_week_plan(user_id,start_date,goal_mode=app_goal_mode(profile))
+    allowed = allowed_meal_ids(profile)
+    existing = await get_app_week_plan(user_id, local_date)
+    if existing and valid_app_week_plan(decode_app_plan(existing["plan_json"])) and all(mid in allowed for day in decode_app_plan(existing["plan_json"]) for mid in day):
+        return existing
+    plan = fallback_app_week_plan(user_id,start_date,goal_mode=app_goal_mode(profile),allowed_ids=allowed)
     await db_execute("""INSERT INTO app_week_plans(telegram_id,start_date,end_date,plan_json,source,created_at,updated_at)
         VALUES($1,$2,$3,$4::jsonb,'v27-unified',$5,$5)
         ON CONFLICT(telegram_id,start_date) DO UPDATE SET plan_json=EXCLUDED.plan_json,source=EXCLUDED.source,updated_at=EXCLUDED.updated_at""",
@@ -1016,8 +1043,11 @@ async def regenerate_app_week_plan(user_id: int, local_date=None):
     )
     previous_plan = decode_app_plan(current["plan_json"]) if current else None
     ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan)
+    allowed = allowed_meal_ids(await get_profile(user_id))
+    if ai_plan and any(mid not in allowed for day in ai_plan for mid in day):
+        ai_plan = None
     plan = ai_plan if valid_app_week_plan(ai_plan) else fallback_app_week_plan(
-        user_id, start_date, salt=str(time.time_ns()), goal_mode=app_goal_mode(await get_profile(user_id))
+        user_id, start_date, salt=str(time.time_ns()), goal_mode=app_goal_mode(await get_profile(user_id)), allowed_ids=allowed
     )
     source = "v22-unified-manual-ai" if ai_plan else "v22-unified-manual-fallback"
     await db_execute(
@@ -1076,15 +1106,16 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
 
     old_id = plan[day_index][meal_index]
     old = APP_MEAL_CATALOG[old_id]
+    allowed = allowed_meal_ids(await get_profile(user_id))
     used_same_type = {str(day[meal_index]) for day in plan if isinstance(day, list) and len(day) > meal_index}
     candidates = [
         meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-        if meal_id in APP_CURATED_MEAL_IDS and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id and meal_id not in used_same_type
+        if meal_id in allowed and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id and meal_id not in used_same_type
     ]
     if not candidates:
         candidates = [
             meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-            if meal_id in APP_CURATED_MEAL_IDS and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id
+            if meal_id in allowed and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id
         ]
     if not candidates:
         return row
@@ -1497,7 +1528,7 @@ async def run_due_notifications() -> dict:
     for row in users:
         uid = row["telegram_id"]
         settings = await ensure_notification_settings(uid)
-        if not settings:
+        if not settings or not settings["enabled"]:
             continue
         try:
             tz = ZoneInfo(settings["timezone"])
@@ -1596,7 +1627,7 @@ _ai_retry_after = 0.0
 
 async def ask_ai(user_id: int, user_text: str, extra_instruction: str = "", save_history: bool = True) -> str:
     if not client:
-        return "ИИ пока не подключён. Администратору нужно добавить OPENAI_API_KEY."
+        return "ИИ временно недоступен. Сохранённое меню и дневник доступны в приложении."
 
     profile = await get_profile(user_id)
     history = await recent_history(user_id)
@@ -2082,8 +2113,11 @@ async def reset_profile(message: Message, state: FSMContext):
     if not await has_consent(message.from_user.id):
         await message.answer("Сначала /start.")
         return
-    await db_execute("DELETE FROM app_week_plans WHERE telegram_id=$1", message.from_user.id)
-    await db_execute("DELETE FROM profiles WHERE telegram_id=$1", message.from_user.id)
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            for table in ("app_week_plans","weekly_meal_plans","app_goal_settings","app_weight_log","app_water_log","app_workout_log","app_profile_photos","app_daily_state","messages","checkins","notification_settings","profiles"):
+                await conn.execute(f"DELETE FROM {table} WHERE telegram_id=$1",message.from_user.id)
+            await conn.execute("UPDATE users SET consent=FALSE WHERE telegram_id=$1",message.from_user.id)
     await state.clear()
     await message.answer("Профиль сброшен. Напиши /start, чтобы заполнить его заново.")
 
@@ -2184,6 +2218,12 @@ async def subscription_pre_checkout(query: PreCheckoutQuery):
     await query.answer(ok=ok, error_message=None if ok else error)
 
 
+@router.message(F.refunded_payment)
+async def subscription_refunded_payment(message: Message):
+    payment = message.refunded_payment
+    await db_execute("UPDATE app_subscriptions SET subscription_until=$2, auto_renew=FALSE, status='expired', updated_at=$2 WHERE telegram_payment_charge_id=$1",payment.telegram_payment_charge_id,now_utc())
+    await message.answer("Возврат оплаты получен. Подписка по этому платежу отключена.")
+
 @router.message(F.successful_payment)
 async def subscription_successful_payment(message: Message):
     payment = message.successful_payment
@@ -2226,6 +2266,15 @@ async def free_chat(message: Message):
     except Exception:
         logger.exception("AI error")
         await message.answer("Не получилось получить ответ. Попробуй ещё раз.")
+
+@router.errors()
+async def handle_expected_error(event):
+    if isinstance(event.exception, ValueError):
+        message = event.update.message
+        if message:
+            await message.answer(str(event.exception) if "пищевых" in str(event.exception) else "Не удалось обработать данные. Проверь ввод и попробуй ещё раз.")
+        return True
+    return False
 
 async def setup_telegram():
     if not bot:
@@ -2270,7 +2319,7 @@ async def setup_telegram():
             secret_token=WEBHOOK_SECRET,
             drop_pending_updates=False,
         )
-        logger.info("Webhook configured: %s", webhook_url)
+        logger.info("Telegram webhook configured")
     else:
         logger.warning("RENDER_EXTERNAL_URL missing; webhook not configured")
 
@@ -2491,8 +2540,12 @@ async def api_app_bootstrap(request: web.Request):
     )
     subscription = await subscription_info(user_id) if profile else None
     app_week_plan = None
+    nutrition_error = None
     if profile and await has_consent(user_id) and subscription and subscription["has_access"]:
-        app_week_plan = await ensure_app_week_plan(user_id, wait_for_ai=False)
+        try:
+            app_week_plan = await ensure_app_week_plan(user_id, wait_for_ai=False)
+        except ValueError as exc:
+            nutrition_error = str(exc)
 
     profile_json = None
     if profile:
@@ -2514,6 +2567,7 @@ async def api_app_bootstrap(request: web.Request):
             "photo_url": tg_user.get("photo_url"),
         },
         "profile": profile_json,
+        "nutrition_error": nutrition_error,
         "profile_updated_at": profile["updated_at"].isoformat() if profile and profile["updated_at"] else None,
         "goal_progress": goal_progress,
         "water": water,

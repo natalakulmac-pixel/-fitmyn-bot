@@ -18,6 +18,15 @@ class PlanTests(unittest.TestCase):
     def test_restrictions_do_not_get_generic_workout(self):
         plan=main.workout_plan_for_profile({"restrictions":"боль в колене"})
         self.assertEqual(plan["exercises"],[])
+    def test_dairy_exclusion(self):
+        allowed=main.allowed_meal_ids({"food":"Без молочных продуктов"})
+        self.assertNotIn("proteinCurdEgg",allowed)
+        self.assertIn("eggBeans",allowed)
+        plan=main.fallback_app_week_plan(123,date(2026,9,28),allowed_ids=allowed)
+        self.assertTrue(all(mid in allowed for day in plan for mid in day))
+    def test_goal_language(self):
+        self.assertEqual(main.app_goal_mode({"goal":"Снизить массу тела"}),"loss")
+        self.assertEqual(main.app_goal_mode({"goal":"Набрать вес"}),"gain")
     def test_no_auth(self):
         self.assertIsNone(main.validate_telegram_init_data(""))
     def test_app_routes(self):
@@ -54,3 +63,28 @@ class ProgressTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__=="__main__":
     unittest.main()
+
+class AccessTests(unittest.IsolatedAsyncioTestCase):
+    async def test_no_consent_never_starts_trial(self):
+        request=type("Request",(),{"path":"/api/app/weight","headers":{}})()
+        handler=AsyncMock()
+        subscription=AsyncMock(return_value=True)
+        with patch.object(main,"app_request_user",return_value={"id":123}),patch.object(main,"pool",object()),patch.object(main,"has_consent",AsyncMock(return_value=False)),patch.object(main,"subscription_has_access",subscription):
+            response=await main.app_access_middleware(request,handler)
+        self.assertEqual(response.status,403)
+        subscription.assert_not_awaited()
+        handler.assert_not_awaited()
+    async def test_expired_write_blocked(self):
+        request=type("Request",(),{"path":"/api/app/weight","headers":{}})()
+        handler=AsyncMock()
+        with patch.object(main,"app_request_user",return_value={"id":124}),patch.object(main,"pool",object()),patch.object(main,"has_consent",AsyncMock(return_value=True)),patch.object(main,"get_profile",AsyncMock(return_value={"name":"Test"})),patch.object(main,"subscription_has_access",AsyncMock(return_value=False)):
+            response=await main.app_access_middleware(request,handler)
+        self.assertEqual(response.status,402)
+        handler.assert_not_awaited()
+    async def test_cancel_failure_keeps_account(self):
+        bot=AsyncMock()
+        bot.edit_user_star_subscription.side_effect=RuntimeError("network")
+        pool=object()
+        with patch.object(main,"bot",bot),patch.object(main,"pool",pool),patch.object(main,"db_fetchrow",AsyncMock(return_value={"auto_renew":True,"telegram_payment_charge_id":"test"})):
+            with self.assertRaises(RuntimeError):
+                await main.delete_user_data(123)

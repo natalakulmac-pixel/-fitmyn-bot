@@ -52,7 +52,7 @@ await page.screenshot({path:'mobile-check.png',fullPage:true});
 fixture.subscription={status:'expired',has_access:false,stars:350};
 await page.reload();await page.waitForSelector('#loading.hide');
 assert.equal(await page.locator('#subscriptionNotice').isVisible(),true);
-assert.equal(await page.locator('#nav').isVisible(),false);
+assert.equal(await page.locator('[data-page="profile"]').isVisible(),true);await page.locator('#nav [data-go="nutrition"]').click();assert.equal(await page.locator('[data-page="nutrition"]').isVisible(),false);
 assert.deepEqual(errors,[]);
 console.log('Mobile flows: nutrition, goal, shopping, exercise sync, trial/expired: OK');
 }finally{await browser.close()}
