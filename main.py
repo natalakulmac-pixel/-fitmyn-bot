@@ -54,7 +54,7 @@ DEFAULT_EVENING_TIME = os.getenv("DEFAULT_EVENING_TIME", "20:30").strip() or "20
 TRIAL_DAYS = 14
 SUBSCRIPTION_STARS = int(os.getenv("SUBSCRIPTION_STARS", "350"))
 SUBSCRIPTION_PERIOD = 30 * 24 * 60 * 60
-APP_BUILD_VERSION = "v21-photo-by-card-1"
+APP_BUILD_VERSION = "v22-unified-nutrition-1"
 APP_URL = f"{RENDER_EXTERNAL_URL}/app?v={APP_BUILD_VERSION}" if RENDER_EXTERNAL_URL else ""
 MINI_APP_HTML_GZIP_B64 = """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"""
 MINI_APP_HTML = gzip.decompress(base64.b64decode(MINI_APP_HTML_GZIP_B64)).decode("utf-8")
@@ -63,503 +63,27 @@ MINI_APP_HTML = gzip.decompress(base64.b64decode(MINI_APP_HTML_GZIP_B64)).decode
 MINI_APP_PATCH = r"""
 <style>
 #profileInitial.has-photo{background-size:cover;background-position:center;font-size:0}
-.fitmy-extra-btn{margin-top:10px}
-.weight-entry{margin-top:10px;padding:14px}.weight-entry-row{display:flex;gap:8px;align-items:center}.weight-entry input{flex:1;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px;font-size:16px;min-width:0}.weight-entry button{border:0;border-radius:14px;background:var(--primary);color:#fff;padding:12px 14px;font-weight:800}
-.weight-history{margin-top:10px;padding:14px}.weight-history-list{display:flex;gap:7px;overflow:auto;padding-top:8px}.weight-chip{white-space:nowrap;background:#f1eee6;border-radius:12px;padding:8px 10px;font-size:11px}
+.fm-root{padding:18px 16px 110px;color:#173b25}.fm-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.fm-head h1{font:700 34px/1.05 Georgia,serif;margin:2px 0 5px}.fm-head p{margin:0;color:#667267;font-size:13px}.fm-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#78907e;font-weight:800}.fm-view-switch{display:flex;background:#ebe7dc;padding:3px;border-radius:14px}.fm-view-switch button,.fm-days button,.fm-actions button{border:0;cursor:pointer}.fm-view-switch button{background:transparent;padding:8px 11px;border-radius:11px;color:#536057;font-weight:700}.fm-view-switch button.active{background:#fff;color:#173b25}.fm-days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:16px 0}.fm-day-btn{background:#f0ede4;border-radius:13px;padding:8px 2px;color:#536057}.fm-day-btn b,.fm-day-btn span{display:block}.fm-day-btn span{font-size:10px;margin-top:2px}.fm-day-btn.active{background:#214d2c;color:white}.fm-day{display:grid;gap:13px}.fm-meal-card{background:#fff;border:1px solid rgba(31,74,43,.10);border-radius:22px;overflow:hidden;box-shadow:0 7px 24px rgba(30,55,35,.06)}.fm-meal-img,.fm-meal-placeholder{width:100%;height:190px;object-fit:cover;display:block}.fm-meal-placeholder{background:linear-gradient(135deg,#e8e4d8,#f4f1e8);display:grid;place-items:center;color:#879187;font-size:12px}.fm-meal-body{padding:14px}.fm-meal-type{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#7b8b7e;font-weight:800}.fm-meal-card h3{font:700 20px/1.15 Georgia,serif;margin:5px 0 8px}.fm-macros,.fm-time{font-size:12px;color:#5f6c62}.fm-time{margin-top:4px}.fm-actions{display:flex;gap:8px;margin-top:12px}.fm-actions button{flex:1;border-radius:13px;padding:10px;background:#edf0e9;color:#214d2c;font-weight:800}.fm-actions button:last-child{background:#214d2c;color:#fff}.fm-week{display:grid;gap:18px}.fm-week-day{background:#f2efe7;border-radius:24px;padding:12px}.fm-week-title{display:flex;justify-content:space-between;align-items:center;padding:3px 4px 10px}.fm-week-title b{font:700 23px Georgia,serif}.fm-week-title span{color:#788078}.fm-compact{display:grid;grid-template-columns:96px 1fr;margin-bottom:9px;border-radius:17px}.fm-compact .fm-meal-img,.fm-compact .fm-meal-placeholder{height:100%;min-height:130px}.fm-compact .fm-meal-body{padding:10px}.fm-compact h3{font-size:16px}.fm-compact .fm-actions{margin-top:8px}.fm-modal{position:fixed;inset:0;z-index:10020;background:rgba(18,34,23,.55);padding:20px;display:flex;align-items:flex-end;justify-content:center}.fm-modal-card{background:#fffdf8;border-radius:28px 28px 18px 18px;max-width:480px;width:100%;max-height:88vh;overflow:auto;position:relative}.fm-modal-card .fm-meal-img,.fm-modal-card .fm-meal-placeholder{height:220px}.fm-modal-body{padding:18px 20px 26px}.fm-modal-body h2{font:700 27px/1.1 Georgia,serif;margin:5px 34px 8px 0}.fm-modal-body h4{margin:18px 0 8px}.fm-modal-body li{margin:6px 0;line-height:1.35}.fm-close{position:absolute;right:12px;top:12px;z-index:2;border:0;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);font-size:25px}
+#fitmyTrialBar{position:fixed;left:16px;right:16px;bottom:88px;z-index:9997;background:#f7f3e9;border:1px solid rgba(31,74,43,.16);border-radius:18px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 8px 30px rgba(30,55,35,.10);font:13px/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#173b25}#fitmyTrialBar button,#fitmyPaywall button{border:0;border-radius:14px;background:#214d2c;color:#fff;padding:10px 13px;font-weight:700}
+#fitmyPaywall{position:fixed;inset:0;z-index:10000;background:rgba(245,241,231,.97);display:flex;align-items:center;justify-content:center;padding:24px}#fitmyPayCard{max-width:390px;width:100%;background:#fffdf8;border-radius:28px;padding:28px 22px;text-align:center;color:#173b25}
 </style>
 <script>
-(()=> {
- const oldBootstrap=window.bootstrap;
- const workoutSets=[
-  {name:'Full body',mins:45,items:[['Приседания','3 × 12'],['Отжимания от опоры','3 × 10'],['Тяга гантелей в наклоне','3 × 12'],['Выпады назад','3 × 10'],['Ягодичный мост','3 × 15'],['Планка','3 × 40 сек']]},
-  {name:'Ноги и ягодицы',mins:40,items:[['Приседания сумо','3 × 12'],['Румынская тяга','3 × 12'],['Болгарские выпады','3 × 10'],['Ягодичный мост','4 × 15'],['Отведение ноги','3 × 15'],['Боковая планка','3 × 30 сек']]},
-  {name:'Спина и корпус',mins:35,items:[['Тяга гантелей','3 × 12'],['Разведение рук','3 × 12'],['Пуловер','3 × 12'],['Bird dog','3 × 12'],['Dead bug','3 × 12'],['Планка','3 × 45 сек']]},
-  {name:'Функциональная',mins:38,items:[['Присед + подъём рук','3 × 12'],['Шаги в планку','3 × 8'],['Выпады с подъёмом колена','3 × 10'],['Ягодичный мост','3 × 15'],['Альпинист','3 × 30 сек'],['Скручивания','3 × 15']]}
- ];
- function weekNumber(){const d=new Date(),onejan=new Date(d.getFullYear(),0,1);return Math.floor(((d-onejan)/86400000+onejan.getDay()+6)/7)}
- function workoutForNow(){return workoutSets[weekNumber()%workoutSets.length]}
- function applyWorkout(){
-   const w=workoutForNow(), head=document.querySelector('[data-page="workout"] .workout-head');
-   if(head){head.querySelector('h2').textContent=w.name;const tags=head.querySelectorAll('.workout-tags span');if(tags[0])tags[0].textContent=w.mins+' минут'}
-   const box=document.getElementById('exerciseList'); if(box){box.innerHTML=w.items.map((x,i)=>'<div class="card exercise"><div class="num">'+(i+1)+'</div><div class="ei"><h3>'+x[0]+'</h3><p>'+x[1]+'</p></div><button class="done" data-ex="'+i+'">✓</button></div>').join('')}
-   if(window.__fitmyWorkoutDone) document.querySelectorAll('.done').forEach(x=>x.classList.add('on'));
-   if(typeof updateWorkout==='function')updateWorkout();
- }
- const heroCopy=document.querySelector('.hero-copy'); if(heroCopy)heroCopy.textContent='Здоровые привычки — энергия каждый день';
-
- const profileHead=document.querySelector('.profile-head');
- if(profileHead && !document.getElementById('profilePhotoInput')){
-   const b=document.createElement('button');b.className='secondary-btn fitmy-extra-btn';b.id='changeProfilePhoto';b.textContent='Установить своё фото';
-   const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.id='profilePhotoInput';inp.style.display='none';
-   profileHead.appendChild(b);profileHead.appendChild(inp);
-   b.onclick=()=>inp.click();
-   inp.onchange=async()=>{
-     const file=inp.files&&inp.files[0];if(!file)return;
-     const img=new Image(),reader=new FileReader();
-     reader.onload=()=>img.src=reader.result;
-     img.onload=async()=>{
-       const c=document.createElement('canvas'),max=420,scale=Math.min(1,max/Math.max(img.width,img.height));c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-       const data=c.toDataURL('image/jpeg',.78);
-       if(initData){const r=await fetch(API+'/api/app/profile/photo',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:JSON.stringify({photo_data:data})});if(!r.ok){showToast('Не удалось сохранить фото');return}}
-       const circle=document.getElementById('profileInitial');circle.style.backgroundImage='url("'+data+'")';circle.classList.add('has-photo');showToast('Фото профиля сохранено');
-     };reader.readAsDataURL(file);
-   };
- }
- const progressPage=document.querySelector('[data-page="progress"]');
- if(progressPage && !document.getElementById('dailyWeightInput')){
-   const card=document.createElement('div');card.className='card weight-entry';card.innerHTML='<b>Ежедневный вес</b><div class="sub" style="margin-top:3px">Вноси новый вес — он сразу попадёт в текущий результат и историю.</div><div class="weight-entry-row" style="margin-top:10px"><input id="dailyWeightInput" inputmode="decimal" placeholder="Например, 56,1"><button id="saveDailyWeight">Сохранить</button></div>';
-   progressPage.insertBefore(card,progressPage.children[1]);
-   document.getElementById('saveDailyWeight').onclick=async()=>{const el=document.getElementById('dailyWeightInput'),v=parseFloat(el.value.replace(',','.'));if(Number.isFinite(v)){await saveWeight('current',v);el.value='';await loadWeightHistory()}};
-   const hist=document.createElement('div');hist.className='card weight-history';hist.innerHTML='<b>История веса</b><div class="weight-history-list" id="weightHistoryList"></div>';progressPage.insertBefore(hist,progressPage.children[2]);
- }
- async function loadWeightHistory(items){
-   if(!items&&initData){try{const r=await fetch(API+'/api/app/weight/history',{headers:{'X-Telegram-Init-Data':initData,'Cache-Control':'no-cache'}});if(r.ok)items=(await r.json()).items}catch{}}
-   items=items||[];const box=document.getElementById('weightHistoryList');if(box)box.innerHTML=items.slice(-12).reverse().map(x=>'<div class="weight-chip">'+new Date(x.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' · <b>'+Number(x.weight).toFixed(1).replace('.',',')+' кг</b></div>').join('')||'<span class="sub">Добавь первый результат</span>';
- }
- const originalFetch=window.fetch.bind(window);
- window.fetch=async(...args)=>{const r=await originalFetch(...args);try{const u=String(args[0]);if(u.includes('/api/app/bootstrap')&&r.ok){const clone=r.clone(),j=await clone.json();window.__fitmyWorkoutDone=!!j.workout_progress?.today_completed;window.__fitmyWorkoutCount=j.workout_progress?.completed_count||0;setTimeout(()=>{const pc=document.querySelectorAll('.progress-card .big');if(pc[2])pc[2].textContent=window.__fitmyWorkoutCount;const ph=document.getElementById('profileInitial');if(j.profile_photo&&ph){ph.style.backgroundImage='url("'+j.profile_photo+'")';ph.classList.add('has-photo')}loadWeightHistory(j.weight_history);applyWorkout()},50)}}catch{}return r};
- const finish=document.getElementById('finishWorkout');
- if(finish){finish.onclick=async()=>{document.querySelectorAll('.done').forEach(x=>x.classList.add('on'));updateWorkout();const w=workoutForNow();if(initData){try{const r=await originalFetch(API+'/api/app/workout/complete',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:JSON.stringify({workout_key:'week-'+weekNumber()+'-'+new Date().getDay(),workout_name:w.name})});if(r.ok){const j=await r.json();window.__fitmyWorkoutDone=true;window.__fitmyWorkoutCount=j.completed_count||1;const pc=document.querySelectorAll('.progress-card .big');if(pc[2])pc[2].textContent=window.__fitmyWorkoutCount}}catch{}}showToast('Тренировка засчитана в прогресс 💚')}}
- setTimeout(applyWorkout,400);
-})();
-</script>
-<script>
 (()=>{
- const OATMEAL_IMAGE='https://cf-img-a-in.tosshub.com/sites/visualstory/wp/2025/09/imageITG-1757139143153.png?size=%2A%3A900';
-
- function normalizeHeight(v){
-   const m=String(v??'').replace(',','.').match(/\d{2,3}(?:\.\d+)?/);
-   return m ? String(Math.round(Number(m[0]))) : '';
- }
- function forceProfileHeight(height){
-   height=normalizeHeight(height); if(!height)return;
-   const page=document.querySelector('[data-page="profile"]')||document;
-   const walker=document.createTreeWalker(page,NodeFilter.SHOW_TEXT);
-   const nodes=[]; while(walker.nextNode())nodes.push(walker.currentNode);
-   nodes.forEach(n=>{
-     const t=n.nodeValue||'';
-     if(/\b\d{2,3}\s*см\b/i.test(t)) n.nodeValue=t.replace(/\b\d{2,3}\s*см\b/gi,height+' см');
-   });
-   ['profileHeight','heightValue','userHeight'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=height+' см'});
- }
- function fixMealLibrary(){
-   try{
-     if(typeof mealLibrary!=='undefined' && mealLibrary.oatmeal){
-       mealLibrary.oatmeal.image=OATMEAL_IMAGE;
-       mealLibrary.oatmeal.img=OATMEAL_IMAGE;
-       mealLibrary.oatmeal.photo=OATMEAL_IMAGE;
-     }
-   }catch(e){}
-   document.querySelectorAll('img').forEach(img=>{
-     // Change only the image inside the ONE meal tile that actually contains oatmeal.
-     // Never climb to the day/row container: it contains several meals and previously
-     // caused the oatmeal photo to overwrite salmon, yogurt, turkey, etc.
-     let box=img.parentElement, ownMealBox=null;
-     for(let depth=0;box && depth<6;depth++,box=box.parentElement){
-       const images=box.querySelectorAll ? box.querySelectorAll('img').length : 0;
-       const txt=(box.textContent||'').trim();
-       if(images===1 && txt.length>0 && txt.length<180){ownMealBox=box;break;}
-       if(images>1)break;
-     }
-     if(ownMealBox && /овсянк/i.test(ownMealBox.textContent||'')){
-       if(img.src!==OATMEAL_IMAGE) img.src=OATMEAL_IMAGE;
-       img.alt='Овсянка с ягодами и орехами';
-     }
-   });
- }
- async function hardSync(){
-   if(!initData)return;
-   try{
-     const r=await fetch(API+'/api/app/bootstrap?fresh='+Date.now(),{headers:{'X-Telegram-Init-Data':initData,'Cache-Control':'no-store'}});
-     if(!r.ok)return;
-     const j=await r.json();
-     if(j.profile?.height) forceProfileHeight(j.profile.height);
-     if(j.profile_photo){const ph=document.getElementById('profileInitial');if(ph){ph.style.backgroundImage='url("'+j.profile_photo+'")';ph.classList.add('has-photo')}}
-     fixMealLibrary();
-     try{ if(typeof renderMeals==='function')renderMeals(); if(typeof renderWeek==='function')renderWeek(); }catch(e){}
-     setTimeout(fixMealLibrary,100);
-   }catch(e){}
- }
- let mealFixTimer=0;
- const observer={disconnect(){}};
- fixMealLibrary();
- setTimeout(hardSync,350);
-})();
-</script>
-<script>
-(()=>{
- const TG_INIT=(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.initData)||window.initData||'';
- const API_BASE=window.API||'';
- const authHeaders=(json=false)=>Object.assign(json?{'Content-Type':'application/json'}:{},{'X-Telegram-Init-Data':TG_INIT,'Cache-Control':'no-store'});
-
- function setProfileRow(label,value){
-   if(value===undefined||value===null||value==='')return;
-   const page=document.querySelector('[data-page="profile"]')||document;
-   const all=[...page.querySelectorAll('div,span,p,b,strong')];
-   const lab=all.find(e=>e.children.length===0 && (e.textContent||'').trim().toLowerCase()===label.toLowerCase());
-   if(!lab)return;
-   const row=lab.closest('.card,.profile-row,.setting-row,.row')||lab.parentElement;
-   if(!row)return;
-   const texts=[...row.querySelectorAll('div,span,p,b,strong')].filter(e=>e!==lab&&e.children.length===0);
-   const target=texts[texts.length-1];
-   if(target)target.textContent=value;
- }
- function fmtKg(v){return Number(v).toFixed(1).replace('.',',')+' кг'}
- function applyAll(j){
+ const init=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)||'';
+ window.__fitmyBootstrapPromise=init?fetch('/api/app/bootstrap',{headers:{'X-Telegram-Init-Data':init,'Cache-Control':'no-store'}}).then(r=>r.ok?r.json():null).catch(()=>null):Promise.resolve(null);
+ window.__fitmyBootstrapPromise.then(j=>{
    if(!j)return;
-   if(j.profile){
-     setProfileRow('Рост',String(j.profile.height).match(/\d{2,3}/)?.[0]+' см');
-     setProfileRow('Текущий вес',fmtKg(j.goal_progress?.current_weight??j.profile.weight));
-     if(j.profile.activity)setProfileRow('Активность',j.profile.activity);
-     if(j.profile.frequency)setProfileRow('Тренировок в неделю',String(j.profile.frequency).match(/\d+/)?.[0]||j.profile.frequency);
-   }
-   const gp=j.goal_progress||{};
-   const big=[...document.querySelectorAll('[data-page="progress"] .big')];
-   if(big[0]&&gp.current_weight!=null)big[0].textContent=fmtKg(gp.current_weight);
-   if(big[1]&&gp.target_weight!=null)big[1].textContent=fmtKg(gp.target_weight);
-   if(big[2]&&gp.remaining_weight!=null)big[2].textContent=fmtKg(gp.remaining_weight);
-   const history=document.getElementById('weightHistoryList');
-   const wh=j.weight_history||[];
-   if(history)history.innerHTML=wh.length?wh.slice(-12).reverse().map(x=>'<div class="weight-chip">'+new Date(x.created_at).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'})+' · <b>'+fmtKg(x.weight)+'</b></div>').join(''):'<span class="sub">Добавь первый результат</span>';
-   const statLabels=[...document.querySelectorAll('[data-page="progress"] *')];
-   const trainLabel=statLabels.find(e=>e.children.length===0&&/тренировок за неделю/i.test(e.textContent||''));
-   if(trainLabel){const card=trainLabel.closest('.card')||trainLabel.parentElement;const val=card&&card.querySelector('.big');if(val)val.textContent=String(j.workout_progress?.completed_count??0)}
-   const ph=document.getElementById('profileInitial');
-   if(ph&&j.profile_photo){ph.style.backgroundImage='url("'+j.profile_photo+'")';ph.style.backgroundSize='cover';ph.style.backgroundPosition='center';ph.textContent=''}
- }
- async function fresh(){
-   if(!TG_INIT)return;
-   try{
-     const r=await fetch(API_BASE+'/api/app/bootstrap?ts='+Date.now(),{headers:authHeaders()});
-     if(r.ok)applyAll(await r.json());
-   }catch(e){}
- }
- // Replace fragile handlers with Telegram initData taken directly from the WebApp SDK.
- const photoInput=document.getElementById('profilePhotoInput');
- if(photoInput){
-   photoInput.addEventListener('change',async()=>{
-     const file=photoInput.files&&photoInput.files[0];if(!file||!TG_INIT)return;
-     const img=new Image(),rd=new FileReader();rd.onload=()=>img.src=rd.result;
-     img.onload=async()=>{
-       const c=document.createElement('canvas'),scale=Math.min(1,420/Math.max(img.width,img.height));c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-       const data=c.toDataURL('image/jpeg',.75);
-       const r=await fetch(API_BASE+'/api/app/profile/photo',{method:'POST',headers:authHeaders(true),body:JSON.stringify({photo_data:data})});
-       if(r.ok){const ph=document.getElementById('profileInitial');if(ph){ph.style.backgroundImage='url("'+data+'")';ph.style.backgroundSize='cover';ph.textContent=''};if(window.showToast)showToast('Фото сохранено')}
-     };rd.readAsDataURL(file);
-   },true);
- }
- const finish=document.getElementById('finishWorkout');
- if(finish){
-   finish.addEventListener('click',async()=>{
-     if(!TG_INIT)return;
-     try{
-       const r=await fetch(API_BASE+'/api/app/workout/complete',{method:'POST',headers:authHeaders(true),body:JSON.stringify({workout_key:'day-'+new Date().toISOString().slice(0,10),workout_name:(document.querySelector('[data-page="workout"] h2')?.textContent||'Тренировка')})});
-       if(r.ok){await fresh();if(window.showToast)showToast('Тренировка засчитана в прогресс')}
-     }catch(e){}
-   },true);
- }
- fresh(); setTimeout(fresh,700); setTimeout(fresh,2200);
+   const ph=document.getElementById('profileInitial');if(ph&&j.profile_photo){ph.style.backgroundImage='url("'+j.profile_photo+'")';ph.classList.add('has-photo')}
+ });
 })();
 </script>
-<script>
-(()=>{
- let serverData=null, applying=false;
- const kg=v=>v==null?'—':Number(v).toFixed(1).replace('.',',')+' кг';
- const cm=v=>{const m=String(v??'').match(/\d{2,3}/);return m?m[0]+' см':'—'};
-
- function leafs(root=document){return [...root.querySelectorAll('*')].filter(e=>e.children.length===0)}
- function byExact(label,root=document){return leafs(root).find(e=>(e.textContent||'').trim().toLowerCase()===label.toLowerCase())}
- function setNear(label,value,root=document){
-   const lab=byExact(label,root); if(!lab)return false;
-   // Profile/settings rows contain free-text values (activity, frequency, etc.).
-   // Always update the value leaf inside the SAME row first; never climb into a
-   // larger card where another questionnaire answer could be selected.
-   const direct=lab.parentElement;
-   if(direct){
-     const candidates=leafs(direct).filter(e=>e!==lab && (e.textContent||'').trim());
-     if(candidates.length){
-       const target=candidates[candidates.length-1];
-       target.textContent=value; return true;
-     }
-   }
-   let box=lab.parentElement;
-   for(let depth=0;box&&depth<3;depth++,box=box.parentElement){
-     const candidates=leafs(box).filter(e=>e!==lab && (e.textContent||'').trim() && !/^(Результат|Цель|До цели осталось|Рост|Текущий вес|Цель по весу|Активность|Тренировок в неделю)$/i.test((e.textContent||'').trim()));
-     const numeric=candidates.find(e=>/^\s*(?:\d+[,.]?\d*\s*(?:кг|см)?|—)\s*$/i.test(e.textContent||''));
-     if(numeric){numeric.textContent=value;return true}
-   }
-   return false;
- }
- function applyServer(){
-   if(!serverData||applying)return; applying=true;
-   try{
-     const j=serverData,p=j.profile||{},g=j.goal_progress||{};
-     setNear('Результат',kg(g.current_weight??p.weight));
-     setNear('Цель',kg(g.target_weight));
-     setNear('До цели осталось',kg(g.remaining_weight));
-     setNear('Рост',cm(p.height));
-     setNear('Текущий вес',kg(g.current_weight??p.weight));
-     setNear('Цель по весу',kg(g.target_weight));
-     if(p.activity)setNear('Активность',p.activity);
-     if(p.frequency)setNear('Тренировок в неделю',(String(p.frequency).match(/\d+/)||[p.frequency])[0]);
-
-     // Never show somebody else's/demo goal when this user has no numeric goal saved.
-     if(g.target_weight==null){setNear('Цель','—');setNear('До цели осталось','—');setNear('Цель по весу','—')}
-
-     // Profile name must come from this Telegram questionnaire.
-     const prof=document.querySelector('[data-page="profile"]')||document;
-     if(p.name){
-       const h=[...prof.querySelectorAll('h1,h2,h3,.profile-name')].find(e=>/наталья|профиль|^[А-ЯЁA-Z][а-яёa-z]+$/i.test((e.textContent||'').trim()));
-       if(h && !/профиль/i.test(h.textContent||''))h.textContent=p.name;
-     }
-     const ph=document.getElementById('profileInitial');
-     if(ph){
-       if(j.profile_photo){ph.style.backgroundImage='url("'+j.profile_photo+'")';ph.style.backgroundSize='cover';ph.style.backgroundPosition='center';ph.textContent=''}
-       else if(p.name)ph.textContent=p.name.trim().charAt(0).toUpperCase();
-     }
-   }finally{applying=false}
- }
- async function loadServer(){
-   const init=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)||'';
-   if(!init)return;
-   try{
-     const r=await fetch('/api/app/bootstrap?authoritative='+Date.now(),{headers:{'X-Telegram-Init-Data':init,'Cache-Control':'no-store'}});
-     if(r.ok){serverData=await r.json();applyServer()}
-   }catch(e){}
- }
- let timer=0;
-
- loadServer();
-})();
-</script>
-<script>
-(()=>{
- const fancy=/(лосос|с[её]мг|форел|кревет|морепродукт|киноа|авокад|чиа|тунец)/i;
- const ordinary=[
-   /минтай.*рис|рис.*минтай|белая рыба.*рис/i,
-   /куриц.*греч|греч.*куриц/i,
-   /куриц.*рис|рис.*куриц/i,
-   /творог.*яблок|творог.*банан/i,
-   /омлет.*овощ|яйц.*овощ/i,
-   /йогурт.*банан|кефир.*овсян/i
- ];
- function mealName(x){return String(x?.name||x?.title||x?.label||'')}
- function clone(x){try{return JSON.parse(JSON.stringify(x))}catch{return null}}
- function sanitizeLibrary(){
-   try{
-     if(typeof mealLibrary==='undefined'||!mealLibrary)return false;
-     const entries=Object.entries(mealLibrary), vals=entries.map(x=>x[1]);
-     const pools=ordinary.map(rx=>vals.find(v=>rx.test(mealName(v)))).filter(Boolean);
-     let n=0;
-     for(const [key,item] of entries){
-       if(!fancy.test(mealName(item)))continue;
-       const replacement=pools[n%pools.length]; n++;
-       if(replacement){
-         const c=clone(replacement);
-         Object.keys(item).forEach(k=>delete item[k]);
-         Object.assign(item,c);
-       }else{
-         const name=mealName(item);
-         const simple=/лосос|с[её]мг|форел|тунец/i.test(name)?'Минтай с рисом и овощами':
-                      /кревет|морепродукт/i.test(name)?'Курица с рисом и овощами':
-                      /киноа/i.test(name)?'Гречка с курицей и овощами':
-                      /авокад/i.test(name)?'Яйца с тостом и овощами':
-                      'Овсянка с яблоком';
-         if('name'in item)item.name=simple;
-         if('title'in item)item.title=simple;
-         if('label'in item)item.label=simple;
-       }
-     }
-     return true;
-   }catch(e){return false}
- }
- function sanitizeVisible(){
-   document.querySelectorAll('*').forEach(el=>{
-     if(el.children.length||!fancy.test(el.textContent||''))return;
-     let t=el.textContent;
-     t=t.replace(/лосос[^·,;]*/ig,'Минтай с рисом и овощами')
-        .replace(/[сc][её]мг[^·,;]*/ig,'Минтай с картофелем')
-        .replace(/форел[^·,;]*/ig,'Минтай с овощами')
-        .replace(/кревет[^·,;]*/ig,'Курица с рисом и овощами')
-        .replace(/киноа[^·,;]*/ig,'Гречка с курицей')
-        .replace(/авокад[^·,;]*/ig,'Яйца с овощами')
-        .replace(/чиа[^·,;]*/ig,'Овсянка с яблоком')
-        .replace(/тунец[^·,;]*/ig,'Курица с овощами');
-     el.textContent=t;
-   });
- }
- function run(){
-   const changed=sanitizeLibrary();
-   if(changed){try{if(typeof renderWeek==='function')renderWeek();if(typeof renderMeals==='function')renderMeals()}catch(e){}}
-   sanitizeVisible();
- }
- run();setTimeout(run,300);setTimeout(run,1200);
-
-})();
-</script>
-<script>
-(()=>{
- // The original Mini App ships with a demo meal library/week. Always replace the
- // visible week with the authenticated server plan so DB changes actually reach UI.
- const CATALOG={};
- const META = window.__FITMY_SERVER_CATALOG__ || null;
- function initData(){return (window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)||''}
- function applyPlan(j){
-   const plan=j&&j.app_week_plan&&j.app_week_plan.plan;
-   if(!Array.isArray(plan)||plan.length!==7)return;
-   try{
-     if(typeof mealLibrary!=='undefined' && mealLibrary && j.app_week_plan && j.app_week_plan.meals){
-       Object.entries(j.app_week_plan.meals).forEach(([id,x])=>{
-         const nm=String(x.name||id).toLowerCase();
-         const tags=[];
-         if(/омлет|яйц/.test(nm))tags.push('omelette','eggs');
-         if(/творог|сырник|творож/.test(nm))tags.push('cottage-cheese');
-         if(/овсян/.test(nm))tags.push('oatmeal');
-         if(/греч/.test(nm))tags.push('buckwheat');
-         if(/рис/.test(nm))tags.push('rice');
-         if(/куриц/.test(nm))tags.push('chicken');
-         if(/индей/.test(nm))tags.push('turkey');
-         if(/говяд/.test(nm))tags.push('beef');
-         if(/минтай|рыб|скумбр/.test(nm))tags.push('fish');
-         if(/чечев/.test(nm))tags.push('lentils');
-         if(/фасол/.test(nm))tags.push('beans');
-         if(/макарон|паста/.test(nm))tags.push('pasta');
-         if(/картоф/.test(nm))tags.push('potatoes');
-         if(/овощ|томат|капуст|морков|огур/.test(nm))tags.push('vegetables');
-         if(/яблок/.test(nm))tags.push('apple');
-         if(/банан/.test(nm))tags.push('banana');
-         if(/йогурт|кефир|ряжен/.test(nm))tags.push('yogurt');
-         if(/суп|борщ/.test(nm))tags.push('soup');
-         if(!tags.length)tags.push('healthy-food');
-         const lock=Array.from(id).reduce((a,c)=>(a*31+c.charCodeAt(0))%100000,7);
-         const photo='https://loremflickr.com/480/360/'+tags.slice(0,3).join(',')+'?lock='+lock;
-         mealLibrary[id]=Object.assign({}, mealLibrary[id]||{}, x, {id:id,name:x.name||id,title:x.name||id,image:photo,img:photo,photo:photo});
-       });
-     }
-     if(typeof weekPlan!=='undefined'){
-       for(let d=0;d<7;d++)weekPlan[d]=plan[d].slice();
-     }
-     if(typeof currentWeek!=='undefined'&&Array.isArray(currentWeek)){
-       for(let d=0;d<7;d++)currentWeek[d]=plan[d].slice();
-     }
-     if(typeof renderWeek==='function')renderWeek();
-     if(typeof renderMeals==='function')renderMeals();
-     // The legacy renderer keeps its own fallback image. Patch the actual 28 visible
-     // week-card <img> elements after rendering, in plan order.
-     const foodPage=document.querySelector('[data-page="food"],[data-page="nutrition"],[data-page="meals"]')||document;
-     const imgs=[...foodPage.querySelectorAll('img')].filter(img=>{
-       let box=img.parentElement;
-       for(let k=0;box&&k<5;k++,box=box.parentElement){
-         const t=(box.textContent||'').trim();
-         if(t && t.length<220 && !/Fitmy|ИИ-нутрициолог/i.test(t)) return true;
-       }
-       return false;
-     }).slice(0,28);
-     // Day plan: when user changes a day, replace the four visible meal cards
-     // from the selected server day instead of leaving the previous day's meals.
-     window.__fitmyServerPlan={plan:plan,meals:(j.app_week_plan&&j.app_week_plan.meals)||{}};
-     function syncVisibleDay(){
-       const state=window.__fitmyServerPlan;if(!state)return;
-       let dayIndex=0;
-       const active=[...document.querySelectorAll('button,[role="button"],.active,.selected')].find(el=>/^(Пн|Вт|Ср|Чт|Пт|Сб|Вс)$/.test((el.textContent||'').trim()));
-       if(active)dayIndex=Math.max(0,['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].indexOf((active.textContent||'').trim()));
-       const ids=state.plan[dayIndex]||[];
-       const candidates=[...foodPage.querySelectorAll('img')].filter(img=>img.offsetParent!==null).slice(0,4);
-       candidates.forEach((img,k)=>{
-         const id=ids[k],meal=id&&mealLibrary[id];if(!meal)return;
-         const src=meal.image||meal.img||meal.photo;if(src)img.src=src;
-         const card=img.closest('button,.card,[class*="meal"],[class*="card"]');
-         if(card){const texts=[...card.querySelectorAll('h1,h2,h3,h4,p,span,div')].filter(e=>e.children.length===0);const title=texts.find(e=>(e.textContent||'').trim()&&!/^\d/.test((e.textContent||'').trim()));if(title)title.textContent=meal.name||meal.title||id;}
-       });
-     }
-     document.addEventListener('click',e=>{if(/^(Пн|Вт|Ср|Чт|Пт|Сб|Вс)$/.test((e.target.textContent||'').trim()))setTimeout(syncVisibleDay,80)},true);
-     // Bind photos by the meal title actually rendered in each card. This is
-     // independent of DOM order, so header/hero images cannot shift the mapping.
-     const allLeaves=[...foodPage.querySelectorAll('div,span,p,b,strong')].filter(e=>e.children.length===0);
-     plan.flat().forEach(id=>{
-       const meal=mealLibrary[id];if(!meal)return;
-       const title=String(meal.name||meal.title||'').trim();if(!title)return;
-       const key=title.slice(0,Math.min(14,title.length)).toLowerCase();
-       const label=allLeaves.find(e=>(e.textContent||'').trim().toLowerCase().startsWith(key));
-       if(!label)return;
-       let box=label.parentElement,target=null;
-       for(let d=0;box&&d<6;d++,box=box.parentElement){
-         const ii=box.querySelectorAll?box.querySelectorAll('img'):[];
-         if(ii.length===1){target=ii[0];break}
-         if(ii.length>1)break;
-       }
-       const src=meal.image||meal.img||meal.photo;
-       if(target&&src){target.src=src;target.alt=title;target.loading='lazy';}
-     });
-     const flat=plan.flat();
-     imgs.forEach((img,i)=>{
-       const id=flat[i], meal=id&&mealLibrary[id];
-       if(meal){
-         const src=meal.image||meal.img||meal.photo;
-         if(src){img.src=src;img.alt=meal.name||meal.title||'Блюдо';img.loading='lazy';}
-       }
-     });
-   }catch(e){}
- }
- async function sync(){
-   const init=initData();if(!init)return;
-   try{
-     const r=await fetch('/api/app/bootstrap?menu='+Date.now(),{headers:{'X-Telegram-Init-Data':init,'Cache-Control':'no-store'}});
-     if(r.ok)applyPlan(await r.json());
-   }catch(e){}
- }
- sync();
-})();
-</script>
-<style id="fitmy-sub-style">
-#fitmyTrialBar{position:fixed;left:16px;right:16px;bottom:88px;z-index:9997;background:#f7f3e9;border:1px solid rgba(31,74,43,.16);border-radius:18px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 8px 30px rgba(30,55,35,.10);font:13px/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#173b25}
-#fitmyTrialBar button,#fitmyPaywall button{border:0;border-radius:14px;background:#214d2c;color:#fff;padding:10px 13px;font-weight:700}
-#fitmyPaywall{position:fixed;inset:0;z-index:10000;background:rgba(245,241,231,.97);display:flex;align-items:center;justify-content:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-#fitmyPayCard{max-width:390px;width:100%;background:#fffdf8;border-radius:28px;padding:28px 22px;text-align:center;box-shadow:0 18px 60px rgba(30,55,35,.14);color:#173b25}
-#fitmyPayCard h2{font:700 30px/1.05 Georgia,serif;margin:0 0 12px}#fitmyPayCard p{line-height:1.45;color:#536057}
-#fitmyPayCard .price{font:700 26px/1.1 Georgia,serif;margin:18px 0 6px}#fitmyPayCard button{width:100%;font-size:16px;padding:14px;margin-top:14px}
-#fitmyPayCard .terms{background:transparent;color:#355b3f;font-size:13px;padding:8px}
-</style>
+<script src="/static/nutrition_app.js?v=v22-unified-nutrition-1"></script>
 <script>
 (()=>{
  const PRICE=350;
- function terms(){
-   const t='14 дней бесплатно. Далее 350 Telegram Stars за каждые 30 дней. После первой оплаты подписка продлевается автоматически каждые 30 дней, пока автопродление не отменено. При отмене оплаченный доступ действует до конца периода. По вопросам оплаты: /paysupport.';
-   try{Telegram.WebApp.showPopup({title:'Условия подписки',message:t,buttons:[{type:'ok'}]})}catch(e){alert(t)}
- }
- async function pay(){
-   const init=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)||'';
-   if(!init)return;
-   try{
-     const r=await fetch('/api/app/subscription/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':init},body:JSON.stringify({terms_accepted:true})});
-     const j=await r.json();
-     if(!r.ok){if(j.error==='already_active')location.reload();return}
-     const link=j.invoice_link;
-     if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.openInvoice){
-       Telegram.WebApp.openInvoice(link,status=>{if(status==='paid')setTimeout(()=>location.reload(),700)});
-     }else location.href=link;
-   }catch(e){}
- }
- function render(sub){
-   document.getElementById('fitmyTrialBar')?.remove();
-   document.getElementById('fitmyPaywall')?.remove();
-   if(!sub)return;
-   if(sub.status==='trial'){
-     const bar=document.createElement('div');bar.id='fitmyTrialBar';
-     bar.innerHTML='<span><b>Бесплатный период</b><br>Осталось '+sub.days_left+' дн.</span><button type="button">Подписка</button>';
-     bar.querySelector('button').onclick=pay;document.body.appendChild(bar);
-   }else if(sub.status==='expired'){
-     const ov=document.createElement('div');ov.id='fitmyPaywall';
-     ov.innerHTML='<div id="fitmyPayCard"><h2>Продолжить с Fitmy2.0</h2><p>Пробный период закончился. Рацион, тренировки, прогресс и ИИ-агент снова откроются после оформления подписки.</p><div class="price">'+PRICE+' ⭐</div><p>на 30 дней · с автоматическим продлением</p><button id="fitmyPayBtn" type="button">Принимаю условия · оплатить '+PRICE+' ⭐</button><button id="fitmyTermsBtn" class="terms" type="button">Условия подписки</button></div>';
-     ov.querySelector('#fitmyPayBtn').onclick=pay;ov.querySelector('#fitmyTermsBtn').onclick=terms;document.body.appendChild(ov);
-   }
- }
- async function load(){
-   const init=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)||'';
-   if(!init)return;
-   try{const r=await fetch('/api/app/bootstrap?subscription='+Date.now(),{headers:{'X-Telegram-Init-Data':init,'Cache-Control':'no-store'}});if(r.ok){const j=await r.json();render(j.subscription)}}catch(e){}
- }
- load();setTimeout(load,900);
+ async function pay(){const init=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)||'';if(!init)return;const r=await fetch('/api/app/subscription/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':init},body:JSON.stringify({terms_accepted:true})});const j=await r.json();if(r.ok&&j.invoice_link&&Telegram.WebApp.openInvoice)Telegram.WebApp.openInvoice(j.invoice_link,status=>{if(status==='paid')location.reload()})}
+ function render(sub){document.getElementById('fitmyTrialBar')?.remove();document.getElementById('fitmyPaywall')?.remove();if(!sub)return;if(sub.status==='trial'){const b=document.createElement('div');b.id='fitmyTrialBar';b.innerHTML='<span><b>Бесплатный период</b><br>Осталось '+sub.days_left+' дн.</span><button type="button">Подписка</button>';b.querySelector('button').onclick=pay;document.body.appendChild(b)}else if(sub.status==='expired'){const o=document.createElement('div');o.id='fitmyPaywall';o.innerHTML='<div id="fitmyPayCard"><h2>Продолжить с Fitmy2.0</h2><p>Пробный период закончился.</p><div class="price">'+PRICE+' ⭐ на 30 дней</div><button type="button">Оплатить '+PRICE+' ⭐</button></div>';o.querySelector('button').onclick=pay;document.body.appendChild(o)}}
+ window.__fitmyBootstrapPromise.then(j=>{if(j)render(j.subscription)});
 })();
 </script>
 """
@@ -722,6 +246,103 @@ APP_MEAL_CATALOG = {
     "proteinTurkeyCabbage": {"type": "Ужин", "name": "Индейка с тушёной капустой", "kcal": 370, "cook": 25, "protein": 43, "fat": 12, "carbs": 22, "budget": True, "high_protein": True, "goals": ["loss","maintain","gain"]},
     "proteinCurdDinner": {"type": "Ужин", "name": "Творог с яйцом, огурцом и зеленью", "kcal": 330, "cook": 8, "protein": 36, "fat": 14, "carbs": 12, "budget": True, "high_protein": True, "goals": ["loss","maintain"]},
 }
+
+APP_CURATED_WEEK_IDS = {
+    "Завтрак": ["proteinCurdEgg","proteinOmeletCurd","proteinChickenEgg","omeletVeg","oatsCottage","eggBeans","cottageApple"],
+    "Обед": ["proteinChickenBuckwheat","proteinTurkeyRice","proteinPollockPotato","chickenRice","pastaBeans","lentilStew","chickenNoodleSoup"],
+    "Перекус": ["proteinCurdYogurt","proteinEggCurdSnack","proteinYogurtCurdApple","cottageAppleSnack","yogurtBanana","eggToastSnack","beansToast"],
+    "Ужин": ["proteinChickenVeg","proteinTurkeyCabbage","proteinCurdDinner","fishCabbage","omeletDinner","beansChicken","lentilVegDinner"],
+}
+APP_CURATED_MEAL_IDS = {mid for ids in APP_CURATED_WEEK_IDS.values() for mid in ids}
+
+# Only audited dish photos are assigned. Unknown/unverified meals intentionally use None:
+# the UI renders a neutral placeholder instead of showing another dish.
+APP_MEAL_IMAGES = {
+    "proteinCurdEgg": "https://nowcookthis.com/wp-content/uploads/2025/05/breakfast-cottage-cheese-toast-with-egg-1a.jpg",
+    "proteinOmeletCurd": "https://cdn.shopify.com/s/files/1/0066/4295/8420/files/callekocht_omelette_selbstgemacht_600x600.jpg?v=1770793473",
+    "proteinChickenEgg": "https://cdn.abo.media/upload/article/bstk5dgrxaxkfzphp49x.jpg",
+    "omeletVeg": "https://www.arise-app.com/images/dishes/pt/omelete-de-legumes-13xb0x.webp",
+    "oatsCottage": "https://cupofyum.com/uploads/images/000/250/161/250161-cottage-cheese-oatmeal-47837205e543a946afafebfc45d4ab03.jpg",
+    "cottageApple": "https://pinterest-media-cdn.b-cdn.net/article-images/high-protein-snack-ideas-v2/snack_7_cottage_cheese_apple.png",
+    "proteinTurkeyRice": "https://fitfoodway.hu/media/produse/pulykamell-zoeldfuszerekkel-zoeldsegekkel.jpg",
+    "proteinPollockPotato": "https://www.arise-app.com/images/dishes/en/fish-with-potatoes-and-cherry-tomatoes-1xgbvn.webp",
+    "chickenRice": "https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/rice_with_vegetables_and_chicken.jpg",
+    "pastaBeans": "https://s3.us-east-2.amazonaws.com/pfimg1/013/e5/76/e576843f75f4f9787c00b457f4f32ee7_1280m.jpg",
+    "lentilStew": "https://itsonly.recipes/images/recipeimages/hearty-lentil-stew.webp",
+    "chickenNoodleSoup": "https://kochwunder.com/assets/images/1744123953542-yhby33g9.png",
+    "proteinEggCurdSnack": "https://img.wprost.pl/_thumb/e6/6e/5a1da32bef5933b889a9fb65c820.jpeg",
+    "cottageAppleSnack": "https://pinterest-media-cdn.b-cdn.net/article-images/high-protein-snack-ideas-v2/snack_7_cottage_cheese_apple.png",
+    "eggToastSnack": "https://images.deliveryhero.io/image/talabat/MenuItems/DAC359AEED66C855CAC41A45CC237C4D",
+    "beansToast": "https://static.hnonline.sk/images/archive/2019/07/01/08a49b16-d3e4-4629-9726-0d57d9b0d62e.JPG",
+    "proteinChickenVeg": "https://www.foodjajce.com/server/static/products/243.jpg",
+    "proteinTurkeyCabbage": "https://irepo.primecp.com/2015/10/238976/EDR-Unstuffed-Cabbage-Skillet_ExtraLarge1000_ID-1218864.jpg?v=1218864",
+    "proteinCurdDinner": "https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/vzkkh5v4vu06ovgr3nbk",
+    "fishCabbage": "https://dt565gqrz3z7y.cloudfront.net/ce/image/nD22KuksvfOMIBqKrPR_tA.jpg",
+    "omeletDinner": "https://cdn.goodsouppot.com/images/f694239a-8b43-44d9-94d5-1075886ab2ed_f80cfa79.webp",
+    "beansChicken": "https://v.cdn.ww.com/media/system/wine/5e33ef0407ef3c0011189483/29105f3c-2d71-4270-86ef-cc1d386eea4d/pr4haicgplsgmtng9jji.jpg?enable=upscale&fit=crop&height=800&quality=80&width=800",
+    "lentilVegDinner": "https://itsonly.recipes/images/recipeimages/hearty-lentil-stew.webp",
+}
+
+# Correct the curated quick-plan timings. Recipes assume pre-cooked grains where noted.
+APP_MEAL_CATALOG["lentilStew"]["cook"] = 25
+APP_MEAL_CATALOG["chickenNoodleSoup"]["cook"] = 25
+
+def _meal_details(name: str):
+    n = name.lower()
+    ingredients = []
+    rules = [
+        (("куриц",), "куриная грудка 150 г"), (("индей",), "филе индейки 150 г"),
+        (("минтай","белая рыба","рыб"), "филе белой рыбы 160 г"), (("яйц","омлет"), "яйца 2 шт."),
+        (("творог","творож"), "творог 150 г"), (("йогурт",), "натуральный/греческий йогурт 120 г"),
+        (("греч",), "гречка готовая 120 г"), (("рис",), "рис готовый 120 г"),
+        (("овсян",), "овсяные хлопья 50 г"), (("макарон","паста"), "цельнозерновая паста 70 г"),
+        (("картоф",), "картофель 180 г"), (("фасол",), "фасоль готовая 140 г"),
+        (("чечев",), "чечевица готовая 160 г"), (("капуст",), "капуста 180 г"),
+        (("томат",), "томаты 120 г"), (("огур",), "огурец 120 г"), (("яблок",), "яблоко 1 шт."),
+        (("банан",), "банан 1 шт."), (("тост","хлеб"), "цельнозерновой хлеб 1–2 ломтика"),
+        (("лапш",), "лапша 60 г"), (("овощ","салат"), "овощи 200 г"),
+    ]
+    for keys, value in rules:
+        if any(k in n for k in keys) and value not in ingredients:
+            ingredients.append(value)
+    if not ingredients:
+        ingredients = ["основные продукты по названию блюда"]
+    if not any("овощ" in x or "томат" in x or "огур" in x or "капуст" in x for x in ingredients) and any(x in n for x in ("куриц","индей","рыб","омлет")):
+        ingredients.append("свежие или замороженные овощи 150–200 г")
+    ingredients += ["соль и специи по вкусу", "растительное масло 1 ч. л."]
+    if "суп" in n:
+        recipe = ["Подготовь и нарежь продукты.", "Доведи 450–500 мл воды или лёгкого бульона до кипения.", "Добавь ингредиенты и вари до готовности, в конце приправь."]
+    elif any(x in n for x in ("творог","йогурт")) and not any(x in n for x in ("омлет","куриц","индей")):
+        recipe = ["Подготовь все ингредиенты.", "Соедини их в миске.", "Добавь специи или зелень/фрукты по названию блюда и подавай сразу."]
+    elif "омлет" in n or "яйц" in n:
+        recipe = ["Нарежь добавки и разогрей сковороду.", "Взбей яйца, добавь остальные ингредиенты.", "Готовь под крышкой на среднем огне до готовности."]
+    else:
+        recipe = ["Подготовь и нарежь ингредиенты.", "Белковый продукт обжарь или прогрей до готовности.", "Добавь овощи и готовый гарнир, приправь и прогрей вместе 3–5 минут."]
+    return ingredients, recipe
+
+def app_meal_payload(meal_id: str):
+    item = APP_MEAL_CATALOG[meal_id]
+    ingredients, recipe = _meal_details(item["name"])
+    return {
+        "id": meal_id, "type": item["type"], "name": item["name"],
+        "image": APP_MEAL_IMAGES.get(meal_id),
+        "kcal": int(item["kcal"]), "protein": int(item["protein"]), "fat": int(item["fat"]), "carbs": int(item["carbs"]),
+        "cookTime": int(item["cook"]), "ingredients": ingredients, "recipe": recipe,
+    }
+
+def serialize_weekly_meal_plan(row):
+    raw = decode_app_plan(row["plan_json"])
+    start = row["start_date"]
+    keys = ["breakfast","lunch","snack","dinner"]
+    return [
+        {"date": (start + timedelta(days=i)).isoformat(), "meals": {keys[j]: str(raw[i][j]) for j in range(4)}}
+        for i in range(7)
+    ]
+
+def catalog_for_week(row):
+    ids = {mid for day in decode_app_plan(row["plan_json"]) for mid in day}
+    return {mid: app_meal_payload(mid) for mid in ids if mid in APP_MEAL_CATALOG}
+
 
 
 _main_rows = []
@@ -1167,7 +788,7 @@ def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: 
     pools = {
         meal_type: [
             meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-            if item["type"] == meal_type and goal_mode in item.get("goals", ["loss","maintain","gain"])
+            if meal_id in APP_CURATED_MEAL_IDS and item["type"] == meal_type and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"])
         ]
         for meal_type in APP_MEAL_TYPE_ORDER
     }
@@ -1234,7 +855,7 @@ async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None
     choices = "\n".join(
         f"{meal_id} | {item['type']} | {item['name']} | {item['kcal']} ккал | Б {item['protein']} Ж {item['fat']} У {item['carbs']} | {item['cook']} мин | бюджетное"
         for meal_id, item in APP_MEAL_CATALOG.items()
-        if goal_mode in item.get("goals", ["loss","maintain","gain"]) and item.get("budget", True)
+        if meal_id in APP_CURATED_MEAL_IDS and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"]) and item.get("budget", True)
     )
     previous = json.dumps(previous_plan, ensure_ascii=False) if previous_plan else "нет"
     answer = await ask_ai(
@@ -1329,23 +950,23 @@ async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool 
     )
     if existing:
         existing_plan = decode_app_plan(existing["plan_json"])
-        if valid_app_week_plan(existing_plan) and str(existing["source"] or "").startswith("v16-balanced"):
+        if valid_app_week_plan(existing_plan) and str(existing["source"] or "").startswith("v22-unified"):
             return existing
         if valid_app_week_plan(existing_plan):
             profile = await get_profile(user_id)
-            fresh_plan = fallback_app_week_plan(user_id, start_date, salt="v16-balanced", goal_mode=app_goal_mode(profile))
+            fresh_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
             await db_execute(
-                """UPDATE app_week_plans SET plan_json=$3::jsonb, source='v16-balanced', updated_at=$4
+                """UPDATE app_week_plans SET plan_json=$3::jsonb, source='v22-unified', updated_at=$4
                    WHERE telegram_id=$1 AND start_date=$2""",
                 user_id, start_date, json.dumps(fresh_plan), now_utc(),
             )
             return await db_fetchrow("SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2", user_id, start_date)
         # Миграция старого плана v7: сразу заменяем его на новую библиотеку из 28 уникальных блюд.
         profile = await get_profile(user_id)
-        fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v16-balanced", goal_mode=app_goal_mode(profile))
+        fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
         await db_execute(
             """UPDATE app_week_plans
-            SET plan_json=$3::jsonb, source='v16-balanced', updated_at=$4
+            SET plan_json=$3::jsonb, source='v22-unified', updated_at=$4
             WHERE telegram_id=$1 AND start_date=$2""",
             user_id, start_date, json.dumps(fallback_plan), now_utc(),
         )
@@ -1368,7 +989,7 @@ async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool 
     )
     previous_plan = decode_app_plan(previous_row["plan_json"]) if previous_row else None
     profile = await get_profile(user_id)
-    fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v16-balanced", goal_mode=app_goal_mode(profile))
+    fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
 
     inserted = await db_fetchrow(
         """
@@ -1467,19 +1088,19 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
     plan = decode_app_plan(row["plan_json"])
     if not valid_app_week_plan(plan):
         profile = await get_profile(user_id)
-        plan = fallback_app_week_plan(user_id, row["start_date"], salt="v16-balanced", goal_mode=app_goal_mode(profile))
+        plan = fallback_app_week_plan(user_id, row["start_date"], salt="v22-unified", goal_mode=app_goal_mode(profile))
 
     old_id = plan[day_index][meal_index]
     old = APP_MEAL_CATALOG[old_id]
     used_same_type = {str(day[meal_index]) for day in plan if isinstance(day, list) and len(day) > meal_index}
     candidates = [
         meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-        if item["type"] == old["type"] and item.get("budget", True) and meal_id != old_id and meal_id not in used_same_type
+        if meal_id in APP_CURATED_MEAL_IDS and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id and meal_id not in used_same_type
     ]
     if not candidates:
         candidates = [
             meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-            if item["type"] == old["type"] and item.get("budget", True) and meal_id != old_id
+            if meal_id in APP_CURATED_MEAL_IDS and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id
         ]
     if not candidates:
         return row
@@ -2863,6 +2484,10 @@ def app_request_user(request: web.Request):
     return validate_telegram_init_data(request.headers.get("X-Telegram-Init-Data", ""))
 
 
+async def nutrition_app_js(request: web.Request):
+    return web.FileResponse("nutrition_app.js", headers={"Cache-Control": "public, max-age=300"})
+
+
 async def mini_app_index(request: web.Request):
     telegram_sdk = '<script src="https://telegram.org/js/telegram-web-app.js"></script>'
     html = MINI_APP_HTML
@@ -2992,12 +2617,13 @@ async def api_app_bootstrap(request: web.Request):
             "meal_plan": active_plan["meal_plan"],
             "shopping_list": active_plan["shopping_list"],
         } if active_plan else None),
+        "weeklyMealPlan": serialize_weekly_meal_plan(app_week_plan) if app_week_plan else None,
+        "mealCatalog": catalog_for_week(app_week_plan) if app_week_plan else {},
         "app_week_plan": ({
             "start_date": app_week_plan["start_date"].isoformat(),
             "end_date": app_week_plan["end_date"].isoformat(),
             "plan": decode_app_plan(app_week_plan["plan_json"]),
             "source": app_week_plan["source"],
-            "meals": {mid: APP_MEAL_CATALOG[mid] for day in decode_app_plan(app_week_plan["plan_json"]) for mid in day if mid in APP_MEAL_CATALOG},
         } if app_week_plan else None),
     }, headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0", "Pragma": "no-cache", "Expires": "0"})
 
@@ -3179,9 +2805,8 @@ async def api_app_week_regenerate(request: web.Request):
     try:
         row = await regenerate_app_week_plan(user_id)
         return web.json_response({
-            "start_date": row["start_date"].isoformat(),
-            "end_date": row["end_date"].isoformat(),
-            "plan": decode_app_plan(row["plan_json"]),
+            "weeklyMealPlan": serialize_weekly_meal_plan(row),
+            "mealCatalog": catalog_for_week(row),
             "source": row["source"],
         })
     except Exception:
@@ -3311,6 +2936,7 @@ def create_app():
     app.router.add_get("/health", health)
     app.router.add_get("/app", mini_app_index)
     app.router.add_get("/app/", mini_app_index)
+    app.router.add_get("/static/nutrition_app.js", nutrition_app_js)
     app.router.add_get("/api/app/bootstrap", api_app_bootstrap)
     app.router.add_post("/api/app/goal", api_app_set_goal)
     app.router.add_post("/api/app/weight", api_app_set_weight)
