@@ -11,7 +11,7 @@ import os
 import re
 import time
 import random
-from urllib.parse import parse_qsl
+from urllib.parse import parse_qsl, quote
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -57,7 +57,7 @@ DEFAULT_EVENING_TIME = os.getenv("DEFAULT_EVENING_TIME", "20:30").strip() or "20
 TRIAL_DAYS = 14
 SUBSCRIPTION_STARS = int(os.getenv("SUBSCRIPTION_STARS", "350"))
 SUBSCRIPTION_PERIOD = 30 * 24 * 60 * 60
-APP_BUILD_VERSION = "v29-personal-nutrition"
+APP_BUILD_VERSION = "v30-evening-menus"
 APP_URL = f"{RENDER_EXTERNAL_URL}/app?v={APP_BUILD_VERSION}" if RENDER_EXTERNAL_URL else ""
 MINI_APP_HTML = Path(__file__).with_name("mini_app.html").read_text(encoding="utf-8")
 MINI_APP_MEAL_IMAGE_SOURCES = {'oatmeal': ('Завтрак', 'Овсянка с ягодами и орехами', 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=85'), 'omeletSpinach': ('Завтрак', 'Омлет со шпинатом и томатами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/omelette_with_spinach_and_tomatoes.jpg'), 'yogurtGranola': ('Завтрак', 'Греческий йогурт с гранолой и ягодами', 'https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/5/11/sua-chua-2-16837932984001329860943.jpg'), 'avocadoEgg': ('Завтрак', 'Тост с авокадо и яйцом', 'https://claraplate.com/wp-content/uploads/2025/05/Avocado-Toast-with-Egg-1.webp'), 'smoothieBowl': ('Завтрак', 'Смузи-боул с киви и ягодами', 'https://bucket.cooklaif.com/321-coconut-berry-bliss-smoothie-321.jpg'), 'chiaPudding': ('Завтрак', 'Чиа-пудинг с ягодами', 'https://www.gosupps.com/media/catalog/product/cache/25/image/1500x/040ec09b1e35df139433887a97daa66f/8/1/81MPLb09b8L._SL1500_.jpg'), 'cottageBerryBreakfast': ('Завтрак', 'Творог со свежими ягодами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/getinhrkdn5cfwlg7gka'), 'chickenQuinoa': ('Обед', 'Курица с киноа и овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/hrbxuivrdwx4olnrnrrh'), 'turkeyBuckwheat': ('Обед', 'Индейка с гречкой и свежими овощами', 'https://www.arise-app.com/images/dishes/ru/indejka-v-sobstvennom-soku-de5yx9.webp'), 'salmonRice': ('Обед', 'Лосось с рисом и брокколи', 'https://tb-static.uber.com/prod/image-proc/processed_images/bc22ea33e1d4604d3d5054267281f725/d03e52b3c8af19d8fa8222e23efd9cfa.jpeg'), 'tunaPasta': ('Обед', 'Паста с тунцом и томатами', 'https://i.pinimg.com/736x/e2/b0/27/e2b0271e758a703fb77f401ab4fe2c3a.jpg'), 'lentilSoup': ('Обед', 'Чечевичный суп с овощами', 'https://itsonly.recipes/images/recipeimages/lentil-and-vegetable-soup.webp'), 'beefBuckwheat': ('Обед', 'Говядина с гречкой и овощами', 'https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI2MDMxNy8zcXdqUlQuanBlZw.jpg'), 'chickenSoup': ('Обед', 'Куриный крем-суп с овощами', 'https://www.arise-app.com/images/dishes/ru/kurinyj-kremsup-s-ovosami-pwvyqx.webp'), 'yogurtChia': ('Перекус', 'Йогурт с ягодами и чиа', 'https://diabetesfoodhub.org/sites/foodhub/files/styles/recipe_hero_banner_720w/public/2026-04/mixed-berry-chia-yogurt-bowl.png?h=af9bc2fc&itok=1CTuHlTU'), 'applePeanut': ('Перекус', 'Яблоко с арахисовой пастой', 'https://easylunches.com/cdn/shop/files/white-Photoroom_-_2025-11-10T145821.588.jpg?v=1762808449&width=1512'), 'cottageBanana': ('Перекус', 'Творог с бананом и чиа', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/yjbnpx9ltecafomqyit7'), 'kefirBerries': ('Перекус', 'Кефир со свежими ягодами', 'https://cdn.shopify.com/s/files/1/0555/8661/9426/files/kefir-abnehmen-hero.png?v=1769499265'), 'yogurtNuts': ('Перекус', 'Йогурт с бананом, ягодами и орехами', 'https://www.arise-app.com/images/dishes/en/yogurt-bowl-with-fruit-and-nuts-1rgog6.webp'), 'hummusVeg': ('Перекус', 'Хумус с морковью и огурцом', 'https://img.siterank.app/topic/veggie-sticks-hummus-snack-dish.png'), 'bananaPeanut': ('Перекус', 'Банан с арахисовой пастой', 'https://hips.hearstapps.com/hmg-prod/images/light-healthy-snack-made-from-banana-slices-and-royalty-free-image-913465318-1559057454.jpg?crop=0.607xw%3A0.908xh%3B0.0153xw%2C0.0918xh'), 'salmonBroccoli': ('Ужин', 'Лосось с брокколи и лимоном', 'https://www.reciz.com/img.php?f=lemon-garlic-salmon-broccoli-a-healthy-delight_featured_598.jpg&w=600'), 'codVeg': ('Ужин', 'Запечённая треска с овощами', 'https://mancaregatita.ro/cdn/shop/files/cod_la_tava_cu_legume.png?v=1755085091&width=2048'), 'chickenRoastVeg': ('Ужин', 'Куриная грудка с запечёнными овощами', 'https://www.arise-app.com/images/dishes/de/hahnchenbrust-mit-ofengemuse-17ofd2.webp'), 'turkeyStew': ('Ужин', 'Тушёная индейка с овощами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/recipe_pics_v2/medium/hearty_turkey_stew.jpg'), 'shrimpZoodles': ('Ужин', 'Креветки с лапшой из кабачка', 'https://jpimg.com.br/uploads/2023/07/4-receitas-economicas-e-deliciosas-com-frutos-do-mar.jpg'), 'ratatouilleQuinoa': ('Ужин', 'Рататуй с киноа', 'https://itsonly.recipes/images/recipeimages/thumbnails/650/herbed-ratatouille-with-quinoa.webp'), 'turkeyGrillVeg': ('Ужин', 'Индейка-гриль с овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/fdohovk0dwhy5oglqdsi')}
@@ -1284,7 +1284,7 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
     )
 
 
-def app_plan_day_text(row, local_date) -> str | None:
+def app_plan_day_text(row, local_date, profile=None) -> str | None:
     if not row:
         return None
     plan = decode_app_plan(row["plan_json"])
@@ -1293,11 +1293,37 @@ def app_plan_day_text(row, local_date) -> str | None:
     day_index = (local_date - row["start_date"]).days
     if day_index < 0 or day_index > 6:
         return None
+    # The Telegram preview shares the personalized portions and recalculated
+    # nutrition values shown by the Mini App.
+    catalog = catalog_for_week(row, profile)
     lines = []
     for meal_id in plan[day_index]:
         item = APP_MEAL_CATALOG[meal_id]
-        lines.append(f"{item['type']}: {item['name']} — около {item['kcal']} ккал")
+        values = catalog[meal_id]
+        lines.append(
+            f"{item['type']}: {item['name']} — около {values['kcal']} ккал "
+            f"(Б {values['protein']} · Ж {values['fat']} · У {values['carbs']} г), {item['cook']} мин"
+        )
     return "\n".join(lines)
+
+
+def recipe_links_keyboard(meal_ids):
+    if not APP_URL:
+        return None
+    buttons = []
+    for meal_id in meal_ids:
+        item = APP_MEAL_CATALOG.get(meal_id)
+        if not item:
+            continue
+        url = f"{APP_URL}&recipe={quote(meal_id, safe='')}"
+        buttons.append([InlineKeyboardButton(text=f"📖 {item['name']}"[:64], web_app=WebAppInfo(url=url))])
+    return InlineKeyboardMarkup(inline_keyboard=buttons) if buttons else None
+
+
+def is_due_by(local_now: datetime, hhmm: str, window_minutes: int = 15) -> bool:
+    hour, minute = parse_hhmm(hhmm)
+    deadline = local_now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    return deadline - timedelta(minutes=window_minutes) <= local_now <= deadline
 
 async def save_weekly_meal_plan(user_id: int, start_date, meal_plan: str, shopping_list: str):
     end_date = start_date + timedelta(days=6)
@@ -1370,9 +1396,10 @@ def split_telegram_chunks(text: str, limit: int = 3600) -> list[str]:
     return [c for c in chunks if c]
 
 
-async def send_long_message(message: Message, text: str):
-    for chunk in split_telegram_chunks(text):
-        await message.answer(chunk)
+async def send_long_message(message: Message, text: str, reply_markup=None):
+    chunks = split_telegram_chunks(text)
+    for index, chunk in enumerate(chunks):
+        await message.answer(chunk, reply_markup=reply_markup if index == len(chunks) - 1 else None)
         await asyncio.sleep(0.15)
 
 
@@ -1564,11 +1591,13 @@ def schedule_text(settings) -> str:
         "⏰ Автоматическое сопровождение\n\n"
         f"Статус: {status}\n"
         f"Часовой пояс: {timezone_label(settings['timezone'])}\n"
-        f"Утренний план: {settings['morning_time']}\n"
+        f"Меню на завтра: до 18:00 накануне\n"
+        f"Утренняя тренировка или восстановление: {settings['morning_time']}\n"
         f"Вечерний отчёт: {settings['evening_time']}\n"
         f"Тренировочные дни: {workout_days_label(settings['workout_days'])}\n\n"
-        "Утром я сам пришлю питание и тренировку или восстановление. "
-        "Вечером напомню про короткий отчёт."
+        "Меню на завтра придёт вечером с кнопками рецептов — можно подготовиться заранее. "
+        "Утром пришлю только тренировку или восстановление. "
+        "В отчёте отвечай по одному короткому пункту за раз."
     )
 
 
@@ -1602,14 +1631,12 @@ async def release_notification(log_id: int):
     await db_execute("DELETE FROM notification_log WHERE id=$1", log_id)
 
 
-async def build_daily_auto_plan(user_id: int, local_date, workout_day: bool) -> tuple[str, str]:
-    row = await ensure_app_week_plan(user_id, local_date, wait_for_ai=False)
-    food = app_plan_day_text(row, local_date) or "Меню доступно в приложении."
+async def build_daily_auto_plan(user_id: int, local_date, workout_day: bool) -> str:
     if not workout_day:
-        return food, "Сегодня день восстановления. Выбери комфортную активность и время для отдыха."
+        return "Сегодня день восстановления. Выбери комфортную активность и время для отдыха."
     plan = workout_plan_for_profile(await get_profile(user_id))
     activity = plan["name"] + "\n" + plan["note"] + "\n\n" + "\n".join(f"• {x['name']} — {x['reps']}" for x in plan["exercises"])
-    return food, activity
+    return activity
 
 async def send_morning_plan(user_id: int, local_date, workout_day: bool):
     if not bot:
@@ -1619,13 +1646,41 @@ async def send_morning_plan(user_id: int, local_date, workout_day: bool):
         return False
     log_id = claim["id"]
     try:
-        food, activity = await build_daily_auto_plan(user_id, local_date, workout_day)
-        await bot.send_message(user_id, food, reply_markup=MAIN_KB)
-        await asyncio.sleep(0.3)
+        activity = await build_daily_auto_plan(user_id, local_date, workout_day)
         await bot.send_message(user_id, activity, reply_markup=MAIN_KB)
         return True
     except Exception:
         logger.exception("Failed to send morning plan to %s", user_id)
+        await release_notification(log_id)
+        return False
+
+
+async def send_tomorrow_menu(user_id: int, plan_date):
+    if not bot:
+        return False
+    claim = await claim_notification(user_id, "tomorrow_menu", plan_date)
+    if not claim:
+        return False
+    log_id = claim["id"]
+    try:
+        row = await ensure_app_week_plan(user_id, plan_date, wait_for_ai=False)
+        profile = await get_profile(user_id)
+        plan = decode_app_plan(row["plan_json"])
+        day_index = (plan_date - row["start_date"]).days
+        if not valid_app_week_plan(plan) or not 0 <= day_index < 7:
+            raise ValueError("Не удалось собрать меню на завтра")
+        text = app_plan_day_text(row, plan_date, profile)
+        if not text:
+            raise ValueError("Меню на завтра недоступно")
+        caption = (
+            f"🍽 Меню на завтра, {plan_date.strftime('%d.%m')}\n\n{text}\n\n"
+            "Открой рецепт вечером, чтобы заранее подготовить продукты и утром не спешить."
+        )
+        keyboard = recipe_links_keyboard(plan[day_index]) or MAIN_KB
+        await bot.send_message(user_id, caption, reply_markup=keyboard)
+        return True
+    except Exception:
+        logger.exception("Failed to send tomorrow menu to %s", user_id)
         await release_notification(log_id)
         return False
 
@@ -1641,7 +1696,7 @@ async def send_evening_checkin(user_id: int, local_date):
         await bot.send_message(
             user_id,
             "📊 Как прошёл день?\n\n"
-            "Нажми «📊 Отчёт» и коротко отметь питание, тренировку или активность, сон, энергию и самочувствие.",
+            "Нажми «📊 Отчёт»: отвечай по очереди на вопросы о питании, тренировке, шагах/активности, сне, энергии, голоде, самочувствии и сложностях.",
             reply_markup=MAIN_KB,
         )
         return True
@@ -1653,7 +1708,7 @@ async def send_evening_checkin(user_id: int, local_date):
 
 async def run_due_notifications() -> dict:
     if not pool or not bot:
-        return {"checked": 0, "morning_sent": 0, "evening_sent": 0}
+        return {"checked": 0, "menu_sent": 0, "morning_sent": 0, "evening_sent": 0}
 
     users = await db_fetch(
         """
@@ -1664,7 +1719,7 @@ async def run_due_notifications() -> dict:
         ORDER BY u.telegram_id
         """
     )
-    stats = {"checked": len(users), "morning_sent": 0, "evening_sent": 0}
+    stats = {"checked": len(users), "menu_sent": 0, "morning_sent": 0, "evening_sent": 0}
     utc_now = now_utc()
 
     for row in users:
@@ -1706,6 +1761,11 @@ async def run_due_notifications() -> dict:
 
         if not settings["enabled"]:
             continue
+
+        # Deliver tomorrow's menu by the 18:00 deadline in the user's timezone.
+        if is_due_by(local_now, "18:00"):
+            if await send_tomorrow_menu(uid, local_date + timedelta(days=1)):
+                stats["menu_sent"] += 1
 
         if is_due(local_now, settings["morning_time"]):
             workout_days = {
@@ -2066,7 +2126,11 @@ async def food_menu(message: Message):
         return
     day = await user_local_date(message.from_user.id)
     row = await ensure_app_week_plan(message.from_user.id, wait_for_ai=False)
-    await send_long_message(message, app_plan_day_text(row, day) or "Меню доступно в приложении.")
+    profile = await get_profile(message.from_user.id)
+    plan = decode_app_plan(row["plan_json"])
+    day_index = (day - row["start_date"]).days
+    markup = recipe_links_keyboard(plan[day_index]) if 0 <= day_index < 7 else None
+    await send_long_message(message, app_plan_day_text(row, day, profile) or "Меню доступно в приложении.", markup)
 
 
 @router.message(F.text == "🏋️ Тренировка")
@@ -2084,8 +2148,14 @@ async def weekly_meal_plan(message: Message):
     if not await ensure_ready(message):
         return
     row = await ensure_app_week_plan(message.from_user.id, wait_for_ai=False)
+    profile = await get_profile(message.from_user.id)
+    plan = decode_app_plan(row["plan_json"])
     for day in range(7):
-        await send_long_message(message, app_plan_day_text(row, row["start_date"] + timedelta(days=day)))
+        await send_long_message(
+            message,
+            app_plan_day_text(row, row["start_date"] + timedelta(days=day), profile),
+            recipe_links_keyboard(plan[day]),
+        )
     await message.answer("Этот же рацион и список покупок доступны в приложении.", reply_markup=MAIN_KB)
 
 
@@ -2109,13 +2179,14 @@ async def shopping_list(message: Message):
 
 
 REPORT_STEPS = [
-    ("Питание", "Как сегодня с питанием?", ("По плану", "Частично по плану", "Не по плану")),
-    ("Тренировка", "Что с тренировкой?", ("Выполнена", "День отдыха", "Пропущена")),
-    ("Активность", "Сколько шагов или какая активность была?", ("Менее 5000 шагов", "5000–10000 шагов", "Больше 10000 шагов")),
-    ("Сон", "Сколько часов спал(а)?", ("Менее 6 часов", "6–7 часов", "7–8 часов", "Больше 8 часов")),
+    ("Питание", "Питание: что ел(а) сегодня? Можно перечислить блюда или выбрать вариант.", ("По плану", "Частично по плану", "Не по плану")),
+    ("Тренировка", "Тренировка: что удалось сделать?", ("Выполнена", "День отдыха", "Пропущена")),
+    ("Шаги/активность", "Шаги/активность: сколько шагов или какая активность была?", ("Менее 5000 шагов", "5000–10000 шагов", "Больше 10000 шагов")),
+    ("Сон", "Сон: сколько часов удалось поспать? Введи число от 0 до 24.", ("6", "7", "8", "9")),
     ("Энергия", "Оцени энергию от 1 до 10.", tuple(str(i) for i in range(1,11))),
     ("Голод", "Оцени голод от 1 до 10.", tuple(str(i) for i in range(1,11))),
-    ("Самочувствие", "Как самочувствие? Что было сложным?", ("Всё хорошо", "Усталость", "Пропустить")),
+    ("Самочувствие", "Самочувствие: как ты себя чувствуешь?", ("Хорошо", "Усталость", "Есть дискомфорт")),
+    ("Что было сложным", "Что было сложным сегодня? Если ничего — напиши «ничего».", ("Ничего", "Не хватило времени", "Был сильный голод", "Усталость")),
 ]
 
 
@@ -2126,7 +2197,7 @@ async def report_start(message: Message, state: FSMContext):
         return
     await state.set_state(Checkin.waiting_report)
     await state.set_data({"report_step":0, "report_answers":[]})
-    await message.answer(REPORT_STEPS[0][1] + " Можно выбрать кнопку или написать свой ответ.", reply_markup=choice_keyboard(*REPORT_STEPS[0][2]))
+    await message.answer("Заполним дневник по одному пункту. Можно выбрать кнопку или написать свой ответ; отмена — «✖️ Отмена».\n\n" + REPORT_STEPS[0][1], reply_markup=choice_keyboard(*REPORT_STEPS[0][2]))
 
 
 @router.message(Checkin.waiting_report)
@@ -2143,6 +2214,11 @@ async def report_finish(message: Message, state: FSMContext):
         if label in ("Энергия", "Голод") and text not in {str(i) for i in range(1,11)}:
             await message.answer("Выбери число от 1 до 10.")
             return
+        if label == "Сон":
+            if not re.fullmatch(r"\d+(?:[.,]\d+)?", text) or not 0 <= float(text.replace(",", ".")) <= 24:
+                await message.answer("Укажи сон числом часов от 0 до 24, например 7 или 7,5.")
+                return
+            text = f"{float(text.replace(',', '.')):g} ч"
         answers = data["report_answers"] + [label + ": " + text]
         if index + 1 < len(REPORT_STEPS):
             await state.update_data(report_step=index+1, report_answers=answers)
