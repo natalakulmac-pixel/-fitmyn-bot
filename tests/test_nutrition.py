@@ -52,5 +52,12 @@ class NutritionTests(unittest.TestCase):
         prompt=ask.await_args.args[2]
         self.assertNotIn('proteinCurdEgg |',prompt)
 
+    def test_ai_menu_repetition_is_rejected_when_seven_options_are_available(self):
+        repeated=[main.APP_CURATED_WEEK_IDS[kind][0] for kind in main.APP_MEAL_TYPE_ORDER]
+        plan=[repeated.copy() for _ in range(7)]
+        self.assertTrue(main.valid_app_week_plan(plan))
+        self.assertFalse(main.valid_app_week_plan(plan, main.APP_CURATED_MEAL_IDS))
+        self.assertTrue(main.valid_app_week_plan(plan, set(repeated)))
+
 if __name__=='__main__':
     unittest.main()
