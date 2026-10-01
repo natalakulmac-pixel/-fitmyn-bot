@@ -65,13 +65,27 @@ class FunnelTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_report_all_steps_saved_before_ai(self):
         await self.message('📊 Отчёт')
-        for value in ['По плану','Выполнена','5000–10000 шагов','7–8 часов','7','4','Всё хорошо']:
+        self.assertIn('по одному пункту',self.sent[-1].text)
+        for value in ['По плану','Выполнена','5000–10000 шагов','7,5','7','4','Хорошо','Не хватило времени']:
             await self.message(value)
         self.assertIsNone(await self.state.get_state())
         args=self.writes.call_args.args
         self.assertIn('INSERT INTO checkins',args[0])
         self.assertIn('Энергия: 7',args[2])
+        self.assertIn('Сон: 7.5 ч',args[2])
+        for label in ['Питание:', 'Тренировка:', 'Шаги/активность:', 'Сон:', 'Энергия:', 'Голод:', 'Самочувствие:', 'Что было сложным:']:
+            self.assertIn(label,args[2])
+        self.assertIn('Что было сложным: Не хватило времени',args[2])
         self.assertTrue(any(getattr(m,'text','')=='Отчёт сохранён ✅' for m in self.sent))
+
+    async def test_report_validates_sleep_hours_without_advancing(self):
+        await self.message('📊 Отчёт')
+        await self.message('По плану')
+        await self.message('Выполнена')
+        await self.message('5000–10000 шагов')
+        await self.message('28')
+        self.assertEqual((await self.state.get_data())['report_step'],3)
+        self.assertIn('от 0 до 24',self.sent[-1].text)
 
     async def test_menu_is_not_saved_as_report(self):
         await self.message('📊 Отчёт')
