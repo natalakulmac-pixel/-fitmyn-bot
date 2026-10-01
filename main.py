@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import gzip
+from pathlib import Path
 import html as html_lib
 import hashlib
 import hmac
@@ -20,7 +21,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.base import BaseStorage
 from aiogram.types import (
     BotCommand,
     CallbackQuery,
@@ -55,10 +56,9 @@ DEFAULT_EVENING_TIME = os.getenv("DEFAULT_EVENING_TIME", "20:30").strip() or "20
 TRIAL_DAYS = 14
 SUBSCRIPTION_STARS = int(os.getenv("SUBSCRIPTION_STARS", "350"))
 SUBSCRIPTION_PERIOD = 30 * 24 * 60 * 60
-APP_BUILD_VERSION = "v26-core-sync-subscription-images-1"
+APP_BUILD_VERSION = "v27-stability-unified"
 APP_URL = f"{RENDER_EXTERNAL_URL}/app?v={APP_BUILD_VERSION}" if RENDER_EXTERNAL_URL else ""
-MINI_APP_HTML_GZIP_B64 = """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"""
-MINI_APP_HTML = gzip.decompress(base64.b64decode(MINI_APP_HTML_GZIP_B64)).decode("utf-8")
+MINI_APP_HTML = Path(__file__).with_name("mini_app.html").read_text(encoding="utf-8")
 MINI_APP_MEAL_IMAGE_SOURCES = {'oatmeal': ('Завтрак', 'Овсянка с ягодами и орехами', 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=85'), 'omeletSpinach': ('Завтрак', 'Омлет со шпинатом и томатами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/omelette_with_spinach_and_tomatoes.jpg'), 'yogurtGranola': ('Завтрак', 'Греческий йогурт с гранолой и ягодами', 'https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/5/11/sua-chua-2-16837932984001329860943.jpg'), 'avocadoEgg': ('Завтрак', 'Тост с авокадо и яйцом', 'https://claraplate.com/wp-content/uploads/2025/05/Avocado-Toast-with-Egg-1.webp'), 'smoothieBowl': ('Завтрак', 'Смузи-боул с киви и ягодами', 'https://bucket.cooklaif.com/321-coconut-berry-bliss-smoothie-321.jpg'), 'chiaPudding': ('Завтрак', 'Чиа-пудинг с ягодами', 'https://www.gosupps.com/media/catalog/product/cache/25/image/1500x/040ec09b1e35df139433887a97daa66f/8/1/81MPLb09b8L._SL1500_.jpg'), 'cottageBerryBreakfast': ('Завтрак', 'Творог со свежими ягодами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/getinhrkdn5cfwlg7gka'), 'chickenQuinoa': ('Обед', 'Курица с киноа и овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/hrbxuivrdwx4olnrnrrh'), 'turkeyBuckwheat': ('Обед', 'Индейка с гречкой и свежими овощами', 'https://www.arise-app.com/images/dishes/ru/indejka-v-sobstvennom-soku-de5yx9.webp'), 'salmonRice': ('Обед', 'Лосось с рисом и брокколи', 'https://tb-static.uber.com/prod/image-proc/processed_images/bc22ea33e1d4604d3d5054267281f725/d03e52b3c8af19d8fa8222e23efd9cfa.jpeg'), 'tunaPasta': ('Обед', 'Паста с тунцом и томатами', 'https://i.pinimg.com/736x/e2/b0/27/e2b0271e758a703fb77f401ab4fe2c3a.jpg'), 'lentilSoup': ('Обед', 'Чечевичный суп с овощами', 'https://itsonly.recipes/images/recipeimages/lentil-and-vegetable-soup.webp'), 'beefBuckwheat': ('Обед', 'Говядина с гречкой и овощами', 'https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI2MDMxNy8zcXdqUlQuanBlZw.jpg'), 'chickenSoup': ('Обед', 'Куриный крем-суп с овощами', 'https://www.arise-app.com/images/dishes/ru/kurinyj-kremsup-s-ovosami-pwvyqx.webp'), 'yogurtChia': ('Перекус', 'Йогурт с ягодами и чиа', 'https://diabetesfoodhub.org/sites/foodhub/files/styles/recipe_hero_banner_720w/public/2026-04/mixed-berry-chia-yogurt-bowl.png?h=af9bc2fc&itok=1CTuHlTU'), 'applePeanut': ('Перекус', 'Яблоко с арахисовой пастой', 'https://easylunches.com/cdn/shop/files/white-Photoroom_-_2025-11-10T145821.588.jpg?v=1762808449&width=1512'), 'cottageBanana': ('Перекус', 'Творог с бананом и чиа', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/yjbnpx9ltecafomqyit7'), 'kefirBerries': ('Перекус', 'Кефир со свежими ягодами', 'https://cdn.shopify.com/s/files/1/0555/8661/9426/files/kefir-abnehmen-hero.png?v=1769499265'), 'yogurtNuts': ('Перекус', 'Йогурт с бананом, ягодами и орехами', 'https://www.arise-app.com/images/dishes/en/yogurt-bowl-with-fruit-and-nuts-1rgog6.webp'), 'hummusVeg': ('Перекус', 'Хумус с морковью и огурцом', 'https://img.siterank.app/topic/veggie-sticks-hummus-snack-dish.png'), 'bananaPeanut': ('Перекус', 'Банан с арахисовой пастой', 'https://hips.hearstapps.com/hmg-prod/images/light-healthy-snack-made-from-banana-slices-and-royalty-free-image-913465318-1559057454.jpg?crop=0.607xw%3A0.908xh%3B0.0153xw%2C0.0918xh'), 'salmonBroccoli': ('Ужин', 'Лосось с брокколи и лимоном', 'https://www.reciz.com/img.php?f=lemon-garlic-salmon-broccoli-a-healthy-delight_featured_598.jpg&w=600'), 'codVeg': ('Ужин', 'Запечённая треска с овощами', 'https://mancaregatita.ro/cdn/shop/files/cod_la_tava_cu_legume.png?v=1755085091&width=2048'), 'chickenRoastVeg': ('Ужин', 'Куриная грудка с запечёнными овощами', 'https://www.arise-app.com/images/dishes/de/hahnchenbrust-mit-ofengemuse-17ofd2.webp'), 'turkeyStew': ('Ужин', 'Тушёная индейка с овощами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/recipe_pics_v2/medium/hearty_turkey_stew.jpg'), 'shrimpZoodles': ('Ужин', 'Креветки с лапшой из кабачка', 'https://jpimg.com.br/uploads/2023/07/4-receitas-economicas-e-deliciosas-com-frutos-do-mar.jpg'), 'ratatouilleQuinoa': ('Ужин', 'Рататуй с киноа', 'https://itsonly.recipes/images/recipeimages/thumbnails/650/herbed-ratatouille-with-quinoa.webp'), 'turkeyGrillVeg': ('Ужин', 'Индейка-гриль с овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/fdohovk0dwhy5oglqdsi')}
 
 ADMIN_IDS = {
@@ -71,11 +71,31 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("fitmyn")
 
 router = Router()
-dp = Dispatcher(storage=MemoryStorage())
+
+class PostgresStorage(BaseStorage):
+    async def set_state(self, key, state=None):
+        await db_execute("""INSERT INTO bot_fsm(bot_id,chat_id,user_id,state) VALUES($1,$2,$3,$4)
+            ON CONFLICT(bot_id,chat_id,user_id) DO UPDATE SET state=EXCLUDED.state""",
+            key.bot_id, key.chat_id, key.user_id, getattr(state, "state", state))
+    async def get_state(self, key):
+        row = await db_fetchrow("SELECT state FROM bot_fsm WHERE bot_id=$1 AND chat_id=$2 AND user_id=$3", key.bot_id,key.chat_id,key.user_id)
+        return row["state"] if row else None
+    async def set_data(self, key, data):
+        await db_execute("""INSERT INTO bot_fsm(bot_id,chat_id,user_id,data) VALUES($1,$2,$3,$4::jsonb)
+            ON CONFLICT(bot_id,chat_id,user_id) DO UPDATE SET data=EXCLUDED.data""",
+            key.bot_id,key.chat_id,key.user_id,json.dumps(data))
+    async def get_data(self, key):
+        row = await db_fetchrow("SELECT data FROM bot_fsm WHERE bot_id=$1 AND chat_id=$2 AND user_id=$3", key.bot_id,key.chat_id,key.user_id)
+        value = row["data"] if row else {}
+        return json.loads(value) if isinstance(value, str) else dict(value)
+    async def close(self):
+        pass
+
+dp = Dispatcher(storage=PostgresStorage())
 dp.include_router(router)
 
 bot = Bot(TELEGRAM_BOT_TOKEN) if TELEGRAM_BOT_TOKEN else None
-client = AsyncOpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL) if OPENAI_API_KEY else None
+client = AsyncOpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL, timeout=25.0, max_retries=0) if OPENAI_API_KEY else None
 pool: asyncpg.Pool | None = None
 
 _seen_update_ids: dict[int, float] = {}
@@ -299,9 +319,12 @@ def _meal_details(name: str):
         recipe = ["Подготовь и нарежь ингредиенты.", "Белковый продукт обжарь или прогрей до готовности.", "Добавь овощи и готовый гарнир, приправь и прогрей вместе 3–5 минут."]
     return ingredients, recipe
 
+MEAL_RECIPES = json.loads(Path(__file__).with_name("meal_recipes.json").read_text(encoding="utf-8"))
+
 def app_meal_payload(meal_id: str):
     item = APP_MEAL_CATALOG[meal_id]
-    ingredients, recipe = _meal_details(item["name"])
+    details = MEAL_RECIPES.get(meal_id)
+    ingredients, recipe = (details["ingredients"], details["recipe"]) if details else _meal_details(item["name"])
     return {
         "id": meal_id, "type": item["type"], "name": item["name"],
         "image": f"/api/app/meal-image/{meal_id}?v={APP_BUILD_VERSION}",
@@ -314,6 +337,9 @@ async def api_app_meal_image(request: web.Request):
     item = APP_MEAL_CATALOG.get(meal_id)
     if not item:
         return web.Response(status=404)
+    local_image = Path(__file__).parent / "assets" / "meals" / f"{meal_id}.webp"
+    if local_image.is_file():
+        return web.FileResponse(local_image, headers={"Cache-Control": "public, max-age=86400"})
     url = APP_MEAL_IMAGES.get(meal_id)
     if url:
         try:
@@ -459,6 +485,25 @@ async def init_db():
     pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=5)
     async with pool.acquire() as conn:
         await conn.execute("""
+
+        CREATE TABLE IF NOT EXISTS app_daily_state (
+            telegram_id BIGINT NOT NULL,
+            state_key TEXT NOT NULL,
+            data JSONB NOT NULL DEFAULT '{}',
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+            PRIMARY KEY(telegram_id, state_key)
+        );
+        CREATE TABLE IF NOT EXISTS bot_fsm (
+            bot_id BIGINT NOT NULL, chat_id BIGINT NOT NULL, user_id BIGINT NOT NULL,
+            state TEXT, data JSONB NOT NULL DEFAULT '{}',
+            PRIMARY KEY(bot_id,chat_id,user_id)
+        );
+        CREATE TABLE IF NOT EXISTS telegram_inbox (
+            update_id BIGINT PRIMARY KEY, payload JSONB NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0, processed BOOLEAN NOT NULL DEFAULT FALSE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+
         CREATE TABLE IF NOT EXISTS users (
             telegram_id BIGINT PRIMARY KEY,
             username TEXT,
@@ -603,6 +648,8 @@ async def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_app_payments_user_time
             ON app_payments(telegram_id, created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_messages_user_time ON messages(telegram_id,created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_checkins_user_time ON checkins(telegram_id,created_at DESC);
         """)
 
 async def touch_user(message: Message):
@@ -766,12 +813,6 @@ def valid_app_week_plan(plan) -> bool:
         names = [APP_MEAL_CATALOG[x]["name"].strip().lower() for x in ids]
         if len(set(ids)) != 4 or len(set(names)) != 4:
             return False
-    # Внутри недели каждый завтрак/обед/перекус/ужин уникален.
-    for idx in range(4):
-        ids = [str(day[idx]) for day in plan]
-        names = [APP_MEAL_CATALOG[x]["name"].strip().lower() for x in ids]
-        if len(set(ids)) != 7 or len(set(names)) != 7:
-            return False
     return True
 
 
@@ -786,18 +827,47 @@ def decode_app_plan(value):
 
 def app_goal_mode(profile) -> str:
     goal = str(profile["goal"] if profile else "").lower()
-    if any(x in goal for x in ("набор", "мыш", "мас")):
-        return "gain"
-    if any(x in goal for x in ("сниж", "похуд", "сброс", "дефиц")):
+    if any(x in goal for x in ("сниж", "сниз", "похуд", "сброс", "дефиц")):
         return "loss"
+    if any(x in goal for x in ("набор", "набрать", "увелич", "мыш")):
+        return "gain"
     return "maintain"
 
 
-def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: str = "maintain") -> list[list[str]]:
+
+def allowed_meal_ids(profile):
+    food = str(dict(profile or {}).get("food") or "").lower()
+    if not any(x in food for x in ("аллерг", "неперенос", "без ", "не ем", "исключ", "нельзя", "веган", "вегетар")):
+        return set(APP_CURATED_MEAL_IDS)
+    forbidden = []
+    if any(x in food for x in ("молоч", "лактоз", "творог", "йогурт", "веган")):
+        forbidden += ["творог","йогурт","молоко","сыр"]
+    if any(x in food for x in ("яйц", "яиц", "веган")):
+        forbidden += ["яйц"]
+    if any(x in food for x in ("глютен", "пшениц")):
+        forbidden += ["хлеб","паста","лапша","овсян"]
+    if any(x in food for x in ("рыб", "веган", "вегетар")):
+        forbidden += ["минтай","рыб"]
+    if any(x in food for x in ("мяс", "птиц", "веган", "вегетар")):
+        forbidden += ["курин","индей"]
+    if "куриц" in food:
+        forbidden += ["курин"]
+    if "индей" in food:
+        forbidden += ["индей"]
+    if any(x in food for x in ("бобов", "фасол", "чечев")):
+        forbidden += ["фасол","чечев"]
+    result = set()
+    for mid in APP_CURATED_MEAL_IDS:
+        ingredients = " ".join(str(x[1]) for x in MEAL_RECIPES[mid]["ingredients"]).lower()
+        if not any(word in ingredients for word in forbidden):
+            result.add(mid)
+    return result
+
+def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: str = "maintain", allowed_ids=None) -> list[list[str]]:
     pools = {
         meal_type: [
             meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-            if meal_id in APP_CURATED_MEAL_IDS and item["type"] == meal_type and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"])
+            if meal_id in APP_CURATED_MEAL_IDS and (allowed_ids is None or meal_id in allowed_ids) and item["type"] == meal_type and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"])
         ]
         for meal_type in APP_MEAL_TYPE_ORDER
     }
@@ -813,7 +883,10 @@ def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: 
         rng.shuffle(top)
         high = [mid for mid in top if APP_MEAL_CATALOG[mid].get("high_protein")]
         rest = [mid for mid in top if mid not in high]
-        ordered[meal_type] = (high[:3] + rest)[:7]
+        available = high + rest
+        if not available:
+            raise ValueError("В каталоге нет блюд для указанных пищевых исключений")
+        ordered[meal_type] = [available[i % len(available)] for i in range(7)]
     plan = [
         [ordered[meal_type][day_index] for meal_type in APP_MEAL_TYPE_ORDER]
         for day_index in range(7)
@@ -951,85 +1024,17 @@ async def _upgrade_app_week_plan_with_ai(user_id: int, start_date, fallback_plan
 async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool = False):
     local_date = local_date or await user_local_date(user_id)
     start_date = app_week_start(local_date)
-    end_date = start_date + timedelta(days=6)
-
-    existing = await db_fetchrow(
-        "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-        user_id, start_date
-    )
-    if existing:
-        existing_plan = decode_app_plan(existing["plan_json"])
-        if valid_app_week_plan(existing_plan) and str(existing["source"] or "").startswith("v22-unified"):
-            return existing
-        if valid_app_week_plan(existing_plan):
-            profile = await get_profile(user_id)
-            fresh_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
-            await db_execute(
-                """UPDATE app_week_plans SET plan_json=$3::jsonb, source='v22-unified', updated_at=$4
-                   WHERE telegram_id=$1 AND start_date=$2""",
-                user_id, start_date, json.dumps(fresh_plan), now_utc(),
-            )
-            return await db_fetchrow("SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2", user_id, start_date)
-        # Миграция старого плана v7: сразу заменяем его на новую библиотеку из 28 уникальных блюд.
-        profile = await get_profile(user_id)
-        fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
-        await db_execute(
-            """UPDATE app_week_plans
-            SET plan_json=$3::jsonb, source='v22-unified', updated_at=$4
-            WHERE telegram_id=$1 AND start_date=$2""",
-            user_id, start_date, json.dumps(fallback_plan), now_utc(),
-        )
-        task = asyncio.create_task(_upgrade_app_week_plan_with_ai(user_id, start_date, fallback_plan, existing_plan))
-        _update_tasks.add(task)
-        task.add_done_callback(_update_tasks.discard)
-        return await db_fetchrow(
-            "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-            user_id, start_date
-        )
-
-    previous_row = await db_fetchrow(
-        """
-        SELECT plan_json FROM app_week_plans
-        WHERE telegram_id=$1 AND start_date < $2
-        ORDER BY start_date DESC
-        LIMIT 1
-        """,
-        user_id, start_date
-    )
-    previous_plan = decode_app_plan(previous_row["plan_json"]) if previous_row else None
     profile = await get_profile(user_id)
-    fallback_plan = fallback_app_week_plan(user_id, start_date, salt="v22-unified", goal_mode=app_goal_mode(profile))
-
-    inserted = await db_fetchrow(
-        """
-        INSERT INTO app_week_plans
-            (telegram_id, start_date, end_date, plan_json, source, created_at, updated_at)
-        VALUES ($1,$2,$3,$4::jsonb,'pending',$5,$5)
-        ON CONFLICT(telegram_id, start_date) DO NOTHING
-        RETURNING *
-        """,
-        user_id, start_date, end_date, json.dumps(fallback_plan), now_utc()
-    )
-    if not inserted:
-        return await db_fetchrow(
-            "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-            user_id, start_date
-        )
-
-    if wait_for_ai:
-        await _upgrade_app_week_plan_with_ai(user_id, start_date, fallback_plan, previous_plan)
-        return await db_fetchrow(
-            "SELECT * FROM app_week_plans WHERE telegram_id=$1 AND start_date=$2",
-            user_id, start_date
-        )
-
-    task = asyncio.create_task(
-        _upgrade_app_week_plan_with_ai(user_id, start_date, fallback_plan, previous_plan)
-    )
-    _update_tasks.add(task)
-    task.add_done_callback(_update_tasks.discard)
-    return inserted
-
+    allowed = allowed_meal_ids(profile)
+    existing = await get_app_week_plan(user_id, local_date)
+    if existing and valid_app_week_plan(decode_app_plan(existing["plan_json"])) and all(mid in allowed for day in decode_app_plan(existing["plan_json"]) for mid in day):
+        return existing
+    plan = fallback_app_week_plan(user_id,start_date,goal_mode=app_goal_mode(profile),allowed_ids=allowed)
+    await db_execute("""INSERT INTO app_week_plans(telegram_id,start_date,end_date,plan_json,source,created_at,updated_at)
+        VALUES($1,$2,$3,$4::jsonb,'v27-unified',$5,$5)
+        ON CONFLICT(telegram_id,start_date) DO UPDATE SET plan_json=EXCLUDED.plan_json,source=EXCLUDED.source,updated_at=EXCLUDED.updated_at""",
+        user_id,start_date,start_date+timedelta(days=6),json.dumps(plan),now_utc())
+    return await get_app_week_plan(user_id,local_date)
 
 async def regenerate_app_week_plan(user_id: int, local_date=None):
     local_date = local_date or await user_local_date(user_id)
@@ -1041,8 +1046,11 @@ async def regenerate_app_week_plan(user_id: int, local_date=None):
     )
     previous_plan = decode_app_plan(current["plan_json"]) if current else None
     ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan)
+    allowed = allowed_meal_ids(await get_profile(user_id))
+    if ai_plan and any(mid not in allowed for day in ai_plan for mid in day):
+        ai_plan = None
     plan = ai_plan if valid_app_week_plan(ai_plan) else fallback_app_week_plan(
-        user_id, start_date, salt=str(time.time_ns())
+        user_id, start_date, salt=str(time.time_ns()), goal_mode=app_goal_mode(await get_profile(user_id)), allowed_ids=allowed
     )
     source = "v22-unified-manual-ai" if ai_plan else "v22-unified-manual-fallback"
     await db_execute(
@@ -1101,15 +1109,16 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
 
     old_id = plan[day_index][meal_index]
     old = APP_MEAL_CATALOG[old_id]
+    allowed = allowed_meal_ids(await get_profile(user_id))
     used_same_type = {str(day[meal_index]) for day in plan if isinstance(day, list) and len(day) > meal_index}
     candidates = [
         meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-        if meal_id in APP_CURATED_MEAL_IDS and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id and meal_id not in used_same_type
+        if meal_id in allowed and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id and meal_id not in used_same_type
     ]
     if not candidates:
         candidates = [
             meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-            if meal_id in APP_CURATED_MEAL_IDS and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id
+            if meal_id in allowed and item["type"] == old["type"] and item.get("budget", True) and item["cook"] <= 25 and meal_id != old_id
         ]
     if not candidates:
         return row
@@ -1123,6 +1132,9 @@ async def replace_app_meal(user_id: int, day_index: int, meal_index: int, reason
             idx = int(hashlib.sha256(seed_text.encode()).hexdigest()[:12], 16) % len(candidates)
             new_id = candidates[idx]
 
+    for other_day in range(7):
+        if other_day != day_index and plan[other_day][meal_index] == new_id:
+            plan[other_day][meal_index] = old_id
     plan[day_index][meal_index] = new_id
     await db_execute(
         """
@@ -1452,72 +1464,13 @@ async def release_notification(log_id: int):
 
 
 async def build_daily_auto_plan(user_id: int, local_date, workout_day: bool) -> tuple[str, str]:
-    task = "Сегодня тренировочный день." if workout_day else "Сегодня день восстановления без силовой тренировки."
-
-    # Текущий недельный рацион Mini App создаётся автоматически раз в неделю.
-    # В понедельник (или при первом открытии приложения) формируется новый план,
-    # сохраняется в БД и затем используется без повторных AI-запросов.
-    app_plan = await ensure_app_week_plan(user_id, local_date, wait_for_ai=True)
-    planned_food = app_plan_day_text(app_plan, local_date)
-
-    # Совместимость со старым текстовым недельным рационом.
-    if not planned_food:
-        active_plan = await get_active_weekly_meal_plan(user_id, local_date)
-        if active_plan:
-            day_number = (local_date - active_plan["start_date"]).days + 1
-            planned_food = extract_day_from_weekly_plan(active_plan["meal_plan"], day_number)
-
-    if planned_food:
-        activity = await ask_ai(
-            user_id,
-            f"Составь активность на сегодня. {task}",
-            f"""
-{task}
-Сформируй только второе сообщение:
-{'🏋️ Тренировка на сегодня: Цель, Разминка, Основная часть, Отдых, Заминка, Совет.' if workout_day else '🌿 Восстановление сегодня: активность, мобильность, шаги, сон и один совет.'}
-Без Markdown, HTML, таблиц и <br>. Компактно.
-""",
-            save_history=False,
-        )
-        food = "🥗 Питание на сегодня\n\n" + planned_food
-        return food, activity
-
-    answer = await ask_ai(
-        user_id,
-        f"Составь автоматический план на сегодня. {task}",
-        f"""
-Сформируй два коротких сообщения для Telegram на сегодня с учетом профиля пользователя.
-{task}
-
-Сначала питание, потом тренировку или восстановление.
-Между сообщениями поставь отдельной строкой ТОЧНО такой маркер:
-===FITMYN_SPLIT===
-
-Первая часть:
-🥗 Питание на сегодня
-Главная задача
-Завтрак
-Обед
-Ужин
-Перекус
-Фокус дня
-
-Вторая часть:
-{'🏋️ Тренировка на сегодня: Цель, Разминка, Основная часть, Отдых, Заминка, Совет.' if workout_day else '🌿 Восстановление сегодня: активность, мобильность, шаги, сон и один совет.'}
-
-Каждая часть должна быть компактной. Без Markdown, HTML, таблиц и <br>.
-""",
-        save_history=False,
-    )
-    parts = [p.strip() for p in answer.split("===FITMYN_SPLIT===", 1)]
-    if len(parts) == 2:
-        return parts[0], parts[1]
-    return answer, (
-        "🏋️ Тренировка сегодня\n\nОткрой кнопку «🏋️ Тренировка», и я соберу план под тебя."
-        if workout_day else
-        "🌿 Сегодня восстановление\n\nЛёгкая активность, прогулка и качественный сон — достаточно."
-    )
-
+    row = await ensure_app_week_plan(user_id, local_date, wait_for_ai=False)
+    food = app_plan_day_text(row, local_date) or "Меню доступно в приложении."
+    if not workout_day:
+        return food, "Сегодня день восстановления. Выбери комфортную активность и время для отдыха."
+    plan = workout_plan_for_profile(await get_profile(user_id))
+    activity = plan["name"] + "\n" + plan["note"] + "\n\n" + "\n".join(f"• {x['name']} — {x['reps']}" for x in plan["exercises"])
+    return food, activity
 
 async def send_morning_plan(user_id: int, local_date, workout_day: bool):
     if not bot:
@@ -1578,7 +1531,7 @@ async def run_due_notifications() -> dict:
     for row in users:
         uid = row["telegram_id"]
         settings = await ensure_notification_settings(uid)
-        if not settings:
+        if not settings or not settings["enabled"]:
             continue
         try:
             tz = ZoneInfo(settings["timezone"])
@@ -1589,7 +1542,7 @@ async def run_due_notifications() -> dict:
         sub = await subscription_info(uid)
 
         if sub["status"] == "trial" and sub["days_left"] in (3, 1) and local_now.hour == 10:
-            log_id = await reserve_notification(uid, f"trial_{sub['days_left']}", local_date)
+            log_id = await claim_notification(uid, f"trial_{sub['days_left']}", local_date)
             if log_id:
                 try:
                     await bot.send_message(uid, f"До конца бесплатного периода Fitmy2.0 осталось {sub['days_left']} дн. После этого подписка — {SUBSCRIPTION_STARS} ⭐ на 30 дней. Оформить: /subscribe")
@@ -1597,7 +1550,7 @@ async def run_due_notifications() -> dict:
                     await release_notification(log_id)
         if not sub["has_access"]:
             if local_now.hour == 10:
-                log_id = await reserve_notification(uid, "trial_expired", local_date)
+                log_id = await claim_notification(uid, "trial_expired", local_date)
                 if log_id:
                     try:
                         await bot.send_message(uid, f"Бесплатный период Fitmy2.0 закончился. Полный доступ — {SUBSCRIPTION_STARS} ⭐ на 30 дней. Оформить: /subscribe")
@@ -1673,9 +1626,11 @@ def clean_telegram_text(text: str) -> str:
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
+_ai_retry_after = 0.0
+
 async def ask_ai(user_id: int, user_text: str, extra_instruction: str = "", save_history: bool = True) -> str:
     if not client:
-        return "ИИ пока не подключён. Администратору нужно добавить OPENAI_API_KEY."
+        return "ИИ временно недоступен. Сохранённое меню и дневник доступны в приложении."
 
     profile = await get_profile(user_id)
     history = await recent_history(user_id)
@@ -1699,11 +1654,20 @@ async def ask_ai(user_id: int, user_text: str, extra_instruction: str = "", save
 {user_text}
 """.strip()
 
-    response = await client.responses.create(
-        model=OPENAI_MODEL,
-        instructions=instructions,
-        input=prompt,
-    )
+    global _ai_retry_after
+    if time.monotonic() < _ai_retry_after:
+        return "ИИ временно недоступен. Сохранённое меню, список покупок и дневник доступны в приложении. Попробуй написать позже."
+    try:
+        response = await client.responses.create(
+            model=OPENAI_MODEL,
+            instructions=instructions,
+            input=prompt,
+        )
+    except Exception as exc:
+        status = getattr(exc, "status_code", None)
+        _ai_retry_after = time.monotonic() + (3600 if status == 429 else 30)
+        logger.warning("AI temporarily unavailable: %s", type(exc).__name__)
+        return "ИИ временно недоступен. Сохранённое меню, список покупок и дневник доступны в приложении. Попробуй написать позже."
     answer = clean_telegram_text((response.output_text or "").strip()) or "Не получилось сформировать ответ."
     if save_history:
         await save_message(user_id, "user", user_text)
@@ -1750,12 +1714,15 @@ async def start(message: Message, state: FSMContext):
         "Привет! Я FitMyN — ИИ-помощник по питанию, тренировкам и привычкам.\n\n"
         "Я не заменяю врача и не ставлю диагнозы. Для персонализации я сохраняю только данные, "
         "которые ты сам сообщишь: цель, питание, активность, тренировки и ограничения.\n\n"
+        "Для ответа профиль и сообщения передаются внешнему ИИ-провайдеру через OpenRouter или OpenAI. "
+        "Данные хранятся до удаления аккаунта командой /delete_me. Не отправляй медицинские документы.\n\n"
         "Продолжить?",
         reply_markup=CONSENT_KB,
     )
 
 @router.callback_query(F.data == "consent_no")
 async def consent_no(call: CallbackQuery):
+    await db_execute("UPDATE users SET consent=FALSE WHERE telegram_id=$1", call.from_user.id)
     await call.answer()
     await call.message.answer(
         "Без согласия персональный профиль сохраняться не будет. Если передумаешь — /start."
@@ -1911,104 +1878,29 @@ async def ob_sleep(message: Message, state: FSMContext):
 async def food_menu(message: Message):
     if not await ensure_ready(message):
         return
-    answer = await ask_ai(
-        message.from_user.id,
-        "Составь мне план питания на сегодня.",
-        """
-Составь практичный план питания на сегодня с учётом профиля пользователя.
+    day = await user_local_date(message.from_user.id)
+    row = await ensure_app_week_plan(message.from_user.id, wait_for_ai=False)
+    await send_long_message(message, app_plan_day_text(row, day) or "Меню доступно в приложении.")
 
-Формат:
-🥗 Питание на сегодня
-
-Главная задача
-1–2 коротких предложения.
-
-Завтрак
-• вариант блюда
-• при необходимости замена
-
-Обед
-• вариант блюда
-• при необходимости замена
-
-Ужин
-• вариант блюда
-
-Перекус
-• 1–2 варианта
-
-Фокус дня
-Одна простая задача.
-
-Без таблиц, Markdown, HTML и <br>. Пиши компактно.
-"""
-    )
-    await message.answer(answer)
 
 @router.message(F.text == "🏋️ Тренировка")
 async def workout_menu(message: Message):
     if not await ensure_ready(message):
         return
-    answer = await ask_ai(
-        message.from_user.id,
-        "Какую тренировку мне сделать сегодня?",
-        """
-Подбери тренировку под профиль пользователя и доступное оборудование.
+    plan = workout_plan_for_profile(await get_profile(message.from_user.id))
+    text = plan["name"] + "\n" + plan["note"] + "\n\n" + "\n".join(f"{i+1}. {x['name']} — {x['reps']}" for i,x in enumerate(plan["exercises"]))
+    await message.answer(text)
 
-Формат:
-🏋️ Тренировка на сегодня
-
-Цель
-Одна короткая строка.
-
-Разминка
-• 2–4 пункта
-
-Основная часть
-1. Упражнение — подходы × повторения
-2. Упражнение — подходы × повторения
-3. И так далее, без лишнего текста
-
-Отдых
-• сколько между подходами
-
-Заминка
-• 2–3 коротких пункта
-
-Совет
-Одна рекомендация по технике или нагрузке.
-
-Без таблиц, Markdown, HTML, <br> и вертикальных черт.
-Если есть боль или выраженное недомогание, не предлагай нагрузку через боль.
-"""
-    )
-    await message.answer(answer)
 
 @router.message(Command("mealplan"))
 @router.message(F.text == "🗓 Рацион на неделю")
 async def weekly_meal_plan(message: Message):
     if not await ensure_ready(message):
         return
-    await message.answer("🗓 Собираю рацион на 7 дней и список покупок. Обычно это занимает несколько секунд…")
-    try:
-        start_date = await user_local_date(message.from_user.id)
-        meal_plan, shopping = await generate_weekly_meal_bundle(message.from_user.id, start_date)
-        await save_weekly_meal_plan(message.from_user.id, start_date, meal_plan, shopping)
-
-        # Служебные маркеры нужны для связи с ежедневным планом, пользователю их не показываем.
-        visible_plan = re.sub(r"(?m)^===DAY_[1-7]===\s*$", "", meal_plan).strip()
-        visible_shopping = shopping.replace("===FITMYN_SHOPPING===", "").strip()
-
-        await send_long_message(message, visible_plan)
-        await message.answer("🛒 К этому рациону готов список покупок:")
-        await send_long_message(message, visible_shopping)
-        await message.answer(
-            "Готово. До конца этих 7 дней утреннее питание будет опираться на этот рацион, чтобы меню и покупки не расходились.",
-            reply_markup=MAIN_KB,
-        )
-    except Exception:
-        logger.exception("Weekly meal plan error")
-        await message.answer("Не получилось собрать рацион. Попробуй ещё раз через минуту.", reply_markup=MAIN_KB)
+    row = await ensure_app_week_plan(message.from_user.id, wait_for_ai=False)
+    for day in range(7):
+        await send_long_message(message, app_plan_day_text(row, row["start_date"] + timedelta(days=day)))
+    await message.answer("Этот же рацион и список покупок доступны в приложении.", reply_markup=MAIN_KB)
 
 
 @router.message(Command("shopping"))
@@ -2016,14 +1908,18 @@ async def weekly_meal_plan(message: Message):
 async def shopping_list(message: Message):
     if not await ensure_ready(message):
         return
-    plan = await get_active_weekly_meal_plan(message.from_user.id)
-    if not plan:
-        await message.answer(
-            "Сначала нажми «🗓 Рацион на неделю». Я составлю меню на 7 дней и сохраню список покупок именно к нему.",
-            reply_markup=MAIN_KB,
-        )
-        return
-    await send_long_message(message, plan["shopping_list"])
+    row = await ensure_app_week_plan(message.from_user.id, wait_for_ai=False)
+    quantities = {}
+    for day in decode_app_plan(row["plan_json"]):
+        for mid in day:
+            ingredients = app_meal_payload(mid)["ingredients"]
+            for ingredient in ingredients:
+                if isinstance(ingredient, list):
+                    group, name, amount, unit = ingredient
+                    key = (name, unit)
+                    quantities[key] = quantities.get(key, 0) + amount
+    text = "🛒 Покупки к текущему меню\n\n" + "\n".join(f"• {name} — {amount:g} {unit}" for (name, unit), amount in sorted(quantities.items()))
+    await send_long_message(message, text)
 
 
 @router.message(F.text == "📊 Отчёт")
@@ -2222,27 +2118,37 @@ async def reset_profile(message: Message, state: FSMContext):
     if not await has_consent(message.from_user.id):
         await message.answer("Сначала /start.")
         return
-    await db_execute("DELETE FROM app_week_plans WHERE telegram_id=$1", message.from_user.id)
-    await db_execute("DELETE FROM profiles WHERE telegram_id=$1", message.from_user.id)
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            for table in ("app_week_plans","weekly_meal_plans","app_goal_settings","app_weight_log","app_water_log","app_workout_log","app_profile_photos","app_daily_state","messages","checkins","notification_settings","profiles"):
+                await conn.execute(f"DELETE FROM {table} WHERE telegram_id=$1",message.from_user.id)
+            await conn.execute("UPDATE users SET consent=FALSE WHERE telegram_id=$1",message.from_user.id)
     await state.clear()
     await message.answer("Профиль сброшен. Напиши /start, чтобы заполнить его заново.")
 
 @router.message(Command("delete_me"))
 async def delete_me(message: Message, state: FSMContext):
-    if not pool: return
+    if not pool:
+        return
     uid = message.from_user.id
-    await db_execute("DELETE FROM notification_log WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM notification_settings WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM weekly_meal_plans WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM app_week_plans WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM app_payments WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM app_subscriptions WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM checkins WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM messages WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM profiles WHERE telegram_id=$1", uid)
-    await db_execute("DELETE FROM users WHERE telegram_id=$1", uid)
-    await state.clear()
-    await message.answer("Твои данные FitMyN удалены. Чтобы начать заново — /start.")
+    try:
+        await delete_user_data(uid)
+    except Exception:
+        logger.exception("Account deletion failed")
+        await message.answer("Не удалось удалить данные или отменить автопродление. Попробуй позже или напиши /paysupport.")
+        return
+    await message.answer("Твои данные удалены, автопродление отключено. Чтобы начать заново — /start.")
+
+async def delete_user_data(uid):
+    subscription = await db_fetchrow("SELECT * FROM app_subscriptions WHERE telegram_id=$1", uid)
+    if subscription and subscription["auto_renew"] and subscription["telegram_payment_charge_id"]:
+        await bot.edit_user_star_subscription(user_id=uid, telegram_payment_charge_id=subscription["telegram_payment_charge_id"], is_canceled=True)
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            for table in ("notification_log", "notification_settings", "weekly_meal_plans", "app_week_plans", "app_goal_settings", "app_weight_log", "app_water_log", "app_workout_log", "app_profile_photos", "app_daily_state", "app_payments", "app_subscriptions", "checkins", "messages", "profiles", "users"):
+                await conn.execute(f"DELETE FROM {table} WHERE telegram_id=$1", uid)
+            await conn.execute("DELETE FROM bot_fsm WHERE user_id=$1", uid)
+            await conn.execute("""DELETE FROM telegram_inbox WHERE (payload->'message'->'from'->>'id')=$1 OR (payload->'callback_query'->'from'->>'id')=$1""",str(uid))
 
 @router.message(Command("terms"))
 async def subscription_terms(message: Message):
@@ -2317,6 +2223,12 @@ async def subscription_pre_checkout(query: PreCheckoutQuery):
     await query.answer(ok=ok, error_message=None if ok else error)
 
 
+@router.message(F.refunded_payment)
+async def subscription_refunded_payment(message: Message):
+    payment = message.refunded_payment
+    await db_execute("UPDATE app_subscriptions SET subscription_until=$2, auto_renew=FALSE, status='expired', updated_at=$2 WHERE telegram_payment_charge_id=$1",payment.telegram_payment_charge_id,now_utc())
+    await message.answer("Возврат оплаты получен. Подписка по этому платежу отключена.")
+
 @router.message(F.successful_payment)
 async def subscription_successful_payment(message: Message):
     payment = message.successful_payment
@@ -2359,6 +2271,15 @@ async def free_chat(message: Message):
     except Exception:
         logger.exception("AI error")
         await message.answer("Не получилось получить ответ. Попробуй ещё раз.")
+
+@router.errors()
+async def handle_expected_error(event):
+    if isinstance(event.exception, ValueError):
+        message = event.update.message
+        if message:
+            await message.answer(str(event.exception) if "пищевых" in str(event.exception) else "Не удалось обработать данные. Проверь ввод и попробуй ещё раз.")
+        return True
+    raise event.exception
 
 async def setup_telegram():
     if not bot:
@@ -2403,12 +2324,19 @@ async def setup_telegram():
             secret_token=WEBHOOK_SECRET,
             drop_pending_updates=False,
         )
-        logger.info("Webhook configured: %s", webhook_url)
+        logger.info("Telegram webhook configured")
     else:
         logger.warning("RENDER_EXTERNAL_URL missing; webhook not configured")
 
 async def health(request: web.Request):
-    configured = bool(bot and client and pool)
+    database_ok = False
+    if pool:
+        try:
+            await asyncio.wait_for(db_fetchrow("SELECT 1"), timeout=3)
+            database_ok = True
+        except Exception:
+            logger.warning("Database health check failed")
+    configured = bool(bot and database_ok)
     status = 200 if configured else 503
     return web.json_response(
         {
@@ -2416,7 +2344,8 @@ async def health(request: web.Request):
             "configured": configured,
             "telegram": bool(bot),
             "openai": bool(client),
-            "database": bool(pool),
+            "database": database_ok,
+            "ai_available": bool(client) and time.monotonic() >= _ai_retry_after,
         },
         status=status,
     )
@@ -2432,37 +2361,61 @@ async def _process_telegram_payload(payload: dict):
 
 
 async def telegram_webhook(request: web.Request):
-    """Acknowledge Telegram immediately and process updates in background.
-
-    This prevents Telegram from retrying slow AI requests and also ignores duplicate update_id values.
-    """
-    if not bot:
-        return web.Response(status=503, text="Telegram not configured")
-
+    if not bot or not pool:
+        return web.Response(status=503, text="Not ready")
     secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
-    if secret != WEBHOOK_SECRET:
+    if not WEBHOOK_SECRET or not hmac.compare_digest(secret, WEBHOOK_SECRET):
         return web.Response(status=403, text="Forbidden")
-
     payload = await request.json()
     update_id = payload.get("update_id")
-    now = time.monotonic()
-
-    # prune old ids
-    for uid, ts in list(_seen_update_ids.items()):
-        if now - ts > UPDATE_DEDUPE_TTL:
-            _seen_update_ids.pop(uid, None)
-
-    if isinstance(update_id, int):
-        if update_id in _seen_update_ids:
-            logger.info("Duplicate Telegram update ignored: %s", update_id)
-            return web.Response(text="ok")
-        _seen_update_ids[update_id] = now
-
-    task = asyncio.create_task(_process_telegram_payload(payload))
-    _update_tasks.add(task)
-    task.add_done_callback(_update_tasks.discard)
+    if not isinstance(update_id, int):
+        return web.Response(status=400)
+    await db_execute("INSERT INTO telegram_inbox(update_id,payload) VALUES($1,$2::jsonb) ON CONFLICT DO NOTHING",update_id,json.dumps(payload))
     return web.Response(text="ok")
 
+async def telegram_inbox_worker():
+    while True:
+        try:
+            if not pool or not bot:
+                await asyncio.sleep(5)
+                continue
+            processed = await process_next_inbox_update()
+            if not processed:
+                await asyncio.sleep(1)
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logger.exception("Telegram inbox processing failed")
+            await asyncio.sleep(5)
+
+async def process_next_inbox_update():
+    # Session-level lock serializes consumers during rolling deployments. No row
+    # lock is held: /delete_me must be able to erase its own queued payload.
+    lock_key = 1179209037
+    async with pool.acquire() as conn:
+        locked = await conn.fetchval("SELECT pg_try_advisory_lock($1)", lock_key)
+        if not locked:
+            return False
+        try:
+            row = await conn.fetchrow("SELECT * FROM telegram_inbox WHERE NOT processed AND attempts<3 ORDER BY update_id LIMIT 1")
+            if not row:
+                return False
+            payload = row["payload"]
+            if isinstance(payload, str):
+                payload = json.loads(payload)
+            try:
+                update = Update.model_validate(payload, context={"bot": bot})
+                await dp.feed_update(bot, update)
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                logger.exception("Telegram update failed; attempt %s", row["attempts"] + 1)
+                await conn.execute("UPDATE telegram_inbox SET attempts=attempts+1 WHERE update_id=$1", row["update_id"])
+            else:
+                await conn.execute("UPDATE telegram_inbox SET processed=TRUE,payload='{}'::jsonb WHERE update_id=$1", row["update_id"])
+            return True
+        finally:
+            await conn.execute("SELECT pg_advisory_unlock($1)", lock_key)
 
 def validate_telegram_init_data(init_data: str, max_age_seconds: int = 86400):
     """Validate Telegram Mini App initData and return the Telegram user dict."""
@@ -2479,7 +2432,7 @@ def validate_telegram_init_data(init_data: str, max_age_seconds: int = 86400):
         if not hmac.compare_digest(calculated_hash, received_hash):
             return None
         auth_date = int(values.get("auth_date", "0") or 0)
-        if auth_date and time.time() - auth_date > max_age_seconds:
+        if auth_date <= 0 or auth_date > time.time() + 60 or time.time() - auth_date > max_age_seconds:
             return None
         user_raw = values.get("user", "")
         user = json.loads(user_raw) if user_raw else None
@@ -2562,11 +2515,13 @@ async def get_app_goal_progress(user_id: int, profile=None):
         user_id,
     )
     start = float(first["weight"]) if first else current
-    remaining = max(0.0, current - target) if current is not None and target is not None else None
+    remaining = abs(current - target) if current is not None and target is not None else None
     progress = None
     if current is not None and target is not None and start is not None:
-        total = max(0.1, start - target)
-        progress = 100.0 if current <= target else max(0.0, min(100.0, (start - current) / total * 100.0))
+        distance = target - start
+        progress = max(0.0, min(100.0, (current - start) / distance * 100.0)) if distance else (100.0 if current == target else 0.0)
+        if progress >= 100:
+            remaining = 0.0
     return {
         "current_weight": current,
         "target_weight": target,
@@ -2609,13 +2564,17 @@ async def api_app_bootstrap(request: web.Request):
     workout_progress = await get_app_workout_progress(user_id)
     photo_row = await db_fetchrow("SELECT photo_data FROM app_profile_photos WHERE telegram_id=$1", user_id)
     weight_rows = await db_fetch(
-        "SELECT weight, created_at FROM app_weight_log WHERE telegram_id=$1 ORDER BY created_at ASC LIMIT 180",
+        "SELECT weight, created_at FROM (SELECT weight, created_at FROM app_weight_log WHERE telegram_id=$1 ORDER BY created_at DESC LIMIT 180) recent ORDER BY created_at ASC",
         user_id,
     )
     subscription = await subscription_info(user_id) if profile else None
     app_week_plan = None
+    nutrition_error = None
     if profile and await has_consent(user_id) and subscription and subscription["has_access"]:
-        app_week_plan = await ensure_app_week_plan(user_id, wait_for_ai=False)
+        try:
+            app_week_plan = await ensure_app_week_plan(user_id, wait_for_ai=False)
+        except ValueError as exc:
+            nutrition_error = str(exc)
 
     profile_json = None
     if profile:
@@ -2637,10 +2596,12 @@ async def api_app_bootstrap(request: web.Request):
             "photo_url": tg_user.get("photo_url"),
         },
         "profile": profile_json,
+        "nutrition_error": nutrition_error,
         "profile_updated_at": profile["updated_at"].isoformat() if profile and profile["updated_at"] else None,
         "goal_progress": goal_progress,
         "water": water,
         "workout_progress": workout_progress,
+        "workout_plan": workout_plan_for_profile(profile),
         "profile_photo": photo_row["photo_data"] if photo_row else None,
         "weight_history": [{"weight": float(r["weight"]), "created_at": r["created_at"].isoformat()} for r in weight_rows],
         "notifications": settings_json,
@@ -2663,6 +2624,23 @@ async def api_app_bootstrap(request: web.Request):
 
 
 
+
+
+def workout_plan_for_profile(profile):
+    p = dict(profile or {})
+    restrictions = str(p.get("restrictions") or "").strip().lower()
+    if restrictions and restrictions not in ("нет", "нет ограничений", "не имеется", "-", "здоров", "здоровa"):
+        return {"name":"Нужно уточнить ограничения", "note":"В анкете указаны ограничения. Согласуй упражнения со специалистом и обнови профиль в боте.", "exercises":[]}
+    equipment = str(p.get("equipment") or "").lower()
+    weighted = "гантел" in equipment or "зал" in equipment
+    exercises = [
+        {"name":"Разминка: спокойная ходьба и движения плечами", "reps":"5 минут"},
+        {"name":"Приседания с гантелями" if weighted else "Вставание со стула", "reps":"2 × 8–10"},
+        {"name":"Жим гантелей лёжа" if weighted else "Отжимания от стены", "reps":"2 × 8–10"},
+        {"name":"Ягодичный мост", "reps":"2 × 10"},
+        {"name":"Заминка: спокойная ходьба", "reps":"3 минуты"},
+    ]
+    return {"name":"Базовая тренировка", "note":"Лёгкий темп · отдых 60–90 секунд · при боли остановись", "exercises":exercises}
 
 async def get_app_workout_progress(user_id: int):
     local_date = await user_local_date(user_id)
@@ -2695,8 +2673,17 @@ async def api_app_complete_workout(request: web.Request):
         body = await request.json()
     except Exception:
         body = {}
-    workout_key = str(body.get("workout_key") or "daily").strip()[:80]
-    workout_name = str(body.get("workout_name") or "Тренировка").strip()[:120]
+    plan = workout_plan_for_profile(await get_profile(user_id))
+    day = await user_local_date(user_id)
+    state = await db_fetchrow("SELECT data FROM app_daily_state WHERE telegram_id=$1 AND state_key=$2", user_id, "exercises:" + day.isoformat())
+    data = state["data"] if state else {}
+    if isinstance(data,str):
+        data = json.loads(data)
+    required = {str(i) for i in range(len(plan["exercises"]))}
+    if not required or not required.issubset(set(data.get("items", []))):
+        return web.json_response({"error":"exercises_incomplete"}, status=400)
+    workout_key = "daily"
+    workout_name = plan["name"]
     local_date = await user_local_date(user_id)
     await db_execute(
         """INSERT INTO app_workout_log(telegram_id,local_date,workout_key,workout_name,completed_at)
@@ -2718,7 +2705,13 @@ async def api_app_profile_photo(request: web.Request):
         photo_data = str(body.get("photo_data") or "")
     except Exception:
         return web.json_response({"error": "bad_request"}, status=400)
-    if not photo_data.startswith("data:image/") or len(photo_data) > 1400000:
+    if not re.fullmatch(r"data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+", photo_data) or len(photo_data) > 1400000:
+        return web.json_response({"error": "bad_photo"}, status=400)
+    try:
+        decoded = base64.b64decode(photo_data.split(",", 1)[1], validate=True)
+        if not (decoded.startswith(b"\xff\xd8\xff") or decoded.startswith(b"\x89PNG\r\n\x1a\n") or (decoded[:4] == b"RIFF" and decoded[8:12] == b"WEBP")):
+            raise ValueError("Unsupported image")
+    except Exception:
         return web.json_response({"error": "bad_photo"}, status=400)
     await db_execute(
         """INSERT INTO app_profile_photos(telegram_id,photo_data,updated_at) VALUES($1,$2,$3)
@@ -2734,7 +2727,7 @@ async def api_app_weight_history(request: web.Request):
         return web.json_response({"error": "unauthorized"}, status=401)
     user_id = int(tg_user.get("id", 0) or 0)
     rows = await db_fetch(
-        "SELECT weight, created_at FROM app_weight_log WHERE telegram_id=$1 ORDER BY created_at ASC LIMIT 180",
+        "SELECT weight, created_at FROM (SELECT weight, created_at FROM app_weight_log WHERE telegram_id=$1 ORDER BY created_at DESC LIMIT 180) recent ORDER BY created_at ASC",
         user_id,
     )
     return web.json_response({"items": [{"weight": float(r["weight"]), "created_at": r["created_at"].isoformat()} for r in rows]})
@@ -2946,9 +2939,14 @@ async def cron_due(request: web.Request):
 async def on_startup(app: web.Application):
     await init_db()
     await setup_telegram()
+    app["inbox_task"] = asyncio.create_task(telegram_inbox_worker())
     app["notification_task"] = asyncio.create_task(notification_loop())
 
 async def on_cleanup(app: web.Application):
+    inbox_task = app.get("inbox_task")
+    if inbox_task:
+        inbox_task.cancel()
+        await asyncio.gather(inbox_task, return_exceptions=True)
     for update_task in list(_update_tasks):
         update_task.cancel()
     if _update_tasks:
@@ -2966,8 +2964,112 @@ async def on_cleanup(app: web.Application):
     if pool:
         await pool.close()
 
+
+
+async def api_app_delete(request):
+    uid = int(app_request_user(request)["id"])
+    body = await request.json()
+    if body.get("confirm") != "DELETE":
+        return web.json_response({"error":"confirmation_required"},status=400)
+    try:
+        await delete_user_data(uid)
+    except Exception:
+        logger.exception("Mini App account deletion failed")
+        return web.json_response({"error":"delete_failed"},status=503)
+    return web.json_response({"ok":True})
+
+async def api_app_profile(request):
+    uid = int(app_request_user(request)["id"])
+    body = await request.json()
+    keys = ("name","age","sex","height","goal","activity","frequency","equipment","restrictions","food","sleep")
+    values = [str(body.get(k,"")).strip()[:500] for k in keys]
+    if not values[0] or not values[1].isdigit() or not 18<=int(values[1])<=100:
+        return web.json_response({"error":"bad_profile"},status=400)
+    try:
+        if not 100<=float(values[3].replace(",","."))<=250:
+            raise ValueError()
+    except ValueError:
+        return web.json_response({"error":"bad_height"},status=400)
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute("UPDATE profiles SET "+",".join(k+"=$"+str(i+2) for i,k in enumerate(keys))+",updated_at=now() WHERE telegram_id=$1",uid,*values)
+            await conn.execute("DELETE FROM app_week_plans WHERE telegram_id=$1",uid)
+    return web.json_response({"ok":True})
+
+async def api_app_settings(request):
+    uid = int(app_request_user(request)["id"])
+    body = await request.json()
+    morning = str(body.get("morning_time","08:00"))
+    evening = str(body.get("evening_time","20:30"))
+    tz = str(body.get("timezone","Europe/Moscow"))
+    try:
+        for value in (morning,evening):
+            if not re.fullmatch(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]",value):
+                raise ValueError()
+        ZoneInfo(tz)
+    except (ValueError,ZoneInfoNotFoundError):
+        return web.json_response({"error":"bad_settings"},status=400)
+    await ensure_notification_settings(uid)
+    await db_execute("UPDATE notification_settings SET morning_time=$2,evening_time=$3,timezone=$4,enabled=$5,updated_at=now() WHERE telegram_id=$1",uid,morning,evening,tz,bool(body.get("enabled",True)))
+    return web.json_response({"ok":True})
+
+
+_rate_windows = {}
+@web.middleware
+async def app_access_middleware(request, handler):
+    path = request.path
+    protected = path.startswith("/api/app/") and not path.startswith(("/api/app/meal-image/", "/api/app/mini-meal-image/"))
+    if protected:
+        user = app_request_user(request)
+        if not user:
+            return web.json_response({"error":"unauthorized"}, status=401)
+        uid = int(user.get("id", 0))
+        if not pool:
+            return web.json_response({"error":"not_ready"}, status=503)
+        if not await has_consent(uid) or not await get_profile(uid):
+            return web.json_response({"error":"onboarding_required"}, status=403)
+        minute = int(time.monotonic() // 60)
+        key = (uid, minute)
+        _rate_windows[key] = _rate_windows.get(key, 0) + 1
+        for old in list(_rate_windows):
+            if old[1] < minute:
+                _rate_windows.pop(old, None)
+        if _rate_windows[key] > 60:
+            return web.json_response({"error":"rate_limited"}, status=429, headers={"Retry-After":"60"})
+        if path not in ("/api/app/bootstrap", "/api/app/subscription/checkout", "/api/app/weight/history", "/api/app/delete", "/api/app/settings", "/api/app/profile") and not await subscription_has_access(uid):
+            return web.json_response({"error":"subscription_required"}, status=402)
+    try:
+        response = await handler(request)
+        if protected:
+            response.headers["Cache-Control"] = "no-store"
+        return response
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return web.json_response({"error":"bad_request"}, status=400)
+
+async def api_app_state(request):
+    uid = int(app_request_user(request)["id"])
+    state_key = request.query.get("key", "")
+    if not re.fullmatch(r"(shopping|exercises):[0-9-]{10}", state_key):
+        return web.json_response({"error":"bad_key"}, status=400)
+    if request.method == "POST":
+        body = await request.json()
+        items = body.get("items", [])
+        if not isinstance(items, list) or len(items) > 200 or any(not isinstance(x, str) or len(x) > 160 for x in items):
+            return web.json_response({"error":"bad_state"}, status=400)
+        await db_execute("""INSERT INTO app_daily_state(telegram_id,state_key,data) VALUES($1,$2,$3::jsonb)
+            ON CONFLICT(telegram_id,state_key) DO UPDATE SET data=EXCLUDED.data,updated_at=now()""",uid,state_key,json.dumps({"items":items}))
+        return web.json_response({"items":items})
+    row = await db_fetchrow("SELECT data FROM app_daily_state WHERE telegram_id=$1 AND state_key=$2",uid,state_key)
+    value = row["data"] if row else {"items":[]}
+    return web.json_response(json.loads(value) if isinstance(value,str) else value)
+
 def create_app():
-    app = web.Application()
+    app = web.Application(middlewares=[app_access_middleware], client_max_size=1500000)
+    app.router.add_post("/api/app/delete", api_app_delete)
+    app.router.add_post("/api/app/profile", api_app_profile)
+    app.router.add_post("/api/app/settings", api_app_settings)
+    app.router.add_get("/api/app/state", api_app_state)
+    app.router.add_post("/api/app/state", api_app_state)
     app.router.add_get("/", health)
     app.router.add_get("/health", health)
     app.router.add_get("/app", mini_app_index)
