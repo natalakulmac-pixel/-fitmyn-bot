@@ -1762,7 +1762,8 @@ async def run_due_notifications() -> dict:
         if not settings["enabled"]:
             continue
 
-        # Deliver tomorrow's menu by the 18:00 deadline in the user's timezone.
+        # Send tomorrow's recipes before the 18:00 local deadline. The 15-minute
+        # lead window matches the service's 15-minute cron and avoids late sends.
         if is_due_by(local_now, "18:00"):
             if await send_tomorrow_menu(uid, local_date + timedelta(days=1)):
                 stats["menu_sent"] += 1
@@ -2186,7 +2187,7 @@ REPORT_STEPS = [
     ("Энергия", "Оцени энергию от 1 до 10.", tuple(str(i) for i in range(1,11))),
     ("Голод", "Оцени голод от 1 до 10.", tuple(str(i) for i in range(1,11))),
     ("Самочувствие", "Самочувствие: как ты себя чувствуешь?", ("Хорошо", "Усталость", "Есть дискомфорт")),
-    ("Что было сложным", "Что было сложным сегодня? Если ничего — напиши «ничего».", ("Ничего", "Не хватило времени", "Был сильный голод", "Усталость")),
+    ("Что было сложным", "Что было сложным сегодня? Если ничего — напиши «ничего»." , ("Ничего", "Не хватило времени", "Был сильный голод", "Усталость")),
 ]
 
 
@@ -2890,6 +2891,10 @@ async def api_app_bootstrap(request: web.Request):
         "water": water,
         "workout_progress": workout_progress,
         "workout_plan": workout_plan_for_profile(profile),
+        "workout_plans": {
+            kind: {place: workout_plan_for_profile(profile, kind, place) for place in ("home", "gym")}
+            for kind in ("light", "cardio", "strength")
+        },
         "profile_photo": photo_row["photo_data"] if photo_row else None,
         "weight_history": [{"weight": float(r["weight"]), "created_at": r["created_at"].isoformat()} for r in weight_rows],
         "notifications": settings_json,
@@ -2915,21 +2920,70 @@ async def api_app_bootstrap(request: web.Request):
 
 
 
-def workout_plan_for_profile(profile):
+def workout_plan_for_profile(profile, workout_type=None, location=None):
     p = dict(profile or {})
     restrictions = str(p.get("restrictions") or "").strip().lower()
     if restrictions and restrictions not in ("нет", "нет ограничений", "не имеется", "-", "здоров", "здоровa"):
-        return {"name":"Нужно уточнить ограничения", "note":"В анкете указаны ограничения. Согласуй упражнения со специалистом и обнови профиль в боте.", "exercises":[]}
+        return {"type": workout_type or "strength", "location": location or "home", "name":"Нужно уточнить ограничения", "note":"В анкете указаны ограничения. Согласуй упражнения со специалистом и обнови профиль в боте.", "exercises":[]}
     equipment = str(p.get("equipment") or "").lower()
-    weighted = "гантел" in equipment or "зал" in equipment
-    exercises = [
-        {"name":"Разминка: спокойная ходьба и движения плечами", "reps":"5 минут"},
-        {"name":"Приседания с гантелями" if weighted else "Вставание со стула", "reps":"2 × 8–10"},
-        {"name":"Жим гантелей лёжа" if weighted else "Отжимания от стены", "reps":"2 × 8–10"},
-        {"name":"Ягодичный мост", "reps":"2 × 10"},
-        {"name":"Заминка: спокойная ходьба", "reps":"3 минуты"},
-    ]
-    return {"name":"Базовая тренировка", "note":"Лёгкий темп · отдых 60–90 секунд · при боли остановись", "exercises":exercises}
+    workout_type = workout_type if workout_type in ("light", "cardio", "strength") else "strength"
+    if location not in ("home", "gym"):
+        location = "gym" if "зал" in equipment else "home"
+    plans = {
+        "light": {
+            "home": ("Лёгкая тренировка дома", "20–25 минут · усилие 3–4 из 10 · двигайся в комфортном темпе", [
+                ("Разминка: шаг на месте и круги плечами", "5 минут"),
+                ("Вставание со стула", "2 × 8, спокойно"),
+                ("Отжимания от стены", "2 × 8–10"),
+                ("Ягодичный мост", "2 × 10"),
+                ("Птица-собака на четвереньках", "2 × 6 на сторону"),
+                ("Заминка: спокойная ходьба и мягкая растяжка", "3–5 минут"),
+            ]),
+            "gym": ("Лёгкая тренировка в зале", "20–25 минут · минимальный вес · усилие 3–4 из 10", [
+                ("Разминка: велотренажёр или дорожка", "5 минут, легко"),
+                ("Жим ногами в тренажёре", "1–2 × 10, лёгкий вес"),
+                ("Тяга горизонтального блока", "1–2 × 10, лёгкий вес"),
+                ("Жим от груди в тренажёре", "1–2 × 10, лёгкий вес"),
+                ("Заминка: спокойная ходьба", "5 минут"),
+            ]),
+        },
+        "cardio": {
+            "home": ("Кардио дома без прыжков", "20–25 минут · темп умеренный: можно говорить короткими фразами", [
+                ("Разминка: ходьба на месте", "5 минут"),
+                ("Марш на месте", "6 × 1 минута, между отрезками 30 секунд легко"),
+                ("Шаги вправо-влево с движениями рук", "5 × 45 секунд, отдых 30 секунд"),
+                ("Низкоударный бокс в воздух", "4 × 1 минута, без резких движений"),
+                ("Заминка: медленная ходьба", "4–5 минут"),
+            ]),
+            "gym": ("Кардио в зале", "25–30 минут · дорожка, велосипед или эллипс · умеренный разговорный темп", [
+                ("Разминка на выбранном тренажёре", "5 минут, легко"),
+                ("Ровная работа на дорожке, велосипеде или эллипсе", "15–20 минут, умеренно"),
+                ("Снизить скорость и восстановить дыхание", "3–5 минут"),
+                ("Мягкая подвижность голеностопа и плеч", "3–5 минут"),
+            ]),
+        },
+        "strength": {
+            "home": ("Силовая дома", "25–30 минут · сначала 1–2 подхода · отдых 60–90 секунд", [
+                ("Разминка: ходьба на месте и движения суставами", "5 минут"),
+                ("Приседание до стула", "2 × 8–10"),
+                ("Отжимания от стены или высокой опоры", "2 × 8–10"),
+                ("Тяга рюкзака к поясу", "2 × 10, лёгкий рюкзак"),
+                ("Ягодичный мост", "2 × 10–12"),
+                ("Птица-собака на четвереньках", "2 × 6–8 на сторону"),
+            ]),
+            "gym": ("Силовая в зале", "30–35 минут · начни с лёгкого веса · отдых 60–90 секунд", [
+                ("Разминка: дорожка или велосипед", "5–7 минут"),
+                ("Жим ногами", "2 × 8–10, лёгкий вес"),
+                ("Жим от груди в тренажёре", "2 × 8–10, лёгкий вес"),
+                ("Тяга горизонтального блока", "2 × 8–10, лёгкий вес"),
+                ("Сгибание ног в тренажёре", "2 × 10, лёгкий вес"),
+                ("Заминка: лёгкая ходьба", "3–5 минут"),
+            ]),
+        },
+    }
+    name, note, moves = plans[workout_type][location]
+    return {"type": workout_type, "location": location, "name": name, "note": note,
+            "exercises": [{"name": move, "reps": dose} for move, dose in moves]}
 
 async def get_app_workout_progress(user_id: int):
     local_date = await user_local_date(user_id)
@@ -2962,16 +3016,21 @@ async def api_app_complete_workout(request: web.Request):
         body = await request.json()
     except Exception:
         body = {}
-    plan = workout_plan_for_profile(await get_profile(user_id))
+    workout_type = body.get("workout_type") if body.get("workout_type") in ("light", "cardio", "strength") else None
+    location = body.get("location") if body.get("location") in ("home", "gym") else None
+    plan = workout_plan_for_profile(await get_profile(user_id), workout_type, location)
     day = await user_local_date(user_id)
-    state = await db_fetchrow("SELECT data FROM app_daily_state WHERE telegram_id=$1 AND state_key=$2", user_id, "exercises:" + day.isoformat())
+    state_key = "exercises:" + day.isoformat()
+    if workout_type and location:
+        state_key += f":{workout_type}:{location}"
+    state = await db_fetchrow("SELECT data FROM app_daily_state WHERE telegram_id=$1 AND state_key=$2", user_id, state_key)
     data = state["data"] if state else {}
     if isinstance(data,str):
         data = json.loads(data)
     required = {str(i) for i in range(len(plan["exercises"]))}
     if not required or not required.issubset(set(data.get("items", []))):
         return web.json_response({"error":"exercises_incomplete"}, status=400)
-    workout_key = "daily"
+    workout_key = f"{workout_type or 'strength'}_{location or 'home'}"
     workout_name = plan["name"]
     local_date = await user_local_date(user_id)
     await db_execute(
@@ -3338,7 +3397,7 @@ async def app_access_middleware(request, handler):
 async def api_app_state(request):
     uid = int(app_request_user(request)["id"])
     state_key = request.query.get("key", "")
-    if not re.fullmatch(r"(shopping|exercises):[0-9-]{10}", state_key):
+    if not re.fullmatch(r"shopping:[0-9-]{10}|exercises:[0-9-]{10}(?::(?:light|cardio|strength):(?:home|gym))?", state_key):
         return web.json_response({"error":"bad_key"}, status=400)
     if request.method == "POST":
         body = await request.json()
