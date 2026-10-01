@@ -9,8 +9,9 @@ await page.addInitScript(()=>{window.Telegram={WebApp:{initData:'test',initDataU
 const types=['breakfast','lunch','snack','dinner'],names=['Завтрак','Обед','Перекус','Ужин'];
 const catalog={};
 const plan=Array.from({length:7},(_,d)=>({date:new Date(Date.UTC(2026,8,28+d)).toISOString().slice(0,10),meals:Object.fromEntries(types.map((t,i)=>{const id=t+d;catalog[id]={id,type:names[i],name:id,kcal:300,protein:20,fat:10,carbs:30,cookTime:15,image:'/api/app/meal-image/'+id,ingredients:[['Овощи','Томаты',100,'г']],recipe:['Приготовить']};return[t,id]}))}));
-const fixture={profile:{name:'Тест',height:'165'},subscription:{status:'trial',has_access:true,stars:350},goal_progress:{current_weight:65,start_weight:60,target_weight:70},water:{date:'2026-09-30',today_ml:250,goal_ml:2000},weight_history:[{weight:60,created_at:'2026-09-28'},{weight:65,created_at:'2026-09-30'}],workout_plan:{name:'Тренировка',note:'Тест',exercises:[{name:'Упражнение',reps:'2 × 8'}]},workout_progress:{completed_count:0,today_completed:false},weeklyMealPlan:plan,mealCatalog:catalog};
-const states={};let completes=0,regenerates=0;
+const workoutPlans={};for(const [kind,label] of [['light','Лёгкая'],['cardio','Кардио'],['strength','Силовая']]){workoutPlans[kind]={};for(const [place,placeLabel] of [['home','дома'],['gym','в зале']])workoutPlans[kind][place]={name:`${label} ${placeLabel}`,note:'План теста',type:kind,location:place,exercises:[{name:'Упражнение 1',reps:'2 × 8'},{name:'Упражнение 2',reps:'2 × 8'}]}}
+const fixture={profile:{name:'Тест',height:'165',equipment:'Дома без оборудования'},subscription:{status:'trial',has_access:true,stars:350},goal_progress:{current_weight:65,start_weight:60,target_weight:70},water:{date:'2026-09-30',today_ml:250,goal_ml:2000},weight_history:[{weight:60,created_at:'2026-09-28'},{weight:65,created_at:'2026-09-30'}],workout_plan:workoutPlans.strength.home,workout_plans:workoutPlans,workout_progress:{completed_count:0,today_completed:false},weeklyMealPlan:plan,mealCatalog:catalog};
+const states={};let completes=0,completionBody=null,regenerates=0;
 await page.route('**/*',async route=>{
  const req=route.request(),url=new URL(req.url()),path=url.pathname;
  const json=body=>route.fulfill({contentType:'application/json',body:JSON.stringify(body)});
@@ -19,7 +20,7 @@ await page.route('**/*',async route=>{
  if(path==='/api/app/state'){const key=url.searchParams.get('key');if(req.method()==='POST')states[key]=req.postDataJSON().items;return json({items:states[key]||[]})}
  if(path==='/api/app/week/regenerate'){regenerates++;return json({weeklyMealPlan:plan,mealCatalog:catalog})}
  if(path==='/api/app/meal/replace')return json({weeklyMealPlan:plan,mealCatalog:catalog});
- if(path==='/api/app/workout/complete'){completes++;return json({completed_count:1,today_completed:true})}
+ if(path==='/api/app/workout/complete'){completes++;completionBody=req.postDataJSON();return json({completed_count:1,today_completed:true})}
  if(path==='/api/app/weight')return json({current_weight:req.postDataJSON().weight});
  if(path==='/api/app/ask')return route.fulfill({status:503,body:'{}'});
  if(path.includes('meal-image'))return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>'});
@@ -41,12 +42,19 @@ await page.locator('[data-sub="shopping"]').click();
 await page.locator('.shop-check').first().check();
 await page.waitForFunction(()=>document.getElementById('shopPct').textContent.startsWith('1 '));
 await page.locator('#nav [data-go="workout"]').click();
+await page.locator('[data-workout-type="cardio"]').click();assert.equal(await page.locator('#workoutTitle').innerText(),'Кардио дома');
+await page.locator('[data-workout-place="gym"]').click();assert.equal(await page.locator('#workoutTitle').innerText(),'Кардио в зале');
+await page.locator('[data-workout-type="strength"]').click();await page.locator('[data-workout-place="home"]').click();assert.equal(await page.locator('#workoutTitle').innerText(),'Силовая дома');
 await page.locator('#finishWorkout').click();assert.equal(completes,0);
 await page.locator('[data-ex="0"]').click();
 await page.waitForSelector('[data-ex="0"].on');
+await page.locator('[data-ex="1"]').click();
+await page.waitForSelector('[data-ex="1"].on');
 await page.locator('#finishWorkout').click();
 await page.waitForFunction(()=>document.getElementById('progressWorkoutCount').textContent==='1');
 assert.equal(completes,1);
+assert.deepEqual(completionBody,{workout_type:'strength',location:'home'});
+assert.deepEqual(states['exercises:2026-09-30:strength:home'],['0','1']);
 await page.reload();await page.waitForSelector('#loading.hide');
 await page.locator('#nav [data-go="workout"]').click();
 assert.equal(await page.locator('[data-ex="0"]').evaluate(e=>e.classList.contains('on')),true);

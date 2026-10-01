@@ -57,7 +57,7 @@ DEFAULT_EVENING_TIME = os.getenv("DEFAULT_EVENING_TIME", "20:30").strip() or "20
 TRIAL_DAYS = 14
 SUBSCRIPTION_STARS = int(os.getenv("SUBSCRIPTION_STARS", "350"))
 SUBSCRIPTION_PERIOD = 30 * 24 * 60 * 60
-APP_BUILD_VERSION = "v30-evening-menus"
+APP_BUILD_VERSION = "v31-workout-plans"
 APP_URL = f"{RENDER_EXTERNAL_URL}/app?v={APP_BUILD_VERSION}" if RENDER_EXTERNAL_URL else ""
 MINI_APP_HTML = Path(__file__).with_name("mini_app.html").read_text(encoding="utf-8")
 MINI_APP_MEAL_IMAGE_SOURCES = {'oatmeal': ('Завтрак', 'Овсянка с ягодами и орехами', 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=85'), 'omeletSpinach': ('Завтрак', 'Омлет со шпинатом и томатами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/omelette_with_spinach_and_tomatoes.jpg'), 'yogurtGranola': ('Завтрак', 'Греческий йогурт с гранолой и ягодами', 'https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/5/11/sua-chua-2-16837932984001329860943.jpg'), 'avocadoEgg': ('Завтрак', 'Тост с авокадо и яйцом', 'https://claraplate.com/wp-content/uploads/2025/05/Avocado-Toast-with-Egg-1.webp'), 'smoothieBowl': ('Завтрак', 'Смузи-боул с киви и ягодами', 'https://bucket.cooklaif.com/321-coconut-berry-bliss-smoothie-321.jpg'), 'chiaPudding': ('Завтрак', 'Чиа-пудинг с ягодами', 'https://www.gosupps.com/media/catalog/product/cache/25/image/1500x/040ec09b1e35df139433887a97daa66f/8/1/81MPLb09b8L._SL1500_.jpg'), 'cottageBerryBreakfast': ('Завтрак', 'Творог со свежими ягодами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/getinhrkdn5cfwlg7gka'), 'chickenQuinoa': ('Обед', 'Курица с киноа и овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/hrbxuivrdwx4olnrnrrh'), 'turkeyBuckwheat': ('Обед', 'Индейка с гречкой и свежими овощами', 'https://www.arise-app.com/images/dishes/ru/indejka-v-sobstvennom-soku-de5yx9.webp'), 'salmonRice': ('Обед', 'Лосось с рисом и брокколи', 'https://tb-static.uber.com/prod/image-proc/processed_images/bc22ea33e1d4604d3d5054267281f725/d03e52b3c8af19d8fa8222e23efd9cfa.jpeg'), 'tunaPasta': ('Обед', 'Паста с тунцом и томатами', 'https://i.pinimg.com/736x/e2/b0/27/e2b0271e758a703fb77f401ab4fe2c3a.jpg'), 'lentilSoup': ('Обед', 'Чечевичный суп с овощами', 'https://itsonly.recipes/images/recipeimages/lentil-and-vegetable-soup.webp'), 'beefBuckwheat': ('Обед', 'Говядина с гречкой и овощами', 'https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI2MDMxNy8zcXdqUlQuanBlZw.jpg'), 'chickenSoup': ('Обед', 'Куриный крем-суп с овощами', 'https://www.arise-app.com/images/dishes/ru/kurinyj-kremsup-s-ovosami-pwvyqx.webp'), 'yogurtChia': ('Перекус', 'Йогурт с ягодами и чиа', 'https://diabetesfoodhub.org/sites/foodhub/files/styles/recipe_hero_banner_720w/public/2026-04/mixed-berry-chia-yogurt-bowl.png?h=af9bc2fc&itok=1CTuHlTU'), 'applePeanut': ('Перекус', 'Яблоко с арахисовой пастой', 'https://easylunches.com/cdn/shop/files/white-Photoroom_-_2025-11-10T145821.588.jpg?v=1762808449&width=1512'), 'cottageBanana': ('Перекус', 'Творог с бананом и чиа', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/yjbnpx9ltecafomqyit7'), 'kefirBerries': ('Перекус', 'Кефир со свежими ягодами', 'https://cdn.shopify.com/s/files/1/0555/8661/9426/files/kefir-abnehmen-hero.png?v=1769499265'), 'yogurtNuts': ('Перекус', 'Йогурт с бананом, ягодами и орехами', 'https://www.arise-app.com/images/dishes/en/yogurt-bowl-with-fruit-and-nuts-1rgog6.webp'), 'hummusVeg': ('Перекус', 'Хумус с морковью и огурцом', 'https://img.siterank.app/topic/veggie-sticks-hummus-snack-dish.png'), 'bananaPeanut': ('Перекус', 'Банан с арахисовой пастой', 'https://hips.hearstapps.com/hmg-prod/images/light-healthy-snack-made-from-banana-slices-and-royalty-free-image-913465318-1559057454.jpg?crop=0.607xw%3A0.908xh%3B0.0153xw%2C0.0918xh'), 'salmonBroccoli': ('Ужин', 'Лосось с брокколи и лимоном', 'https://www.reciz.com/img.php?f=lemon-garlic-salmon-broccoli-a-healthy-delight_featured_598.jpg&w=600'), 'codVeg': ('Ужин', 'Запечённая треска с овощами', 'https://mancaregatita.ro/cdn/shop/files/cod_la_tava_cu_legume.png?v=1755085091&width=2048'), 'chickenRoastVeg': ('Ужин', 'Куриная грудка с запечёнными овощами', 'https://www.arise-app.com/images/dishes/de/hahnchenbrust-mit-ofengemuse-17ofd2.webp'), 'turkeyStew': ('Ужин', 'Тушёная индейка с овощами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/recipe_pics_v2/medium/hearty_turkey_stew.jpg'), 'shrimpZoodles': ('Ужин', 'Креветки с лапшой из кабачка', 'https://jpimg.com.br/uploads/2023/07/4-receitas-economicas-e-deliciosas-com-frutos-do-mar.jpg'), 'ratatouilleQuinoa': ('Ужин', 'Рататуй с киноа', 'https://itsonly.recipes/images/recipeimages/thumbnails/650/herbed-ratatouille-with-quinoa.webp'), 'turkeyGrillVeg': ('Ужин', 'Индейка-гриль с овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/fdohovk0dwhy5oglqdsi')}
@@ -1631,14 +1631,22 @@ async def release_notification(log_id: int):
     await db_execute("DELETE FROM notification_log WHERE id=$1", log_id)
 
 
-async def build_daily_auto_plan(user_id: int, local_date, workout_day: bool) -> str:
+def workout_type_for_schedule(local_date, workout_days) -> str | None:
+    days = sorted({int(day) for day in workout_days if str(day).isdigit() and 0 <= int(day) <= 6})
+    if local_date.weekday() not in days:
+        return None
+    cycle = ("strength", "cardio", "strength", "light")
+    return cycle[days.index(local_date.weekday()) % len(cycle)]
+
+
+async def build_daily_auto_plan(user_id: int, local_date, workout_day: bool, workout_type="strength") -> str:
     if not workout_day:
         return "Сегодня день восстановления. Выбери комфортную активность и время для отдыха."
-    plan = workout_plan_for_profile(await get_profile(user_id))
+    plan = workout_plan_for_profile(await get_profile(user_id), workout_type)
     activity = plan["name"] + "\n" + plan["note"] + "\n\n" + "\n".join(f"• {x['name']} — {x['reps']}" for x in plan["exercises"])
     return activity
 
-async def send_morning_plan(user_id: int, local_date, workout_day: bool):
+async def send_morning_plan(user_id: int, local_date, workout_day: bool, workout_type="strength"):
     if not bot:
         return False
     claim = await claim_notification(user_id, "morning", local_date)
@@ -1646,7 +1654,7 @@ async def send_morning_plan(user_id: int, local_date, workout_day: bool):
         return False
     log_id = claim["id"]
     try:
-        activity = await build_daily_auto_plan(user_id, local_date, workout_day)
+        activity = await build_daily_auto_plan(user_id, local_date, workout_day, workout_type)
         await bot.send_message(user_id, activity, reply_markup=MAIN_KB)
         return True
     except Exception:
@@ -1762,7 +1770,8 @@ async def run_due_notifications() -> dict:
         if not settings["enabled"]:
             continue
 
-        # Deliver tomorrow's menu by the 18:00 deadline in the user's timezone.
+        # Send tomorrow's recipes before the 18:00 local deadline. The 15-minute
+        # lead window matches the service's 15-minute cron and avoids late sends.
         if is_due_by(local_now, "18:00"):
             if await send_tomorrow_menu(uid, local_date + timedelta(days=1)):
                 stats["menu_sent"] += 1
@@ -1772,7 +1781,8 @@ async def run_due_notifications() -> dict:
                 int(x) for x in settings["workout_days"].split(",")
                 if x.strip().isdigit()
             }
-            if await send_morning_plan(uid, local_date, local_now.weekday() in workout_days):
+            workout_type = workout_type_for_schedule(local_date, workout_days)
+            if await send_morning_plan(uid, local_date, workout_type is not None, workout_type or "strength"):
                 stats["morning_sent"] += 1
 
         if is_due(local_now, settings["evening_time"]):
@@ -2137,9 +2147,29 @@ async def food_menu(message: Message):
 async def workout_menu(message: Message):
     if not await ensure_ready(message):
         return
-    plan = workout_plan_for_profile(await get_profile(message.from_user.id))
-    text = plan["name"] + "\n" + plan["note"] + "\n\n" + "\n".join(f"{i+1}. {x['name']} — {x['reps']}" for i,x in enumerate(plan["exercises"]))
-    await message.answer(text)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Лёгкая · дома", callback_data="training_light_home"), InlineKeyboardButton(text="Лёгкая · зал", callback_data="training_light_gym")],
+        [InlineKeyboardButton(text="Кардио · дома", callback_data="training_cardio_home"), InlineKeyboardButton(text="Кардио · зал", callback_data="training_cardio_gym")],
+        [InlineKeyboardButton(text="Силовая · дома", callback_data="training_strength_home"), InlineKeyboardButton(text="Силовая · зал", callback_data="training_strength_gym")],
+    ])
+    await message.answer("Выбери тип тренировки и место:", reply_markup=keyboard)
+
+
+@router.callback_query(F.data.startswith("training_"))
+async def workout_choice(call: CallbackQuery):
+    if not await has_consent(call.from_user.id) or not await get_profile(call.from_user.id):
+        await call.answer("Сначала заполни анкету: /start", show_alert=True)
+        return
+    match = re.fullmatch(r"training_(light|cardio|strength)_(home|gym)", call.data or "")
+    if not match:
+        await call.answer("Не удалось определить тренировку", show_alert=True)
+        return
+    plan = workout_plan_for_profile(await get_profile(call.from_user.id), match.group(1), match.group(2))
+    text = plan["name"] + "\n" + plan["note"]
+    if plan["exercises"]:
+        text += "\n\n" + "\n".join(f"{i+1}. {x['name']} — {x['reps']}" for i, x in enumerate(plan["exercises"]))
+    await call.message.answer(text, reply_markup=MAIN_KB)
+    await call.answer()
 
 
 @router.message(Command("mealplan"))
@@ -2890,6 +2920,10 @@ async def api_app_bootstrap(request: web.Request):
         "water": water,
         "workout_progress": workout_progress,
         "workout_plan": workout_plan_for_profile(profile),
+        "workout_plans": {
+            kind: {place: workout_plan_for_profile(profile, kind, place) for place in ("home", "gym")}
+            for kind in ("light", "cardio", "strength")
+        },
         "profile_photo": photo_row["photo_data"] if photo_row else None,
         "weight_history": [{"weight": float(r["weight"]), "created_at": r["created_at"].isoformat()} for r in weight_rows],
         "notifications": settings_json,
@@ -2915,21 +2949,70 @@ async def api_app_bootstrap(request: web.Request):
 
 
 
-def workout_plan_for_profile(profile):
+def workout_plan_for_profile(profile, workout_type=None, location=None):
     p = dict(profile or {})
     restrictions = str(p.get("restrictions") or "").strip().lower()
     if restrictions and restrictions not in ("нет", "нет ограничений", "не имеется", "-", "здоров", "здоровa"):
-        return {"name":"Нужно уточнить ограничения", "note":"В анкете указаны ограничения. Согласуй упражнения со специалистом и обнови профиль в боте.", "exercises":[]}
+        return {"type": workout_type or "strength", "location": location or "home", "name":"Нужно уточнить ограничения", "note":"В анкете указаны ограничения. Согласуй упражнения со специалистом и обнови профиль в боте.", "exercises":[]}
     equipment = str(p.get("equipment") or "").lower()
-    weighted = "гантел" in equipment or "зал" in equipment
-    exercises = [
-        {"name":"Разминка: спокойная ходьба и движения плечами", "reps":"5 минут"},
-        {"name":"Приседания с гантелями" if weighted else "Вставание со стула", "reps":"2 × 8–10"},
-        {"name":"Жим гантелей лёжа" if weighted else "Отжимания от стены", "reps":"2 × 8–10"},
-        {"name":"Ягодичный мост", "reps":"2 × 10"},
-        {"name":"Заминка: спокойная ходьба", "reps":"3 минуты"},
-    ]
-    return {"name":"Базовая тренировка", "note":"Лёгкий темп · отдых 60–90 секунд · при боли остановись", "exercises":exercises}
+    workout_type = workout_type if workout_type in ("light", "cardio", "strength") else "strength"
+    if location not in ("home", "gym"):
+        location = "gym" if "зал" in equipment else "home"
+    plans = {
+        "light": {
+            "home": ("Лёгкая тренировка дома", "20–25 минут · усилие 3–4 из 10 · двигайся в комфортном темпе", [
+                ("Разминка: шаг на месте и круги плечами", "5 минут"),
+                ("Вставание со стула", "2 × 8, спокойно"),
+                ("Отжимания от стены", "2 × 8–10"),
+                ("Ягодичный мост", "2 × 10"),
+                ("Птица-собака на четвереньках", "2 × 6 на сторону"),
+                ("Заминка: спокойная ходьба и мягкая растяжка", "3–5 минут"),
+            ]),
+            "gym": ("Лёгкая тренировка в зале", "20–25 минут · минимальный вес · усилие 3–4 из 10", [
+                ("Разминка: велотренажёр или дорожка", "5 минут, легко"),
+                ("Жим ногами в тренажёре", "1–2 × 10, лёгкий вес"),
+                ("Тяга горизонтального блока", "1–2 × 10, лёгкий вес"),
+                ("Жим от груди в тренажёре", "1–2 × 10, лёгкий вес"),
+                ("Заминка: спокойная ходьба", "5 минут"),
+            ]),
+        },
+        "cardio": {
+            "home": ("Кардио дома без прыжков", "20–25 минут · темп умеренный: можно говорить короткими фразами", [
+                ("Разминка: ходьба на месте", "5 минут"),
+                ("Марш на месте", "6 × 1 минута, между отрезками 30 секунд легко"),
+                ("Шаги вправо-влево с движениями рук", "5 × 45 секунд, отдых 30 секунд"),
+                ("Низкоударный бокс в воздух", "4 × 1 минута, без резких движений"),
+                ("Заминка: медленная ходьба", "4–5 минут"),
+            ]),
+            "gym": ("Кардио в зале", "25–30 минут · дорожка, велосипед или эллипс · умеренный разговорный темп", [
+                ("Разминка на выбранном тренажёре", "5 минут, легко"),
+                ("Ровная работа на дорожке, велосипеде или эллипсе", "15–20 минут, умеренно"),
+                ("Снизить скорость и восстановить дыхание", "3–5 минут"),
+                ("Мягкая подвижность голеностопа и плеч", "3–5 минут"),
+            ]),
+        },
+        "strength": {
+            "home": ("Силовая дома", "25–30 минут · сначала 1–2 подхода · отдых 60–90 секунд", [
+                ("Разминка: ходьба на месте и движения суставами", "5 минут"),
+                ("Приседание до стула", "2 × 8–10"),
+                ("Отжимания от стены или высокой опоры", "2 × 8–10"),
+                ("Тяга рюкзака к поясу", "2 × 10, лёгкий рюкзак"),
+                ("Ягодичный мост", "2 × 10–12"),
+                ("Птица-собака на четвереньках", "2 × 6–8 на сторону"),
+            ]),
+            "gym": ("Силовая в зале", "30–35 минут · начни с лёгкого веса · отдых 60–90 секунд", [
+                ("Разминка: дорожка или велосипед", "5–7 минут"),
+                ("Жим ногами", "2 × 8–10, лёгкий вес"),
+                ("Жим от груди в тренажёре", "2 × 8–10, лёгкий вес"),
+                ("Тяга горизонтального блока", "2 × 8–10, лёгкий вес"),
+                ("Сгибание ног в тренажёре", "2 × 10, лёгкий вес"),
+                ("Заминка: лёгкая ходьба", "3–5 минут"),
+            ]),
+        },
+    }
+    name, note, moves = plans[workout_type][location]
+    return {"type": workout_type, "location": location, "name": name, "note": note,
+            "exercises": [{"name": move, "reps": dose} for move, dose in moves]}
 
 async def get_app_workout_progress(user_id: int):
     local_date = await user_local_date(user_id)
@@ -2962,16 +3045,21 @@ async def api_app_complete_workout(request: web.Request):
         body = await request.json()
     except Exception:
         body = {}
-    plan = workout_plan_for_profile(await get_profile(user_id))
+    workout_type = body.get("workout_type") if body.get("workout_type") in ("light", "cardio", "strength") else None
+    location = body.get("location") if body.get("location") in ("home", "gym") else None
+    plan = workout_plan_for_profile(await get_profile(user_id), workout_type, location)
     day = await user_local_date(user_id)
-    state = await db_fetchrow("SELECT data FROM app_daily_state WHERE telegram_id=$1 AND state_key=$2", user_id, "exercises:" + day.isoformat())
+    state_key = "exercises:" + day.isoformat()
+    if workout_type and location:
+        state_key += f":{workout_type}:{location}"
+    state = await db_fetchrow("SELECT data FROM app_daily_state WHERE telegram_id=$1 AND state_key=$2", user_id, state_key)
     data = state["data"] if state else {}
     if isinstance(data,str):
         data = json.loads(data)
     required = {str(i) for i in range(len(plan["exercises"]))}
     if not required or not required.issubset(set(data.get("items", []))):
         return web.json_response({"error":"exercises_incomplete"}, status=400)
-    workout_key = "daily"
+    workout_key = f"{workout_type or 'strength'}_{location or 'home'}"
     workout_name = plan["name"]
     local_date = await user_local_date(user_id)
     await db_execute(
@@ -3338,7 +3426,7 @@ async def app_access_middleware(request, handler):
 async def api_app_state(request):
     uid = int(app_request_user(request)["id"])
     state_key = request.query.get("key", "")
-    if not re.fullmatch(r"(shopping|exercises):[0-9-]{10}", state_key):
+    if not re.fullmatch(r"shopping:[0-9-]{10}|exercises:[0-9-]{10}(?::(?:light|cardio|strength):(?:home|gym))?", state_key):
         return web.json_response({"error":"bad_key"}, status=400)
     if request.method == "POST":
         body = await request.json()

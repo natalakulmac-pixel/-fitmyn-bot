@@ -26,6 +26,25 @@ class PlanTests(unittest.TestCase):
     def test_restrictions_do_not_get_generic_workout(self):
         plan=main.workout_plan_for_profile({"restrictions":"боль в колене"})
         self.assertEqual(plan["exercises"],[])
+    def test_workout_catalog_covers_all_types_and_places(self):
+        for kind in ("light", "cardio", "strength"):
+            for place in ("home", "gym"):
+                plan = main.workout_plan_for_profile({"restrictions":"нет"}, kind, place)
+                self.assertTrue(plan["exercises"])
+                self.assertEqual(plan["type"], kind)
+                self.assertEqual(plan["location"], place)
+                self.assertGreaterEqual(len(plan["exercises"]), 4)
+                if kind == "light":
+                    self.assertIn("усилие", plan["note"].lower())
+    def test_restrictions_apply_to_every_workout_variant(self):
+        for kind in ("light", "cardio", "strength"):
+            for place in ("home", "gym"):
+                self.assertEqual(main.workout_plan_for_profile({"restrictions":"беременность"}, kind, place)["exercises"], [])
+    def test_workout_schedule_rotates_types_and_skips_rest_days(self):
+        self.assertEqual(main.workout_type_for_schedule(date(2026, 10, 5), [0, 2, 4]), "strength")
+        self.assertEqual(main.workout_type_for_schedule(date(2026, 10, 7), [0, 2, 4]), "cardio")
+        self.assertEqual(main.workout_type_for_schedule(date(2026, 10, 9), [0, 2, 4]), "strength")
+        self.assertIsNone(main.workout_type_for_schedule(date(2026, 10, 8), [0, 2, 4]))
     def test_dairy_exclusion(self):
         allowed=main.allowed_meal_ids({"food":"Без молочных продуктов"})
         self.assertNotIn("proteinCurdEgg",allowed)
