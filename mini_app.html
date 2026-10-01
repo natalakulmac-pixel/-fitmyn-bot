@@ -184,6 +184,12 @@ async function bootstrap(){
   }
   renderSubscription(j.subscription);
   document.getElementById('loading').classList.add('hide');
+  const recipeId=new URLSearchParams(location.search).get('recipe');
+  if(recipeId&&j.subscription?.has_access){
+   const day=weekPlan.findIndex(meals=>meals.includes(recipeId));
+   if(day>=0){selectedDay=day;setNutritionTab('today');renderToday();openRecipe(day,weekPlan[day].indexOf(recipeId));history.replaceState(null,'',location.pathname+location.hash)}
+   else showToast('Это блюдо больше не входит в текущий план. Открой актуальное меню.')
+  }
  }catch(error){document.getElementById('loading').textContent=error.message||'Не удалось загрузить приложение. Попробуй открыть его снова.'}
 }
 document.getElementById('notificationSettings').addEventListener('click',()=>openSettingsForm('settings'));

@@ -25,8 +25,10 @@ await page.route('**/*',async route=>{
  if(path.includes('meal-image'))return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>'});
  return route.fulfill({body:''});
 });
-await page.goto('https://fitmy.test/app');
+await page.goto('https://fitmy.test/app?recipe=breakfast0');
 await page.waitForSelector('#loading.hide');
+assert.equal(await page.locator('#recipeTitle').innerText(),'breakfast0');
+await page.locator('#recipeModal [data-close="recipeModal"]').click();
 assert.equal(await page.locator('#currentWeight').innerText(),'65,0 кг');
 assert.equal(await page.locator('#goalBar').evaluate(e=>e.style.width),'50%');
 assert.equal(await page.locator('#subscriptionNotice').isVisible(),false);
