@@ -19,6 +19,7 @@ import asyncpg
 from aiohttp import web, ClientSession, ClientTimeout
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command, CommandStart
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.base import BaseStorage
@@ -451,6 +452,9 @@ class Onboarding(StatesGroup):
     restrictions = State()
     food = State()
     sleep = State()
+
+class ScheduleInput(StatesGroup):
+    time = State()
 
 class Checkin(StatesGroup):
     waiting_report = State()
@@ -1328,7 +1332,9 @@ def workout_days_from_frequency(value: str | None) -> str:
     """Подбирает равномерные тренировочные дни из ответа анкеты."""
     match = re.search(r"\d+", value or "")
     n = int(match.group()) if match else 3
-    if n <= 1:
+    if n == 0:
+        days = []
+    elif n == 1:
         days = [2]  # Ср
     elif n == 2:
         days = [1, 4]  # Вт, Пт
@@ -1415,7 +1421,10 @@ def schedule_keyboard(settings) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="Дубай", callback_data="notify_tz_dubai"),
             InlineKeyboardButton(text="Новосибирск", callback_data="notify_tz_nsk"),
         ],
+        [InlineKeyboardButton(text="Другое время утром", callback_data="notify_custom_m"), InlineKeyboardButton(text="Другое время вечером", callback_data="notify_custom_e")],
+        *[[InlineKeyboardButton(text=("✅ " if str(i) in (settings["workout_days"] or "").split(",") else "") + label, callback_data=f"notify_day_{i}") for i, label in enumerate(["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"])][j:j+4] for j in (0,4)],
         [InlineKeyboardButton(text="♻️ Дни тренировок по анкете", callback_data="notify_days_auto")],
+        [InlineKeyboardButton(text="Готово", callback_data="notify_done")],
     ])
 
 
@@ -1720,8 +1729,80 @@ async def start(message: Message, state: FSMContext):
         reply_markup=CONSENT_KB,
     )
 
+def choice_keyboard(*choices):
+    rows = [[KeyboardButton(text=x) for x in choices[i:i+2]] for i in range(0, len(choices), 2)]
+    rows.append([KeyboardButton(text="✖️ Отмена")])
+    return ReplyKeyboardMarkup(keyboard=rows, resize_keyboard=True, one_time_keyboard=True)
+
+
+@router.message.outer_middleware()
+async def funnel_input_guard(handler, message, data):
+    state = data.get("state")
+    current = await state.get_state() if state else None
+    text = (message.text or "").strip()
+    if text in ("/cancel", "✖️ Отмена"):
+        if state:
+            await state.clear()
+        ready = await get_profile(message.from_user.id) and await has_consent(message.from_user.id)
+        await message.answer("Действие отменено." if ready else "Анкета отменена. Чтобы начать заново, нажми /start.", reply_markup=MAIN_KB if ready else choice_keyboard("/start"))
+        return
+    if current:
+        menus = {button.text for row in MAIN_KB.keyboard for button in row}
+        if text.startswith("/"):
+            await state.clear()
+            data["raw_state"] = None
+        elif text in menus:
+            if current.startswith("Onboarding:"):
+                await message.answer("Сначала закончи анкету или нажми ✖️ Отмена.")
+                return
+            await state.clear()
+            data["raw_state"] = None
+        elif not text:
+            await message.answer("На этом шаге выбери кнопку или отправь ответ текстом.")
+            return
+        elif len(text) > 3000:
+            await message.answer("Сократи ответ до 3000 символов.")
+            return
+    return await handler(message, data)
+
+
+def onboarding_value(field, text):
+    text = (text or "").strip()
+    if not text:
+        raise ValueError("Отправь ответ текстом или выбери кнопку.")
+    if field == "sex":
+        values = {"женский":"Женский", "мужской":"Мужской", "не хочу указывать":"Не хочу указывать"}
+        if text.lower() not in values:
+            raise ValueError("Выбери: Женский, Мужской или Не хочу указывать.")
+        return values[text.lower()]
+    if field in ("age", "height", "weight", "frequency"):
+        if field in ("height", "weight") and text.lower() == "пропустить":
+            return "пропустить"
+        limits = {"age":(18,100), "height":(100,230), "weight":(30,300), "frequency":(0,7)}
+        if not re.fullmatch(r"\d+(?:[.,]\d+)?", text):
+            raise ValueError("Введи число без единиц измерения.")
+        value = float(text.replace(",", "."))
+        low, high = limits[field]
+        if not low <= value <= high or (field in ("age", "frequency") and value != int(value)):
+            raise ValueError(f"Укажи число от {low} до {high}. Анкета рассчитана на взрослых." if field == "age" else f"Укажи число от {low} до {high}.")
+        return f"{value:g}"
+    return text
+
+
+async def collect_answer(message, state, field, next_state, question, choices=()):
+    try:
+        value = onboarding_value(field, message.text)
+    except ValueError as exc:
+        await message.answer(str(exc))
+        return
+    await state.update_data(**{field:value})
+    await state.set_state(next_state)
+    await message.answer(question, reply_markup=choice_keyboard(*choices))
+
+
 @router.callback_query(F.data == "consent_no")
-async def consent_no(call: CallbackQuery):
+async def consent_no(call: CallbackQuery, state: FSMContext):
+    await state.clear()
     await db_execute("UPDATE users SET consent=FALSE WHERE telegram_id=$1", call.from_user.id)
     await call.answer()
     await call.message.answer(
@@ -1730,87 +1811,60 @@ async def consent_no(call: CallbackQuery):
 
 @router.callback_query(F.data == "consent_yes")
 async def consent_yes(call: CallbackQuery, state: FSMContext):
+    if await has_consent(call.from_user.id) and await get_profile(call.from_user.id):
+        await call.answer("Профиль уже заполнен. Настройки доступны в приложении.")
+        return
+    if await state.get_state():
+        await call.answer("Анкета уже начата — ответь на последний вопрос.")
+        return
     await call.answer()
     await db_execute("UPDATE users SET consent=TRUE WHERE telegram_id=$1", call.from_user.id)
     await state.set_state(Onboarding.name)
-    await call.message.answer("Как тебя зовут?")
+    await call.message.answer("Как тебя зовут?", reply_markup=choice_keyboard())
 
 @router.message(Onboarding.name)
 async def ob_name(message: Message, state: FSMContext):
-    await state.update_data(name=message.text.strip())
-    await state.set_state(Onboarding.age)
-    await message.answer("Сколько тебе лет?")
+    await collect_answer(message, state, "name", Onboarding.age, 'Сколько тебе лет? Анкета для взрослых.', ())
 
 @router.message(Onboarding.age)
 async def ob_age(message: Message, state: FSMContext):
-    await state.update_data(age=message.text.strip())
-    await state.set_state(Onboarding.sex)
-    await message.answer("Пол? Можно написать: женский / мужской / не хочу указывать.")
+    await collect_answer(message, state, "age", Onboarding.sex, 'Выбери пол.', ('Женский', 'Мужской', 'Не хочу указывать'))
 
 @router.message(Onboarding.sex)
 async def ob_sex(message: Message, state: FSMContext):
-    await state.update_data(sex=message.text.strip())
-    await state.set_state(Onboarding.height)
-    await message.answer("Рост в сантиметрах? Можно написать «пропустить».")
+    await collect_answer(message, state, "sex", Onboarding.height, 'Укажи рост в сантиметрах.', ('Пропустить',))
 
 @router.message(Onboarding.height)
 async def ob_height(message: Message, state: FSMContext):
-    await state.update_data(height=message.text.strip())
-    await state.set_state(Onboarding.weight)
-    await message.answer("Текущий вес? Если не хочешь указывать — «пропустить».")
+    await collect_answer(message, state, "height", Onboarding.weight, 'Укажи текущий вес в килограммах.', ('Пропустить',))
 
 @router.message(Onboarding.weight)
 async def ob_weight(message: Message, state: FSMContext):
-    await state.update_data(weight=message.text.strip())
-    await state.set_state(Onboarding.goal)
-    await message.answer(
-        "Какая главная цель? Например: снизить вес, набрать мышцы, стать сильнее, "
-        "улучшить форму или повысить уровень энергии."
-    )
+    await collect_answer(message, state, "weight", Onboarding.goal, 'Какая главная цель?', ('Снизить вес', 'Набрать мышцы', 'Поддерживать форму', 'Стать сильнее'))
 
 @router.message(Onboarding.goal)
 async def ob_goal(message: Message, state: FSMContext):
-    await state.update_data(goal=message.text.strip())
-    await state.set_state(Onboarding.activity)
-    await message.answer(
-        "Опиши обычную активность: сидячая работа, сколько примерно шагов, есть ли спорт сейчас."
-    )
+    await collect_answer(message, state, "goal", Onboarding.activity, 'Какая у тебя обычная активность?', ('Сидячая работа', 'Много хожу', 'Физическая работа', 'Регулярно занимаюсь спортом'))
 
 @router.message(Onboarding.activity)
 async def ob_activity(message: Message, state: FSMContext):
-    await state.update_data(activity=message.text.strip())
-    await state.set_state(Onboarding.frequency)
-    await message.answer("Сколько тренировок в неделю реально готов(а) делать?")
+    await collect_answer(message, state, "activity", Onboarding.frequency, 'Сколько тренировок в неделю тебе удобно? От 0 до 7.', ('0', '1', '2', '3', '4', '5', '6', '7'))
 
 @router.message(Onboarding.frequency)
 async def ob_frequency(message: Message, state: FSMContext):
-    await state.update_data(frequency=message.text.strip())
-    await state.set_state(Onboarding.equipment)
-    await message.answer("Где будешь тренироваться и какое оборудование доступно?")
+    await collect_answer(message, state, "frequency", Onboarding.equipment, 'Где будешь тренироваться?', ('Дома без оборудования', 'Дома с гантелями', 'В тренажёрном зале'))
 
 @router.message(Onboarding.equipment)
 async def ob_equipment(message: Message, state: FSMContext):
-    await state.update_data(equipment=message.text.strip())
-    await state.set_state(Onboarding.restrictions)
-    await message.answer(
-        "Есть ли травмы, боли, ограничения, заболевания или другие особенности, "
-        "которые важно учитывать? Если нет — напиши «нет»."
-    )
+    await collect_answer(message, state, "equipment", Onboarding.restrictions, 'Есть ли травмы, боли или ограничения? Если есть, опиши текстом.', ('Нет',))
 
 @router.message(Onboarding.restrictions)
 async def ob_restrictions(message: Message, state: FSMContext):
-    await state.update_data(restrictions=message.text.strip())
-    await state.set_state(Onboarding.food)
-    await message.answer(
-        "Расскажи про питание: что любишь/не ешь, аллергии, готовишь ли дома, "
-        "хочешь ли считать калории."
-    )
+    await collect_answer(message, state, "restrictions", Onboarding.food, 'Какие есть предпочтения, исключения или аллергии в питании? Можно написать своими словами.', ('Без ограничений', 'Без молочных продуктов', 'Без мяса', 'Без рыбы'))
 
 @router.message(Onboarding.food)
 async def ob_food(message: Message, state: FSMContext):
-    await state.update_data(food=message.text.strip())
-    await state.set_state(Onboarding.sleep)
-    await message.answer("Сколько обычно спишь и как оцениваешь качество сна?")
+    await collect_answer(message, state, "food", Onboarding.sleep, 'Сколько обычно спишь? Можно добавить, как оцениваешь сон.', ('Менее 6 часов', '6–7 часов', '7–8 часов', 'Больше 8 часов'))
 
 @router.message(Onboarding.sleep)
 async def ob_sleep(message: Message, state: FSMContext):
@@ -1853,6 +1907,8 @@ async def ob_sleep(message: Message, state: FSMContext):
     await state.clear()
 
     await message.answer("Профиль готов. Собираю стартовый план…", reply_markup=MAIN_KB)
+    settings = await ensure_notification_settings(uid)
+    await message.answer("Выбери время напоминаний и дни тренировок. Каждое нажатие сохраняется сразу.\n\n" + schedule_text(settings), reply_markup=schedule_keyboard(settings))
     answer = await ask_ai(
         uid,
         "Составь мой стартовый план.",
@@ -1922,37 +1978,55 @@ async def shopping_list(message: Message):
     await send_long_message(message, text)
 
 
+REPORT_STEPS = [
+    ("Питание", "Как сегодня с питанием?", ("По плану", "Частично по плану", "Не по плану")),
+    ("Тренировка", "Что с тренировкой?", ("Выполнена", "День отдыха", "Пропущена")),
+    ("Активность", "Сколько шагов или какая активность была?", ("Менее 5000 шагов", "5000–10000 шагов", "Больше 10000 шагов")),
+    ("Сон", "Сколько часов спал(а)?", ("Менее 6 часов", "6–7 часов", "7–8 часов", "Больше 8 часов")),
+    ("Энергия", "Оцени энергию от 1 до 10.", tuple(str(i) for i in range(1,11))),
+    ("Голод", "Оцени голод от 1 до 10.", tuple(str(i) for i in range(1,11))),
+    ("Самочувствие", "Как самочувствие? Что было сложным?", ("Всё хорошо", "Усталость", "Пропустить")),
+]
+
+
+@router.message(Command("report"))
 @router.message(F.text == "📊 Отчёт")
 async def report_start(message: Message, state: FSMContext):
-    if not await ensure_ready(message): return
+    if not await ensure_ready(message):
+        return
     await state.set_state(Checkin.waiting_report)
-    await message.answer(
-        "Пришли одним сообщением:\n\n"
-        "Питание: …\nТренировка: …\nШаги/активность: …\nСон: … часов\n"
-        "Энергия: …/10\nГолод: …/10\nСамочувствие: …\nЧто было сложным: …"
-    )
+    await state.set_data({"report_step":0, "report_answers":[]})
+    await message.answer(REPORT_STEPS[0][1] + " Можно выбрать кнопку или написать свой ответ.", reply_markup=choice_keyboard(*REPORT_STEPS[0][2]))
+
 
 @router.message(Checkin.waiting_report)
 async def report_finish(message: Message, state: FSMContext):
-    report = message.text.strip()
-    await db_execute(
-        "INSERT INTO checkins(telegram_id, report, created_at) VALUES ($1,$2,$3)",
-        message.from_user.id, report, now_utc()
-    )
+    data = await state.get_data()
+    text = (message.text or "").strip()
+    if not text:
+        await message.answer("Напиши ответ текстом или выбери кнопку.")
+        return
+    # Old sessions used a single free-text report; keep them compatible.
+    if "report_step" in data:
+        index = data["report_step"]
+        label, _, _ = REPORT_STEPS[index]
+        if label in ("Энергия", "Голод") and text not in {str(i) for i in range(1,11)}:
+            await message.answer("Выбери число от 1 до 10.")
+            return
+        answers = data["report_answers"] + [label + ": " + text]
+        if index + 1 < len(REPORT_STEPS):
+            await state.update_data(report_step=index+1, report_answers=answers)
+            await message.answer(REPORT_STEPS[index+1][1], reply_markup=choice_keyboard(*REPORT_STEPS[index+1][2]))
+            return
+        report = "\n".join(answers)
+    else:
+        report = text
+    await db_execute("INSERT INTO checkins(telegram_id, report, created_at) VALUES ($1,$2,$3)", message.from_user.id, report, now_utc())
     await state.clear()
-    answer = await ask_ai(
-        message.from_user.id,
-        report,
-        """
-Это ежедневный отчёт. Ответь:
-Итог дня
-Что получилось
-Что скорректировать — максимум 2 пункта
-Одна задача на завтра
-Будь кратким.
-"""
-    )
+    await message.answer("Отчёт сохранён ✅", reply_markup=MAIN_KB)
+    answer = await ask_ai(message.from_user.id, report, "Это ежедневный отчёт. Кратко: итог дня, что получилось, до двух корректировок и одна задача на завтра.")
     await message.answer(answer, reply_markup=MAIN_KB)
+
 
 @router.message(F.text == "📅 Неделя")
 async def week_summary(message: Message):
@@ -2011,78 +2085,86 @@ async def notification_schedule(message: Message):
     await message.answer(schedule_text(settings), reply_markup=schedule_keyboard(settings))
 
 
-@router.callback_query(F.data == "notify_toggle")
-async def notify_toggle(call: CallbackQuery):
-    await call.answer()
-    settings = await ensure_notification_settings(call.from_user.id)
-    await db_execute(
-        "UPDATE notification_settings SET enabled=$2, updated_at=$3 WHERE telegram_id=$1",
-        call.from_user.id, not settings["enabled"], now_utc()
-    )
-    settings = await ensure_notification_settings(call.from_user.id)
-    await call.message.edit_text(schedule_text(settings), reply_markup=schedule_keyboard(settings))
+async def edit_schedule(call, settings):
+    try:
+        await call.message.edit_text(schedule_text(settings), reply_markup=schedule_keyboard(settings))
+    except TelegramBadRequest as exc:
+        if "message is not modified" not in str(exc).lower():
+            raise
 
 
-@router.callback_query(F.data.startswith("notify_m_"))
-async def notify_morning_time(call: CallbackQuery):
-    await call.answer("Время сохранено")
-    raw = call.data.rsplit("_", 1)[-1]
-    value = f"{raw[:2]}:{raw[2:]}"
-    await db_execute(
-        "UPDATE notification_settings SET morning_time=$2, updated_at=$3 WHERE telegram_id=$1",
-        call.from_user.id, value, now_utc()
-    )
-    settings = await ensure_notification_settings(call.from_user.id)
-    await call.message.edit_text(schedule_text(settings), reply_markup=schedule_keyboard(settings))
-
-
-@router.callback_query(F.data.startswith("notify_e_"))
-async def notify_evening_time(call: CallbackQuery):
-    await call.answer("Время сохранено")
-    raw = call.data.rsplit("_", 1)[-1]
-    value = f"{raw[:2]}:{raw[2:]}"
-    await db_execute(
-        "UPDATE notification_settings SET evening_time=$2, updated_at=$3 WHERE telegram_id=$1",
-        call.from_user.id, value, now_utc()
-    )
-    settings = await ensure_notification_settings(call.from_user.id)
-    await call.message.edit_text(schedule_text(settings), reply_markup=schedule_keyboard(settings))
-
-
-@router.callback_query(F.data.startswith("notify_tz_"))
-async def notify_timezone(call: CallbackQuery):
-    mapping = {
-        "notify_tz_moscow": "Europe/Moscow",
-        "notify_tz_london": "Europe/London",
-        "notify_tz_dubai": "Asia/Dubai",
-        "notify_tz_nsk": "Asia/Novosibirsk",
-    }
-    value = mapping.get(call.data)
-    if not value:
-        await call.answer("Не удалось выбрать часовой пояс")
+@router.callback_query(F.data.startswith("notify_"))
+async def notification_choice(call: CallbackQuery, state: FSMContext):
+    uid = call.from_user.id
+    if not await has_consent(uid) or not await get_profile(uid):
+        await call.answer("Сначала заполни анкету: /start", show_alert=True)
         return
-    await call.answer("Часовой пояс сохранён")
-    await ensure_notification_settings(call.from_user.id)
-    await db_execute(
-        "UPDATE notification_settings SET timezone=$2, updated_at=$3 WHERE telegram_id=$1",
-        call.from_user.id, value, now_utc()
-    )
-    settings = await ensure_notification_settings(call.from_user.id)
-    await call.message.edit_text(schedule_text(settings), reply_markup=schedule_keyboard(settings))
+    current = await state.get_state()
+    if current and not current.startswith("ScheduleInput:"):
+        await call.answer("Закончи текущий ответ или нажми Отмена.", show_alert=True)
+        return
+    settings = await ensure_notification_settings(uid)
+    action = call.data
+    if action == "notify_done":
+        await state.clear()
+        await call.answer("Расписание сохранено")
+        await call.message.answer("Готово. Расписание сохранено; изменить его можно кнопкой ⏰ Расписание.", reply_markup=MAIN_KB)
+        return
+    if action in ("notify_custom_m", "notify_custom_e"):
+        await state.set_state(ScheduleInput.time)
+        await state.update_data(time_field="morning_time" if action.endswith("_m") else "evening_time")
+        await call.answer()
+        await call.message.answer("Введи время в формате ЧЧ:ММ, например 08:30. Использую часовой пояс из расписания.", reply_markup=choice_keyboard())
+        return
+    if action == "notify_toggle":
+        field, value = "enabled", not settings["enabled"]
+    elif re.fullmatch(r"notify_[me]_\d{4}", action):
+        raw = action.rsplit("_",1)[1]
+        if int(raw[:2]) > 23 or int(raw[2:]) > 59:
+            await call.answer("Некорректное время", show_alert=True)
+            return
+        field = "morning_time" if action.startswith("notify_m_") else "evening_time"
+        value = raw[:2] + ":" + raw[2:]
+    elif action.startswith("notify_tz_"):
+        value = {"moscow":"Europe/Moscow", "london":"Europe/London", "dubai":"Asia/Dubai", "nsk":"Asia/Novosibirsk"}.get(action.removeprefix("notify_tz_"))
+        if not value:
+            await call.answer("Этот часовой пояс недоступен")
+            return
+        field = "timezone"
+    elif action == "notify_days_auto":
+        field, value = "workout_days", workout_days_from_frequency((await get_profile(uid))["frequency"])
+    elif re.fullmatch(r"notify_day_[0-6]", action):
+        days = {x for x in (settings["workout_days"] or "").split(",") if x in "0123456" and x}
+        day = action[-1]
+        days.symmetric_difference_update({day})
+        field, value = "workout_days", ",".join(sorted(days))
+    else:
+        await call.answer("Кнопка устарела. Открой ⏰ Расписание заново.")
+        return
+    await db_execute(f"UPDATE notification_settings SET {field}=$2, updated_at=$3 WHERE telegram_id=$1", uid, value, now_utc())
+    await state.clear()
+    await call.answer("Сохранено")
+    await edit_schedule(call, await ensure_notification_settings(uid))
 
 
-@router.callback_query(F.data == "notify_days_auto")
-async def notify_days_auto(call: CallbackQuery):
-    await call.answer("Дни обновлены")
-    await ensure_notification_settings(call.from_user.id)
-    profile = await get_profile(call.from_user.id)
-    days = workout_days_from_frequency(profile["frequency"] if profile else None)
-    await db_execute(
-        "UPDATE notification_settings SET workout_days=$2, updated_at=$3 WHERE telegram_id=$1",
-        call.from_user.id, days, now_utc()
-    )
-    settings = await ensure_notification_settings(call.from_user.id)
-    await call.message.edit_text(schedule_text(settings), reply_markup=schedule_keyboard(settings))
+@router.message(ScheduleInput.time)
+async def schedule_custom_time(message: Message, state: FSMContext):
+    value = (message.text or "").strip()
+    if not re.fullmatch(r"(?:[01]?\d|2[0-3]):[0-5]\d", value):
+        await message.answer("Введи время от 00:00 до 23:59, например 08:30.")
+        return
+    field = (await state.get_data()).get("time_field")
+    if field not in ("morning_time", "evening_time"):
+        await state.clear()
+        await message.answer("Открой ⏰ Расписание и выбери время заново.", reply_markup=MAIN_KB)
+        return
+    value = value.zfill(5)
+    await ensure_notification_settings(message.from_user.id)
+    await db_execute(f"UPDATE notification_settings SET {field}=$2, updated_at=$3 WHERE telegram_id=$1", message.from_user.id, value, now_utc())
+    await state.clear()
+    await message.answer("Время сохранено: " + value, reply_markup=MAIN_KB)
+    settings = await ensure_notification_settings(message.from_user.id)
+    await message.answer(schedule_text(settings), reply_markup=schedule_keyboard(settings))
 
 
 @router.message(Command("team"))
