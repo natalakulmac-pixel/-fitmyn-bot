@@ -906,9 +906,10 @@ def app_week_start(local_date):
     return local_date - timedelta(days=local_date.weekday())
 
 
-def valid_app_week_plan(plan) -> bool:
+def valid_app_week_plan(plan, allowed_ids=None) -> bool:
     if not isinstance(plan, list) or len(plan) != 7:
         return False
+    weekly_ids = {kind: [] for kind in APP_MEAL_TYPE_ORDER}
     for day in plan:
         if not isinstance(day, list) or len(day) != 4:
             return False
@@ -916,11 +917,23 @@ def valid_app_week_plan(plan) -> bool:
             meal = APP_MEAL_CATALOG.get(str(meal_id))
             if not meal or meal["type"] != APP_MEAL_TYPE_ORDER[idx]:
                 return False
+            weekly_ids[APP_MEAL_TYPE_ORDER[idx]].append(str(meal_id))
         # В один день нельзя показывать одно и то же блюдо или фактически одинаковое блюдо.
         ids = [str(x) for x in day]
         names = [APP_MEAL_CATALOG[x]["name"].strip().lower() for x in ids]
         if len(set(ids)) != 4 or len(set(names)) != 4:
             return False
+    if allowed_ids is not None:
+        for kind, selected in weekly_ids.items():
+            available = {
+                meal_id for meal_id in APP_CURATED_WEEK_IDS.get(kind, [])
+                if meal_id in allowed_ids
+            }
+            # Require seven distinct options when the user's restrictions leave
+            # enough eligible dishes in this category. With a smaller pool,
+            # repetitions are unavoidable and the fallback remains usable.
+            if len(available) >= 7 and len(set(selected)) != 7:
+                return False
     return True
 
 
@@ -1016,7 +1029,7 @@ def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: 
     return best_plan
 
 
-def parse_ai_app_plan(answer: str):
+def parse_ai_app_plan(answer: str, allowed_ids=None):
     if not answer:
         return None
     candidates = [answer.strip()]
@@ -1035,7 +1048,7 @@ def parse_ai_app_plan(answer: str):
             continue
         if isinstance(data, dict):
             data = data.get("days") or data.get("plan")
-        if valid_app_week_plan(data):
+        if valid_app_week_plan(data, allowed_ids):
             return data
     return None
 
@@ -1090,7 +1103,7 @@ async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None
 """,
         save_history=False,
     )
-    parsed = parse_ai_app_plan(answer)
+    parsed = parse_ai_app_plan(answer, allowed_ids)
     if parsed and allowed_ids is not None and any(mid not in allowed_ids for day in parsed for mid in day):
         return None
     if parsed and targets:
@@ -1116,7 +1129,7 @@ async def get_app_week_plan(user_id: int, local_date=None):
 async def _upgrade_app_week_plan_with_ai(user_id: int, start_date, fallback_plan, previous_plan=None, allowed_ids=None):
     try:
         ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan, allowed_ids)
-        final_plan = ai_plan if valid_app_week_plan(ai_plan) and (allowed_ids is None or all(mid in allowed_ids for day in ai_plan for mid in day)) else fallback_plan
+        final_plan = ai_plan if valid_app_week_plan(ai_plan, allowed_ids) and (allowed_ids is None or all(mid in allowed_ids for day in ai_plan for mid in day)) else fallback_plan
         source = "v22-unified-ai" if ai_plan else "v22-unified-fallback"
         await db_execute(
             """
@@ -1169,7 +1182,7 @@ async def regenerate_app_week_plan(user_id: int, local_date=None):
     ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan, allowed)
     if ai_plan and any(mid not in allowed for day in ai_plan for mid in day):
         ai_plan = None
-    plan = ai_plan if valid_app_week_plan(ai_plan) else fallback_app_week_plan(
+    plan = ai_plan if valid_app_week_plan(ai_plan, allowed) else fallback_app_week_plan(
         user_id, start_date, salt=str(time.time_ns()), goal_mode=app_goal_mode(profile), allowed_ids=allowed, targets=nutrition_targets(profile)
     )
     source = "v22-unified-manual-ai" if ai_plan else "v22-unified-manual-fallback"
