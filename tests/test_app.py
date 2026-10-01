@@ -40,6 +40,11 @@ class PlanTests(unittest.TestCase):
         for kind in ("light", "cardio", "strength"):
             for place in ("home", "gym"):
                 self.assertEqual(main.workout_plan_for_profile({"restrictions":"беременность"}, kind, place)["exercises"], [])
+    def test_workout_schedule_rotates_types_and_skips_rest_days(self):
+        self.assertEqual(main.workout_type_for_schedule(date(2026, 10, 5), [0, 2, 4]), "strength")
+        self.assertEqual(main.workout_type_for_schedule(date(2026, 10, 7), [0, 2, 4]), "cardio")
+        self.assertEqual(main.workout_type_for_schedule(date(2026, 10, 9), [0, 2, 4]), "strength")
+        self.assertIsNone(main.workout_type_for_schedule(date(2026, 10, 8), [0, 2, 4]))
     def test_dairy_exclusion(self):
         allowed=main.allowed_meal_ids({"food":"Без молочных продуктов"})
         self.assertNotIn("proteinCurdEgg",allowed)
