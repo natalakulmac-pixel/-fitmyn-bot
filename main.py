@@ -337,6 +337,9 @@ async def api_app_meal_image(request: web.Request):
     item = APP_MEAL_CATALOG.get(meal_id)
     if not item:
         return web.Response(status=404)
+    local_image = Path(__file__).parent / "assets" / "meals" / f"{meal_id}.webp"
+    if local_image.is_file():
+        return web.FileResponse(local_image, headers={"Cache-Control": "public, max-age=86400"})
     url = APP_MEAL_IMAGES.get(meal_id)
     if url:
         try:
@@ -500,8 +503,6 @@ async def init_db():
             attempts INTEGER NOT NULL DEFAULT 0, processed BOOLEAN NOT NULL DEFAULT FALSE,
             created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         );
-        CREATE INDEX IF NOT EXISTS idx_messages_user_time ON messages(telegram_id,created_at DESC);
-        CREATE INDEX IF NOT EXISTS idx_checkins_user_time ON checkins(telegram_id,created_at DESC);
 
         CREATE TABLE IF NOT EXISTS users (
             telegram_id BIGINT PRIMARY KEY,
@@ -647,6 +648,8 @@ async def init_db():
         );
         CREATE INDEX IF NOT EXISTS idx_app_payments_user_time
             ON app_payments(telegram_id, created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_messages_user_time ON messages(telegram_id,created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_checkins_user_time ON checkins(telegram_id,created_at DESC);
         """)
 
 async def touch_user(message: Message):
@@ -1711,6 +1714,8 @@ async def start(message: Message, state: FSMContext):
         "Привет! Я FitMyN — ИИ-помощник по питанию, тренировкам и привычкам.\n\n"
         "Я не заменяю врача и не ставлю диагнозы. Для персонализации я сохраняю только данные, "
         "которые ты сам сообщишь: цель, питание, активность, тренировки и ограничения.\n\n"
+        "Для ответа профиль и сообщения передаются внешнему ИИ-провайдеру через OpenRouter или OpenAI. "
+        "Данные хранятся до удаления аккаунта командой /delete_me. Не отправляй медицинские документы.\n\n"
         "Продолжить?",
         reply_markup=CONSENT_KB,
     )
@@ -2371,22 +2376,46 @@ async def telegram_webhook(request: web.Request):
 async def telegram_inbox_worker():
     while True:
         try:
-            row = await db_fetchrow("SELECT * FROM telegram_inbox WHERE NOT processed AND attempts<3 ORDER BY update_id LIMIT 1")
-            if not row:
-                await asyncio.sleep(1)
+            if not pool or not bot:
+                await asyncio.sleep(5)
                 continue
-            await db_execute("UPDATE telegram_inbox SET attempts=attempts+1 WHERE update_id=$1",row["update_id"])
-            payload = row["payload"]
-            if isinstance(payload,str):
-                payload = json.loads(payload)
-            update = Update.model_validate(payload,context={"bot":bot})
-            await dp.feed_update(bot,update)
-            await db_execute("UPDATE telegram_inbox SET processed=TRUE,payload='{}'::jsonb WHERE update_id=$1",row["update_id"])
+            processed = await process_next_inbox_update()
+            if not processed:
+                await asyncio.sleep(1)
         except asyncio.CancelledError:
             raise
         except Exception:
             logger.exception("Telegram inbox processing failed")
             await asyncio.sleep(5)
+
+async def process_next_inbox_update():
+    # Session-level lock serializes consumers during rolling deployments. No row
+    # lock is held: /delete_me must be able to erase its own queued payload.
+    lock_key = 1179209037
+    async with pool.acquire() as conn:
+        locked = await conn.fetchval("SELECT pg_try_advisory_lock($1)", lock_key)
+        if not locked:
+            return False
+        try:
+            row = await conn.fetchrow("SELECT * FROM telegram_inbox WHERE NOT processed AND attempts<3 ORDER BY update_id LIMIT 1")
+            if not row:
+                return False
+            payload = row["payload"]
+            if isinstance(payload, str):
+                payload = json.loads(payload)
+            try:
+                update = Update.model_validate(payload, context={"bot": bot})
+                await dp.feed_update(bot, update)
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                logger.exception("Telegram update failed; attempt %s", row["attempts"] + 1)
+                await conn.execute("UPDATE telegram_inbox SET attempts=attempts+1 WHERE update_id=$1", row["update_id"])
+            else:
+                await conn.execute("UPDATE telegram_inbox SET processed=TRUE,payload='{}'::jsonb WHERE update_id=$1", row["update_id"])
+            return True
+        finally:
+            await conn.execute("SELECT pg_advisory_unlock($1)", lock_key)
 
 def validate_telegram_init_data(init_data: str, max_age_seconds: int = 86400):
     """Validate Telegram Mini App initData and return the Telegram user dict."""

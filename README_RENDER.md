@@ -8,7 +8,7 @@ The Mini App source is mini_app.html; dish recipes are meal_recipes.json. Edit t
 
 Run: python -m unittest discover -s tests -v; node tests/frontend.cjs. GitHub Actions additionally runs mobile Chromium workflows using mocked API responses. These do not test real Telegram Stars billing.
 
-Database tables are created additively during startup. Telegram updates and dialogue state are persisted in PostgreSQL. A single inbox consumer is expected; do not increase instance count without adding queue claims. Delivery is at-least-once; side effects must remain idempotent.
+Database tables are created additively during startup. Telegram updates and dialogue state are persisted in PostgreSQL. Inbox consumers serialize processing with a PostgreSQL session advisory lock, including during overlapping deployments. Keep one service instance; other application state is not designed for horizontal scaling. Delivery is at-least-once; side effects must remain idempotent.
 
 Production requirements still requiring account configuration: move free Postgres to a permanent plan before its expiration, enable external backups, configure paid AI quota, and set Render Health Check Path to /health. render.yaml changes do not automatically update a manually-created service.
 

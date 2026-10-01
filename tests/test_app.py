@@ -15,6 +15,14 @@ class PlanTests(unittest.TestCase):
                     self.assertEqual(meal["id"],mid)
                     self.assertTrue(meal["recipe"])
                     self.assertTrue(all(isinstance(x,list) and len(x)==4 for x in meal["ingredients"]))
+    def test_every_curated_meal_has_distinct_local_image(self):
+        from pathlib import Path
+        import hashlib
+        images = [Path(main.__file__).parent / "assets" / "meals" / (mid + ".webp") for mid in main.APP_CURATED_MEAL_IDS]
+        self.assertEqual(len(images), 28)
+        hashes = {hashlib.sha256(p.read_bytes()).hexdigest() for p in images}
+        self.assertEqual(len(hashes), 28)
+
     def test_restrictions_do_not_get_generic_workout(self):
         plan=main.workout_plan_for_profile({"restrictions":"боль в колене"})
         self.assertEqual(plan["exercises"],[])
