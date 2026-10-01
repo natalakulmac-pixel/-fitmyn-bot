@@ -6,6 +6,8 @@ Required environment variables: TELEGRAM_BOT_TOKEN, DATABASE_URL, WEBHOOK_SECRET
 
 The Mini App source is mini_app.html; dish recipes are meal_recipes.json. Edit these sources directly. Legacy JS patch files are not loaded.
 
+The evening automation sends the next day's personalized menu by 18:00 in the user's configured timezone; each meal has a Telegram Mini App button that opens its recipe card. Morning automation sends the workout or recovery note only. Daily reports are filled one question at a time and separately record food, training, steps/activity, sleep hours, energy, hunger, wellbeing, and the hardest part of the day.
+
 Run: python -m unittest discover -s tests -v; node tests/frontend.cjs. GitHub Actions additionally runs mobile Chromium workflows using mocked API responses. These do not test real Telegram Stars billing.
 
 Database tables are created additively during startup. Telegram updates and dialogue state are persisted in PostgreSQL. Inbox consumers serialize processing with a PostgreSQL session advisory lock, including during overlapping deployments. Keep one service instance; other application state is not designed for horizontal scaling. Delivery is at-least-once; side effects must remain idempotent.
