@@ -1631,14 +1631,22 @@ async def release_notification(log_id: int):
     await db_execute("DELETE FROM notification_log WHERE id=$1", log_id)
 
 
-async def build_daily_auto_plan(user_id: int, local_date, workout_day: bool) -> str:
+def workout_type_for_schedule(local_date, workout_days) -> str | None:
+    days = sorted({int(day) for day in workout_days if str(day).isdigit() and 0 <= int(day) <= 6})
+    if local_date.weekday() not in days:
+        return None
+    cycle = ("strength", "cardio", "strength", "light")
+    return cycle[days.index(local_date.weekday()) % len(cycle)]
+
+
+async def build_daily_auto_plan(user_id: int, local_date, workout_day: bool, workout_type="strength") -> str:
     if not workout_day:
         return "Сегодня день восстановления. Выбери комфортную активность и время для отдыха."
-    plan = workout_plan_for_profile(await get_profile(user_id))
+    plan = workout_plan_for_profile(await get_profile(user_id), workout_type)
     activity = plan["name"] + "\n" + plan["note"] + "\n\n" + "\n".join(f"• {x['name']} — {x['reps']}" for x in plan["exercises"])
     return activity
 
-async def send_morning_plan(user_id: int, local_date, workout_day: bool):
+async def send_morning_plan(user_id: int, local_date, workout_day: bool, workout_type="strength"):
     if not bot:
         return False
     claim = await claim_notification(user_id, "morning", local_date)
@@ -1646,7 +1654,7 @@ async def send_morning_plan(user_id: int, local_date, workout_day: bool):
         return False
     log_id = claim["id"]
     try:
-        activity = await build_daily_auto_plan(user_id, local_date, workout_day)
+        activity = await build_daily_auto_plan(user_id, local_date, workout_day, workout_type)
         await bot.send_message(user_id, activity, reply_markup=MAIN_KB)
         return True
     except Exception:
@@ -1773,7 +1781,8 @@ async def run_due_notifications() -> dict:
                 int(x) for x in settings["workout_days"].split(",")
                 if x.strip().isdigit()
             }
-            if await send_morning_plan(uid, local_date, local_now.weekday() in workout_days):
+            workout_type = workout_type_for_schedule(local_date, workout_days)
+            if await send_morning_plan(uid, local_date, workout_type is not None, workout_type or "strength"):
                 stats["morning_sent"] += 1
 
         if is_due(local_now, settings["evening_time"]):
@@ -2138,9 +2147,29 @@ async def food_menu(message: Message):
 async def workout_menu(message: Message):
     if not await ensure_ready(message):
         return
-    plan = workout_plan_for_profile(await get_profile(message.from_user.id))
-    text = plan["name"] + "\n" + plan["note"] + "\n\n" + "\n".join(f"{i+1}. {x['name']} — {x['reps']}" for i,x in enumerate(plan["exercises"]))
-    await message.answer(text)
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Лёгкая · дома", callback_data="training_light_home"), InlineKeyboardButton(text="Лёгкая · зал", callback_data="training_light_gym")],
+        [InlineKeyboardButton(text="Кардио · дома", callback_data="training_cardio_home"), InlineKeyboardButton(text="Кардио · зал", callback_data="training_cardio_gym")],
+        [InlineKeyboardButton(text="Силовая · дома", callback_data="training_strength_home"), InlineKeyboardButton(text="Силовая · зал", callback_data="training_strength_gym")],
+    ])
+    await message.answer("Выбери тип тренировки и место:", reply_markup=keyboard)
+
+
+@router.callback_query(F.data.startswith("training_"))
+async def workout_choice(call: CallbackQuery):
+    if not await has_consent(call.from_user.id) or not await get_profile(call.from_user.id):
+        await call.answer("Сначала заполни анкету: /start", show_alert=True)
+        return
+    match = re.fullmatch(r"training_(light|cardio|strength)_(home|gym)", call.data or "")
+    if not match:
+        await call.answer("Не удалось определить тренировку", show_alert=True)
+        return
+    plan = workout_plan_for_profile(await get_profile(call.from_user.id), match.group(1), match.group(2))
+    text = plan["name"] + "\n" + plan["note"]
+    if plan["exercises"]:
+        text += "\n\n" + "\n".join(f"{i+1}. {x['name']} — {x['reps']}" for i, x in enumerate(plan["exercises"]))
+    await call.message.answer(text, reply_markup=MAIN_KB)
+    await call.answer()
 
 
 @router.message(Command("mealplan"))
