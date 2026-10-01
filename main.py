@@ -57,7 +57,7 @@ DEFAULT_EVENING_TIME = os.getenv("DEFAULT_EVENING_TIME", "20:30").strip() or "20
 TRIAL_DAYS = 14
 SUBSCRIPTION_STARS = int(os.getenv("SUBSCRIPTION_STARS", "350"))
 SUBSCRIPTION_PERIOD = 30 * 24 * 60 * 60
-APP_BUILD_VERSION = "v27-stability-unified"
+APP_BUILD_VERSION = "v29-personal-nutrition"
 APP_URL = f"{RENDER_EXTERNAL_URL}/app?v={APP_BUILD_VERSION}" if RENDER_EXTERNAL_URL else ""
 MINI_APP_HTML = Path(__file__).with_name("mini_app.html").read_text(encoding="utf-8")
 MINI_APP_MEAL_IMAGE_SOURCES = {'oatmeal': ('Завтрак', 'Овсянка с ягодами и орехами', 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=85'), 'omeletSpinach': ('Завтрак', 'Омлет со шпинатом и томатами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/food_pics_v2/medium/omelette_with_spinach_and_tomatoes.jpg'), 'yogurtGranola': ('Завтрак', 'Греческий йогурт с гранолой и ягодами', 'https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/5/11/sua-chua-2-16837932984001329860943.jpg'), 'avocadoEgg': ('Завтрак', 'Тост с авокадо и яйцом', 'https://claraplate.com/wp-content/uploads/2025/05/Avocado-Toast-with-Egg-1.webp'), 'smoothieBowl': ('Завтрак', 'Смузи-боул с киви и ягодами', 'https://bucket.cooklaif.com/321-coconut-berry-bliss-smoothie-321.jpg'), 'chiaPudding': ('Завтрак', 'Чиа-пудинг с ягодами', 'https://www.gosupps.com/media/catalog/product/cache/25/image/1500x/040ec09b1e35df139433887a97daa66f/8/1/81MPLb09b8L._SL1500_.jpg'), 'cottageBerryBreakfast': ('Завтрак', 'Творог со свежими ягодами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/getinhrkdn5cfwlg7gka'), 'chickenQuinoa': ('Обед', 'Курица с киноа и овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/hrbxuivrdwx4olnrnrrh'), 'turkeyBuckwheat': ('Обед', 'Индейка с гречкой и свежими овощами', 'https://www.arise-app.com/images/dishes/ru/indejka-v-sobstvennom-soku-de5yx9.webp'), 'salmonRice': ('Обед', 'Лосось с рисом и брокколи', 'https://tb-static.uber.com/prod/image-proc/processed_images/bc22ea33e1d4604d3d5054267281f725/d03e52b3c8af19d8fa8222e23efd9cfa.jpeg'), 'tunaPasta': ('Обед', 'Паста с тунцом и томатами', 'https://i.pinimg.com/736x/e2/b0/27/e2b0271e758a703fb77f401ab4fe2c3a.jpg'), 'lentilSoup': ('Обед', 'Чечевичный суп с овощами', 'https://itsonly.recipes/images/recipeimages/lentil-and-vegetable-soup.webp'), 'beefBuckwheat': ('Обед', 'Говядина с гречкой и овощами', 'https://cdn.food.ru/unsigned/fit/640/480/ce/0/czM6Ly9tZWRpYS9waWN0dXJlcy8yMDI2MDMxNy8zcXdqUlQuanBlZw.jpg'), 'chickenSoup': ('Обед', 'Куриный крем-суп с овощами', 'https://www.arise-app.com/images/dishes/ru/kurinyj-kremsup-s-ovosami-pwvyqx.webp'), 'yogurtChia': ('Перекус', 'Йогурт с ягодами и чиа', 'https://diabetesfoodhub.org/sites/foodhub/files/styles/recipe_hero_banner_720w/public/2026-04/mixed-berry-chia-yogurt-bowl.png?h=af9bc2fc&itok=1CTuHlTU'), 'applePeanut': ('Перекус', 'Яблоко с арахисовой пастой', 'https://easylunches.com/cdn/shop/files/white-Photoroom_-_2025-11-10T145821.588.jpg?v=1762808449&width=1512'), 'cottageBanana': ('Перекус', 'Творог с бананом и чиа', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/yjbnpx9ltecafomqyit7'), 'kefirBerries': ('Перекус', 'Кефир со свежими ягодами', 'https://cdn.shopify.com/s/files/1/0555/8661/9426/files/kefir-abnehmen-hero.png?v=1769499265'), 'yogurtNuts': ('Перекус', 'Йогурт с бананом, ягодами и орехами', 'https://www.arise-app.com/images/dishes/en/yogurt-bowl-with-fruit-and-nuts-1rgog6.webp'), 'hummusVeg': ('Перекус', 'Хумус с морковью и огурцом', 'https://img.siterank.app/topic/veggie-sticks-hummus-snack-dish.png'), 'bananaPeanut': ('Перекус', 'Банан с арахисовой пастой', 'https://hips.hearstapps.com/hmg-prod/images/light-healthy-snack-made-from-banana-slices-and-royalty-free-image-913465318-1559057454.jpg?crop=0.607xw%3A0.908xh%3B0.0153xw%2C0.0918xh'), 'salmonBroccoli': ('Ужин', 'Лосось с брокколи и лимоном', 'https://www.reciz.com/img.php?f=lemon-garlic-salmon-broccoli-a-healthy-delight_featured_598.jpg&w=600'), 'codVeg': ('Ужин', 'Запечённая треска с овощами', 'https://mancaregatita.ro/cdn/shop/files/cod_la_tava_cu_legume.png?v=1755085091&width=2048'), 'chickenRoastVeg': ('Ужин', 'Куриная грудка с запечёнными овощами', 'https://www.arise-app.com/images/dishes/de/hahnchenbrust-mit-ofengemuse-17ofd2.webp'), 'turkeyStew': ('Ужин', 'Тушёная индейка с овощами', 'https://snapcalorie-webflow-website.s3.us-east-2.amazonaws.com/media/recipe_pics_v2/medium/hearty_turkey_stew.jpg'), 'shrimpZoodles': ('Ужин', 'Креветки с лапшой из кабачка', 'https://jpimg.com.br/uploads/2023/07/4-receitas-economicas-e-deliciosas-com-frutos-do-mar.jpg'), 'ratatouilleQuinoa': ('Ужин', 'Рататуй с киноа', 'https://itsonly.recipes/images/recipeimages/thumbnails/650/herbed-ratatouille-with-quinoa.webp'), 'turkeyGrillVeg': ('Ужин', 'Индейка-гриль с овощами', 'https://res.cloudinary.com/solin-fitness/image/upload/c_scale%2Cw_800%2Cq_auto%2Cf_auto/single-meal-images/fdohovk0dwhy5oglqdsi')}
@@ -321,6 +321,7 @@ def _meal_details(name: str):
     return ingredients, recipe
 
 MEAL_RECIPES = json.loads(Path(__file__).with_name("meal_recipes.json").read_text(encoding="utf-8"))
+MEAL_NUTRITION = json.loads(Path(__file__).with_name("meal_nutrition.json").read_text(encoding="utf-8"))
 
 def app_meal_payload(meal_id: str):
     item = APP_MEAL_CATALOG[meal_id]
@@ -375,9 +376,112 @@ def serialize_weekly_meal_plan(row):
         for i in range(7)
     ]
 
-def catalog_for_week(row):
-    ids = {mid for day in decode_app_plan(row["plan_json"]) for mid in day}
-    return {mid: app_meal_payload(mid) for mid in ids if mid in APP_MEAL_CATALOG}
+def ingredient_nutrients(ingredients):
+    totals = {"kcal": 0.0, "protein": 0.0, "fat": 0.0, "carbs": 0.0, "fiber":0.0}
+    for ingredient in ingredients:
+        _, name, amount, unit = ingredient
+        data = MEAL_NUTRITION["foods"].get(name)
+        if data is None or unit not in MEAL_NUTRITION["units"]:
+            raise ValueError(f"Нет пищевой ценности для ингредиента: {name}")
+        factor = float(amount) / MEAL_NUTRITION["units"][unit]
+        for key in totals:
+            totals[key] += data.get(key,0) * factor
+    return totals
+
+
+def nutrition_targets(profile):
+    """Conservative adult estimate using Mifflin-St Jeor and self-reported activity."""
+    p = dict(profile or {})
+    weight = _parse_weight_value(p.get("weight"))
+    height = _parse_weight_value(p.get("height"))
+    age = _parse_weight_value(p.get("age"))
+    if not weight or not height or not age or age < 18:
+        return None
+    sex = str(p.get("sex") or "").lower()
+    sex_term = 5 if "муж" in sex else (-161 if "жен" in sex else -78)
+    bmr = 10 * weight + 6.25 * height - 5 * age + sex_term
+    activity = str(p.get("activity") or "").lower()
+    if any(x in activity for x in ("физическ", "очень актив", "спорт", "регулярно")):
+        activity_factor = 1.55
+    elif any(x in activity for x in ("много хожу", "легк", "умерен")):
+        activity_factor = 1.375
+    else:
+        activity_factor = 1.2
+    maintenance = bmr * activity_factor
+    mode = app_goal_mode(profile)
+    bmi = weight / ((height / 100) ** 2)
+    if mode == "loss" and bmi >= 18.5:
+        target = max(bmr, maintenance * 0.85)
+        note = "Оценка с умеренным дефицитом; следи за самочувствием и динамикой веса."
+    elif mode == "loss":
+        target = maintenance
+        note = "При низкой массе тела снижение веса не закладывается; обсуди цель со специалистом."
+    elif mode == "gain":
+        target = maintenance + min(300, maintenance * 0.08)
+        note = "Небольшой ориентировочный избыток энергии."
+    else:
+        target = maintenance
+        note = "Ориентир для поддержания веса."
+    # Moderate macro targets; actual menu macros are calculated from the recipe portions.
+    protein_weight = min(weight, 25 * (height / 100) ** 2) if bmi >= 30 else weight
+    protein = min(1.2 * protein_weight, target * 0.30 / 4)
+    fat = target * 0.25 / 9
+    carbs = max(0, (target - protein * 4 - fat * 9) / 4)
+    return {"kcal": round(target), "protein": round(protein), "fat": round(fat), "carbs": round(carbs), "maintenance_kcal": round(maintenance), "method": "Mifflin–St Jeor; ориентировочная оценка", "note": note}
+
+
+def catalog_for_week(row, profile=None):
+    plan=decode_app_plan(row["plan_json"])
+    ids={mid for day in plan for mid in day}
+    base={mid:app_meal_payload(mid) for mid in ids if mid in APP_MEAL_CATALOG}
+    targets=nutrition_targets(profile)
+    if not targets:
+        for meal in base.values():
+            n=ingredient_nutrients(meal["ingredients"])
+            meal.update({"kcal":round(n["kcal"]),"protein":round(n["protein"]),"fat":round(n["fat"]),"carbs":round(n["carbs"]),"fiber":round(n["fiber"])})
+        return base
+    protein_foods={"Творог","Яйца","Йогурт натуральный","Молоко","Куриная грудка","Филе индейки","Минтай","Сыр"}
+    carb_foods={"Хлеб цельнозерновой","Хлебцы","Гречка сухая","Рис сухой","Овсяные хлопья","Паста сухая","Лапша сухая","Картофель"}
+    produce={"Овощи","Томаты","Морковь","Лук","Капуста","Огурец","Зелень","Яблоко","Банан"}
+    best=None
+    for protein_factor in (0.4,0.5,0.65,0.8,1.0):
+      for carb_factor in (0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.3,2.6):
+       for oil_factor in (0.7,1.0,1.3,1.6,2.0):
+        amounts={}
+        for mid,meal in base.items():
+          adjusted=[]
+          for group,name,amount,unit in meal["ingredients"]:
+            factor=protein_factor if name in protein_foods else carb_factor if name in carb_foods else oil_factor if name=="Масло растительное" else 1.0
+            step=0.5 if unit=="шт" else 5
+            adjusted.append([group,name,max(step,round(float(amount)*factor/step)*step),unit])
+          amounts[mid]=adjusted
+        mean_kcal=sum(sum(ingredient_nutrients(amounts[mid])["kcal"] for mid in day) for day in plan)/len(plan)
+        portion_scale=max(0.8,min(1.6,targets["kcal"]/max(mean_kcal,1)))
+        final_amounts={}
+        for mid,ingredients in amounts.items():
+          final=[]
+          for group,name,amount,unit in ingredients:
+            step=0.5 if unit=="шт" else 5
+            final.append([group,name,max(step,round(float(amount)*portion_scale/step)*step),unit])
+          final_amounts[mid]=final
+        day_scores=[];produce_shortfall=0
+        for day in plan:
+          summary={key:0.0 for key in ("kcal","protein","fat","carbs","fiber")}
+          produce_grams=0
+          for mid in day:
+            values=ingredient_nutrients(final_amounts[mid])
+            for key in summary:summary[key]+=values[key]
+            produce_grams+=sum(float(item[2]) for item in final_amounts[mid] if item[1] in produce)
+          day_scores.append(nutrition_fit_score(summary,targets))
+          produce_shortfall+=max(0,400-produce_grams)/400
+        fiber_shortfall=sum(max(0,25-sum(ingredient_nutrients(final_amounts[mid])["fiber"] for mid in day))/25 for day in plan)/len(plan)
+        score=sum(day_scores)/len(day_scores)+max(day_scores)*0.1+produce_shortfall*0.1+fiber_shortfall*0.8
+        if best is None or score<best[0]:best=(score,final_amounts)
+    for mid,meal in base.items():
+        meal["ingredients"]=best[1][mid]
+        n=ingredient_nutrients(meal["ingredients"])
+        meal.update({"kcal":round(n["kcal"]),"protein":round(n["protein"]),"fat":round(n["fat"]),"carbs":round(n["carbs"]),"fiber":round(n["fiber"])})
+    return base
 
 
 
@@ -867,46 +971,49 @@ def allowed_meal_ids(profile):
             result.add(mid)
     return result
 
-def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: str = "maintain", allowed_ids=None) -> list[list[str]]:
-    pools = {
-        meal_type: [
-            meal_id for meal_id, item in APP_MEAL_CATALOG.items()
-            if meal_id in APP_CURATED_MEAL_IDS and (allowed_ids is None or meal_id in allowed_ids) and item["type"] == meal_type and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"])
-        ]
-        for meal_type in APP_MEAL_TYPE_ORDER
-    }
-    seed_text = f"{user_id}:{start_date.isoformat()}:{salt}"
-    seed = int(hashlib.sha256(seed_text.encode()).hexdigest()[:16], 16)
-    rng = random.Random(seed)
-    ordered = {}
-    for meal_type, choices in pools.items():
-        choices = list(choices)
-        # Приоритет блюдам с большей долей белка, но сохраняем вариативность недели.
-        choices.sort(key=lambda mid: APP_MEAL_CATALOG[mid]["protein"] / max(APP_MEAL_CATALOG[mid]["kcal"], 1), reverse=True)
-        top = choices[:max(10, min(len(choices), 16))]
-        rng.shuffle(top)
-        high = [mid for mid in top if APP_MEAL_CATALOG[mid].get("high_protein")]
-        rest = [mid for mid in top if mid not in high]
-        available = high + rest
-        if not available:
-            raise ValueError("В каталоге нет блюд для указанных пищевых исключений")
-        ordered[meal_type] = [available[i % len(available)] for i in range(7)]
-    plan = [
-        [ordered[meal_type][day_index] for meal_type in APP_MEAL_TYPE_ORDER]
-        for day_index in range(7)
-    ]
-    # Если названия случайно пересеклись между категориями в одном дне, переставляем
-    # блюда внутри соответствующей категории, пока каждый день не станет уникальным.
-    for meal_idx in range(1, 4):
-        for day_idx in range(7):
-            used = {APP_MEAL_CATALOG[plan[day_idx][j]]["name"].strip().lower() for j in range(meal_idx)}
-            if APP_MEAL_CATALOG[plan[day_idx][meal_idx]]["name"].strip().lower() in used:
-                for swap_idx in range(day_idx + 1, 7):
-                    candidate = plan[swap_idx][meal_idx]
-                    if APP_MEAL_CATALOG[candidate]["name"].strip().lower() not in used:
-                        plan[day_idx][meal_idx], plan[swap_idx][meal_idx] = plan[swap_idx][meal_idx], plan[day_idx][meal_idx]
-                        break
-    return plan
+def app_plan_totals(meal_ids):
+    totals = {"kcal": 0.0, "protein": 0.0, "fat": 0.0, "carbs": 0.0}
+    for mid in meal_ids:
+        nutrients = ingredient_nutrients(MEAL_RECIPES[mid]["ingredients"])
+        for key in totals:
+            totals[key] += nutrients[key]
+    return totals
+
+
+def nutrition_fit_score(totals, targets):
+    return sum(abs(totals[key] - targets[key]) / max(targets[key], 1) for key in ("kcal", "protein", "fat", "carbs"))
+
+
+def fallback_app_week_plan(user_id: int, start_date, salt: str = "", goal_mode: str = "maintain", allowed_ids=None, targets=None) -> list[list[str]]:
+    pools={kind:[mid for mid in APP_CURATED_WEEK_IDS[kind] if allowed_ids is None or mid in allowed_ids] for kind in APP_MEAL_TYPE_ORDER}
+    if any(not pool for pool in pools.values()):
+        raise ValueError("Для этих пищевых исключений пока недостаточно блюд. Измени исключения в профиле.")
+    seed_text=f"{user_id}:{start_date.isoformat()}:{salt}"
+    rng=random.Random(int(hashlib.sha256(seed_text.encode()).hexdigest()[:16],16))
+    if not targets:
+        ordered={}
+        for kind,ids in pools.items():
+            values=list(ids);rng.shuffle(values)
+            ordered[kind]=[values[i%len(values)] for i in range(7)]
+        return [[ordered[kind][day] for kind in APP_MEAL_TYPE_ORDER] for day in range(7)]
+
+    nutrients={mid:ingredient_nutrients(MEAL_RECIPES[mid]["ingredients"]) for ids in pools.values() for mid in ids}
+    # Find a varied seven-day rotation that stays near each adult's estimated daily KBJU.
+    best_score=float("inf");best_plan=None
+    for _ in range(6000):
+        rotation={}
+        for kind,ids in pools.items():
+            values=list(ids);rng.shuffle(values)
+            rotation[kind]=[values[i%len(values)] for i in range(7)]
+        candidate=[[rotation[kind][day] for kind in APP_MEAL_TYPE_ORDER] for day in range(7)]
+        scores=[]
+        for day in candidate:
+            daily={key:sum(nutrients[mid][key] for mid in day) for key in ("kcal","protein","fat","carbs")}
+            scores.append(sum(((daily[key]-targets[key])/max(targets[key],1))**2 for key in daily))
+        score=sum(scores)+max(scores)*0.2
+        if score < best_score:
+            best_score=score;best_plan=candidate
+    return best_plan
 
 
 def parse_ai_app_plan(answer: str):
@@ -933,15 +1040,16 @@ def parse_ai_app_plan(answer: str):
     return None
 
 
-async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None):
+async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None, allowed_ids=None):
     if not client:
         return None
     profile = await get_profile(user_id)
     goal_mode = app_goal_mode(profile)
+    targets = nutrition_targets(profile)
     choices = "\n".join(
-        f"{meal_id} | {item['type']} | {item['name']} | {item['kcal']} ккал | Б {item['protein']} Ж {item['fat']} У {item['carbs']} | {item['cook']} мин | бюджетное"
+        f"{meal_id} | {item['type']} | {item['name']} | {round(ingredient_nutrients(MEAL_RECIPES[meal_id]['ingredients'])['kcal'])} ккал | Б {round(ingredient_nutrients(MEAL_RECIPES[meal_id]['ingredients'])['protein'])} Ж {round(ingredient_nutrients(MEAL_RECIPES[meal_id]['ingredients'])['fat'])} У {round(ingredient_nutrients(MEAL_RECIPES[meal_id]['ingredients'])['carbs'])} | {item['cook']} мин | бюджетное"
         for meal_id, item in APP_MEAL_CATALOG.items()
-        if meal_id in APP_CURATED_MEAL_IDS and item["cook"] <= 25 and goal_mode in item.get("goals", ["loss","maintain","gain"]) and item.get("budget", True)
+        if meal_id in APP_CURATED_MEAL_IDS and (allowed_ids is None or meal_id in allowed_ids) and item["cook"] <= 25 and item.get("budget", True)
     )
     previous = json.dumps(previous_plan, ensure_ascii=False) if previous_plan else "нет"
     answer = await ask_ai(
@@ -950,7 +1058,7 @@ async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None
         f"""
 Выбери рацион на 7 дней ТОЛЬКО из библиотеки ниже.
 Учитывай профиль пользователя, его цель, пищевые предпочтения и ограничения.
-Целевой режим: {goal_mode}. Все блюда должны быть доступными и бюджетными: обычные крупы, яйца, творог, курица, индейка, печень, минтай/скумбрия, бобовые, сезонные овощи и фрукты. Не используй дорогие продукты вроде лосося, креветок, киноа, авокадо и чиа.
+Целевой режим: {goal_mode}. Дневной ориентир по КБЖУ из профиля: {targets}. Все блюда должны быть доступными и бюджетными: обычные крупы, яйца, творог, курица, индейка, печень, минтай/скумбрия, бобовые, сезонные овощи и фрукты. Не используй дорогие продукты вроде лосося, креветок, киноа, авокадо и чиа.
 Белок — один из главных приоритетов: каждый основной приём пищи должен содержать полноценный источник белка (курица, индейка, яйца, творог, недорогая рыба или бобовые), а перекусы чаще делай творожными/яичными/йогуртовыми. При близких вариантах выбирай блюдо с большим количеством белка.
 Основные приёмы пищи собирай сбалансированно: белок + овощи + крупа/другой сложный углевод там, где это уместно по БЖУ и цели пользователя. Используй обычные овощи: огурцы, томаты, капусту, морковь, перец, брокколи, кабачок, зелень; крупы: гречка, овсянка, рис, перловка, пшено.
 Рецепты должны быть максимально быстрыми и вкусными: преимущественно 5–25 минут, минимум сложных действий и посуды. Предпочитай омлеты, боулы, салаты, сковороду/духовку, заранее сваренные крупы.
@@ -982,7 +1090,14 @@ async def generate_ai_app_week_plan(user_id: int, start_date, previous_plan=None
 """,
         save_history=False,
     )
-    return parse_ai_app_plan(answer)
+    parsed = parse_ai_app_plan(answer)
+    if parsed and allowed_ids is not None and any(mid not in allowed_ids for day in parsed for mid in day):
+        return None
+    if parsed and targets:
+        for day in parsed:
+            if nutrition_fit_score(app_plan_totals(day), targets) > 0.8:
+                return None
+    return parsed
 
 
 async def get_app_week_plan(user_id: int, local_date=None):
@@ -998,10 +1113,10 @@ async def get_app_week_plan(user_id: int, local_date=None):
     )
 
 
-async def _upgrade_app_week_plan_with_ai(user_id: int, start_date, fallback_plan, previous_plan=None):
+async def _upgrade_app_week_plan_with_ai(user_id: int, start_date, fallback_plan, previous_plan=None, allowed_ids=None):
     try:
-        ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan)
-        final_plan = ai_plan if valid_app_week_plan(ai_plan) else fallback_plan
+        ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan, allowed_ids)
+        final_plan = ai_plan if valid_app_week_plan(ai_plan) and (allowed_ids is None or all(mid in allowed_ids for day in ai_plan for mid in day)) else fallback_plan
         source = "v22-unified-ai" if ai_plan else "v22-unified-fallback"
         await db_execute(
             """
@@ -1033,7 +1148,7 @@ async def ensure_app_week_plan(user_id: int, local_date=None, wait_for_ai: bool 
     existing = await get_app_week_plan(user_id, local_date)
     if existing and valid_app_week_plan(decode_app_plan(existing["plan_json"])) and all(mid in allowed for day in decode_app_plan(existing["plan_json"]) for mid in day):
         return existing
-    plan = fallback_app_week_plan(user_id,start_date,goal_mode=app_goal_mode(profile),allowed_ids=allowed)
+    plan = fallback_app_week_plan(user_id,start_date,goal_mode=app_goal_mode(profile),allowed_ids=allowed,targets=nutrition_targets(profile))
     await db_execute("""INSERT INTO app_week_plans(telegram_id,start_date,end_date,plan_json,source,created_at,updated_at)
         VALUES($1,$2,$3,$4::jsonb,'v27-unified',$5,$5)
         ON CONFLICT(telegram_id,start_date) DO UPDATE SET plan_json=EXCLUDED.plan_json,source=EXCLUDED.source,updated_at=EXCLUDED.updated_at""",
@@ -1049,12 +1164,13 @@ async def regenerate_app_week_plan(user_id: int, local_date=None):
         user_id, start_date
     )
     previous_plan = decode_app_plan(current["plan_json"]) if current else None
-    ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan)
-    allowed = allowed_meal_ids(await get_profile(user_id))
+    profile = await get_profile(user_id)
+    allowed = allowed_meal_ids(profile)
+    ai_plan = await generate_ai_app_week_plan(user_id, start_date, previous_plan, allowed)
     if ai_plan and any(mid not in allowed for day in ai_plan for mid in day):
         ai_plan = None
     plan = ai_plan if valid_app_week_plan(ai_plan) else fallback_app_week_plan(
-        user_id, start_date, salt=str(time.time_ns()), goal_mode=app_goal_mode(await get_profile(user_id)), allowed_ids=allowed
+        user_id, start_date, salt=str(time.time_ns()), goal_mode=app_goal_mode(profile), allowed_ids=allowed, targets=nutrition_targets(profile)
     )
     source = "v22-unified-manual-ai" if ai_plan else "v22-unified-manual-fallback"
     await db_execute(
@@ -1079,12 +1195,13 @@ async def choose_ai_replacement(user_id: int, old_id: str, candidate_ids: list[s
         return None
     old = APP_MEAL_CATALOG[old_id]
     choices = "\n".join(
-        f"{mid} | {APP_MEAL_CATALOG[mid]['name']} | {APP_MEAL_CATALOG[mid]['kcal']} ккал | {APP_MEAL_CATALOG[mid]['cook']} мин"
+        f"{mid} | {APP_MEAL_CATALOG[mid]['name']} | {round(ingredient_nutrients(MEAL_RECIPES[mid]['ingredients'])['kcal'])} ккал | Б {round(ingredient_nutrients(MEAL_RECIPES[mid]['ingredients'])['protein'])} Ж {round(ingredient_nutrients(MEAL_RECIPES[mid]['ingredients'])['fat'])} У {round(ingredient_nutrients(MEAL_RECIPES[mid]['ingredients'])['carbs'])} | {APP_MEAL_CATALOG[mid]['cook']} мин"
         for mid in candidate_ids
     )
+    old_nutrients=ingredient_nutrients(MEAL_RECIPES[old_id]["ingredients"])
     answer = await ask_ai(
         user_id,
-        f"Замени блюдо {old['name']}. Причина: {reason}.",
+        f"Замени блюдо {old['name']}, {round(old_nutrients['kcal'])} ккал, Б {round(old_nutrients['protein'])}, Ж {round(old_nutrients['fat'])}, У {round(old_nutrients['carbs'])}. Причина: {reason}.",
         f"""
 Выбери ОДНО подходящее блюдо на замену из списка ниже.
 Учитывай профиль пользователя, цель, пищевые предпочтения и ограничения.
@@ -2695,7 +2812,8 @@ async def api_app_bootstrap(request: web.Request):
             "shopping_list": active_plan["shopping_list"],
         } if active_plan else None),
         "weeklyMealPlan": serialize_weekly_meal_plan(app_week_plan) if app_week_plan else None,
-        "mealCatalog": catalog_for_week(app_week_plan) if app_week_plan else {},
+        "mealCatalog": catalog_for_week(app_week_plan, profile) if app_week_plan else {},
+        "nutrition_targets": nutrition_targets(profile),
         "app_week_plan": ({
             "start_date": app_week_plan["start_date"].isoformat(),
             "end_date": app_week_plan["end_date"].isoformat(),
@@ -2915,7 +3033,7 @@ async def api_app_week_regenerate(request: web.Request):
         row = await regenerate_app_week_plan(user_id)
         return web.json_response({
             "weeklyMealPlan": serialize_weekly_meal_plan(row),
-            "mealCatalog": catalog_for_week(row),
+            "mealCatalog": catalog_for_week(row, await get_profile(user_id)),
             "source": row["source"],
         })
     except Exception:
@@ -2951,7 +3069,7 @@ async def api_app_replace_meal(request: web.Request):
             "plan": decode_app_plan(row["plan_json"]),
             "source": row["source"],
             "weeklyMealPlan": serialize_weekly_meal_plan(row),
-            "mealCatalog": catalog_for_week(row),
+            "mealCatalog": catalog_for_week(row, await get_profile(user_id)),
         })
     except Exception:
         logger.exception("Mini App meal replacement failed")
