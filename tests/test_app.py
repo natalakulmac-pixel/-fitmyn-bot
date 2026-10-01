@@ -73,6 +73,11 @@ if __name__=="__main__":
     unittest.main()
 
 class AccessTests(unittest.IsolatedAsyncioTestCase):
+    async def test_unexpected_handler_error_reaches_retry_worker(self):
+        event=type("Event",(),{"exception":RuntimeError("temporary outage")})()
+        with self.assertRaises(RuntimeError):
+            await main.handle_expected_error(event)
+
     async def test_no_consent_never_starts_trial(self):
         request=type("Request",(),{"path":"/api/app/weight","headers":{}})()
         handler=AsyncMock()

@@ -2279,7 +2279,7 @@ async def handle_expected_error(event):
         if message:
             await message.answer(str(event.exception) if "пищевых" in str(event.exception) else "Не удалось обработать данные. Проверь ввод и попробуй ещё раз.")
         return True
-    return False
+    raise event.exception
 
 async def setup_telegram():
     if not bot:
